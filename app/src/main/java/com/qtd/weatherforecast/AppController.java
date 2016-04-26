@@ -6,11 +6,13 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.qtd.weatherforecast.utility.SharedPreUtils;
 
 /**
  * Created by Dell on 4/24/2016.
  */
 public class AppController extends Application {
+    private static SharedPreUtils sharedPreferences;
     public static final String TAG = AppController.class.getSimpleName();
     private RequestQueue requestQueue;
     private ImageLoader imageLoader;
@@ -21,6 +23,7 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        sharedPreferences = new SharedPreUtils(getApplicationContext());
     }
 
     public static synchronized AppController getInstance() {
@@ -32,6 +35,10 @@ public class AppController extends Application {
             requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
         return requestQueue;
+    }
+
+    public static SharedPreUtils getSharedPreferences() {
+        return sharedPreferences;
     }
 
     public ImageLoader getImageLoader() {

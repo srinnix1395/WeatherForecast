@@ -1,11 +1,30 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="vpiCirclePageIndicatorStyle">@style/CustomCirclePageIndicator</item>
     </style>
 
+    <style name="CustomCirclePageIndicator">
+        <item name="fillColor">#fff</item>
+        <item name="pageColor">@color/colorGray</item>
+        <item name="strokeColor">@null</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="radius">4dp</item>
+        <item name="centered">true</item>
+    </style>
+
+    <style name="TextViewHighStyle">
+        <item name="android:textSize">16sp</item>
+        <!--<item name="android:textColor">@android:color/white</item>-->
+    </style>
+
+    <style name="TextViewLowStyle">
+        <item name="android:textSize">13sp</item>
+        <!--<item name="android:textColor">@android:color/white</item>-->
+    </style>
 </resources>
