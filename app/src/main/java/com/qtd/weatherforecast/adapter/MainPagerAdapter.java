@@ -4,10 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.qtd.weatherforecast.fragment.CurrentWeatherFragment;
-import com.qtd.weatherforecast.fragment.DaysWeatherFragment;
-import com.qtd.weatherforecast.fragment.HoursWeatherFragment;
-import com.qtd.weatherforecast.fragment.SearchFragment;
+import java.util.ArrayList;
 
 /**
  * Created by Dell on 4/25/2016.
@@ -15,21 +12,24 @@ import com.qtd.weatherforecast.fragment.SearchFragment;
 public class MainPagerAdapter extends FragmentPagerAdapter {
     private static int NUM_ITEMS = 4;
 
-    public MainPagerAdapter(FragmentManager fm) {
+    ArrayList<Fragment> fragments;
+
+    public MainPagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments) {
         super(fm);
+        this.fragments = fragments;
     }
 
     @Override
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new SearchFragment();
+                return fragments.get(0);
             case 1:
-                return new CurrentWeatherFragment();
+                return fragments.get(1);
             case 2:
-                return new HoursWeatherFragment();
+                return fragments.get(2);
             case 3:
-                return new DaysWeatherFragment();
+                return fragments.get(3);
             default:
                 return null;
         }

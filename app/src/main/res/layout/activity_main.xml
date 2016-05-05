@@ -13,58 +13,67 @@
         android:background="@android:color/transparent">
 
         <RelativeLayout
+            android:layout_marginTop="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tv_location"
+                style="@style/TextViewHighStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp" />
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/tv_time"
+                style="@style/TextViewLowStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_location"
-                android:textColor="@color/colorGray"
-                android:textSize="13sp" />
+                android:textSize="16sp"
+                android:textColor="@color/colorGray" />
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/imv_renew"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="30dp"
+                android:layout_marginRight="25dp"
                 android:layout_toLeftOf="@+id/imv_more"
+                android:background="@android:color/transparent"
                 android:src="@drawable/ic_autorenew_white_24dp" />
 
             <ImageView
                 android:id="@+id/imv_more"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="20dp"
                 android:src="@drawable/ic_dots_vertical_white_24dp" />
+            <View
+                android:id="@+id/view_anchor"
+                android:layout_marginTop="3dp"
+                android:layout_marginRight="203dp"
+                android:layout_alignParentEnd="true"
+                android:layout_width="1dp"
+                android:layout_height="1dp"/>
         </RelativeLayout>
+
     </android.support.v7.widget.Toolbar>
 
-    <android.support.v4.view.ViewPager
+    <com.qtd.weatherforecast.custom.CustomViewPager
+        android:layout_marginTop="10dp"
         android:id="@+id/viewPager"
-        android:layout_above="@+id/indicator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar_home">
-    </android.support.v4.view.ViewPager>
+        android:layout_above="@+id/indicator"
+        android:layout_below="@+id/toolbar_home"></com.qtd.weatherforecast.custom.CustomViewPager>
 
     <com.viewpagerindicator.CirclePageIndicator
         android:id="@+id/indicator"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:padding="1dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="15dp"
-        />
-
+        android:padding="1dp" />
 </RelativeLayout>

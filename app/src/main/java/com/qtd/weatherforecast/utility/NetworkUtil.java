@@ -9,20 +9,15 @@ import android.net.ConnectivityManager;
 public class NetworkUtil {
 
     private static NetworkUtil instance;
-    private static Context context;
-
-    public NetworkUtil(Context context) {
-        this.context = context;
-    }
 
     public static synchronized NetworkUtil getInstance() {
         if (instance == null) {
-            instance = new NetworkUtil(context);
+            instance = new NetworkUtil();
         }
         return instance;
     }
 
-    public static boolean isNetworkAvailable() {
+    public boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         return (connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isAvailable() && connectivityManager
                 .getActiveNetworkInfo().isConnected());

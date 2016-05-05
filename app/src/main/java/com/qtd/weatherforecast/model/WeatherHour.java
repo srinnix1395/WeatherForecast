@@ -7,11 +7,14 @@ public class WeatherHour {
     String hour;
     String rain;
     int temp;
+    String url;
 
-    public WeatherHour(String hour, String rain, int temp) {
+
+    public WeatherHour(String hour, String rain, int temp, String url) {
         this.hour = hour;
         this.rain = rain;
         this.temp = temp;
+        this.url = url;
     }
 
     public String getHour() {
@@ -25,4 +28,9 @@ public class WeatherHour {
     public int getTemp() {
         return temp;
     }
+
+    public String getIcon() {
+        return url;
+    }
+
 }

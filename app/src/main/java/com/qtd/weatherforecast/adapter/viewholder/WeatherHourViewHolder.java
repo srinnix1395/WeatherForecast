@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.model.WeatherHour;
+import com.qtd.weatherforecast.utility.ImageUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -37,7 +38,10 @@ public class WeatherHourViewHolder extends RecyclerView.ViewHolder {
 
     public void setupViewHolder(WeatherHour weatherHour) {
         tvHour.setText(weatherHour.getHour());
-        tvRain.setText(weatherHour.getRain());
-        tvTemp.setText(String.valueOf(weatherHour.getTemp()) + "°");
+        if (!weatherHour.getRain().equals("0%")) {
+            tvRain.setText(weatherHour.getRain());
+        }
+        tvTemp.setText(String.valueOf(weatherHour.getTemp()) + "°C");
+        imvIcon.setImageResource(ImageUtils.getImageResource(weatherHour.getIcon()));
     }
 }

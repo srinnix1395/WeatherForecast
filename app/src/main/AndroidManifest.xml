@@ -21,6 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.SearchActivity"
+            android:theme="@style/DialogTheme"/>
         <service android:name=".service.BackgroundService"
             android:enabled="true"
             android:exported="true"/>

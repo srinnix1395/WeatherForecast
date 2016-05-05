@@ -8,12 +8,14 @@ public class WeatherDay {
     String weather;
     int highTemp;
     int lowTemp;
+    String url;
 
-    public WeatherDay(String day, String weather, int highTemp, int lowTemp) {
+    public WeatherDay(String day, String weather, int highTemp, int lowTemp,String url) {
         this.day = day;
         this.weather = weather;
         this.highTemp = highTemp;
         this.lowTemp = lowTemp;
+        this.url = url;
     }
 
     public String getDay() {
@@ -30,5 +32,9 @@ public class WeatherDay {
 
     public int getLowTemp() {
         return lowTemp;
+    }
+
+    public String getIcon() {
+        return url;
     }
 }
