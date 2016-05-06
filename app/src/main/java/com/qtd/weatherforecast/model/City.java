@@ -4,12 +4,12 @@ package com.qtd.weatherforecast.model;
  * Created by Dell on 4/26/2016.
  */
 public class City {
-    int id;
-    String name;
-    int temp;
-    String weather;
-    String coordinate;
-    boolean isChosen;
+    protected int id;
+    protected String name;
+    protected int temp;
+    protected String weather;
+    protected String coordinate;
+    protected boolean isChosen;
 
     public City(int id, String name, int temp, String weather, String coordinate, boolean isChosen) {
         this.id = id;

@@ -42,14 +42,14 @@ public class WeatherDayViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, view);
     }
 
-    public void setupViewHolder(WeatherDay weatherDay, int position) {
+    public void setupViewHolder(WeatherDay weatherDay, boolean isLast) {
         tvDay.setText(weatherDay.getDay());
         tvWeather.setText(weatherDay.getWeather());
         int icon = ImageUtils.getImageResource(weatherDay.getIcon());
         imvIcon.setImageResource(icon);
         tvHighTemp.setText(weatherDay.getHighTemp() + "°C");
         tvLowTemp.setText(weatherDay.getLowTemp() + "°C");
-        if (position == 5) {
+        if (isLast) {
             imvGach.setImageResource(R.drawable.background_gach_trong);
         }
     }

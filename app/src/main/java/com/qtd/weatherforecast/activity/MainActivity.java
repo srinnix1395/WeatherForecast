@@ -2,14 +2,11 @@ package com.qtd.weatherforecast.activity;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
@@ -106,13 +103,13 @@ public class MainActivity extends AppCompatActivity
     private void initComponent() {
         setSupportActionBar(toolbar);
         setupViewPager();
-//        Intent intent = new Intent(MainActivity.this, BackgroundService.class);
-//        startActivity(intent);
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-            }
-        };
+        Intent intent = new Intent(MainActivity.this, BackgroundService.class);
+        startService(intent);
+//        broadcastReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//            }
+//        };
 //        registerBroadcast();
         alertDialog = new AlertDialog.Builder(MainActivity.this)
                 .setMessage("Đã có lỗi trong quá trình xử lý, xin thử lại")
@@ -136,6 +133,7 @@ public class MainActivity extends AppCompatActivity
         viewPager.setAdapter(adapter);
         indicator.setViewPager(viewPager);
         viewPager.setOffscreenPageLimit(4);
+
         int id = SharedPreUtils.getInt("ID", -1);
         if (id == -1) {
             viewPager.setPagingEnabled(false);
@@ -145,17 +143,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void registerBroadcast() {
-        if (!isReceiverRegistered) {
-            LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(BackgroundService.BROADCAST_ACTION));
-            isReceiverRegistered = true;
-        }
+//        if (!isReceiverRegistered) {
+//            LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(BackgroundService.BROADCAST_ACTION));
+//            isReceiverRegistered = true;
+//        }
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        //registerBroadcast();
+//        registerBroadcast();
     }
 
     @Override
@@ -175,7 +173,7 @@ public class MainActivity extends AppCompatActivity
                 updateData();
             } else {
                 new AlertDialog.Builder(MainActivity.this)
-                        .setMessage("Không có kết nối Internet, xin thử lại")
+                        .setMessage("Không có kết nối Internet, xin thử lại sau")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {

@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.qtd.weatherforecast.utility.SharedPreUtils;
 
@@ -15,7 +14,6 @@ public class AppController extends Application {
     private static SharedPreUtils sharedPreferences;
     public static final String TAG = AppController.class.getSimpleName();
     private RequestQueue requestQueue;
-    private ImageLoader imageLoader;
 
     private static AppController instance;
 
@@ -39,14 +37,6 @@ public class AppController extends Application {
 
     public static SharedPreUtils getSharedPreferences() {
         return sharedPreferences;
-    }
-
-    public ImageLoader getImageLoader() {
-        getRequestQueue();
-        if (imageLoader == null) {
-            imageLoader = new ImageLoader(requestQueue, new LruBitmapCache());
-        }
-        return imageLoader;
     }
 
     public void addToRequestQueue(Request request, String tag) {

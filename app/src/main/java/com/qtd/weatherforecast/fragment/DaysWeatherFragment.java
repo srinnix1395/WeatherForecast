@@ -21,12 +21,12 @@ import com.qtd.weatherforecast.adapter.WeatherDayAdapter;
 import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
+import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.utility.NetworkUtil;
 import com.qtd.weatherforecast.utility.SharedPreUtils;
 import com.qtd.weatherforecast.utility.StringUtils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -99,56 +99,68 @@ public class DaysWeatherFragment extends Fragment {
     private void displayData(JSONObject response) {
         weatherDays.clear();
         adapter.notifyDataSetChanged();
-        try {
-            JSONObject forecast = response.getJSONObject("forecast");
-            JSONObject simpleForecast = forecast.getJSONObject("simpleforecast");
-            JSONArray forecastDay = simpleForecast.getJSONArray("forecastday");
-            for (int i = 0; i < 6; i++) {
-                JSONObject object = forecastDay.getJSONObject(i);
-                JSONObject date = object.getJSONObject("date");
-                String weekday = date.getString("weekday");
-                weekday = weekday.substring(5);
-                int highTemp = object.getJSONObject("high").getInt("celsius");
-                int lowTemp = object.getJSONObject("low").getInt("celsius");
-                String weather = object.getString("conditions");
-                String icon = object.getString("icon");
 
-                WeatherDay weatherDay = new WeatherDay(weekday, weather, highTemp, lowTemp, icon);
-                weatherDays.add(weatherDay);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        weatherDays.addAll(ProcessJson.getAllWeatherDays(response));
+//
+//        try {
+//            JSONObject forecast = response.getJSONObject("forecast");
+//            JSONObject simpleForecast = forecast.getJSONObject("simpleforecast");
+//            JSONArray forecastDay = simpleForecast.getJSONArray("forecastday");
+//            for (int i = 0; i < 6; i++) {
+//                JSONObject object = forecastDay.getJSONObject(i);
+//                JSONObject date = object.getJSONObject("date");
+//                String weekday = date.getString("weekday");
+//                weekday = weekday.substring(5);
+//                int highTemp = object.getJSONObject("high").getInt("celsius");
+//                int lowTemp = object.getJSONObject("low").getInt("celsius");
+//                String weather = object.getString("conditions");
+//                String icon = object.getString("icon");
+//
+//                WeatherDay weatherDay = new WeatherDay(weekday, weather, highTemp, lowTemp, icon);
+//                weatherDays.add(weatherDay);
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
         adapter.notifyDataSetChanged();
     }
 
     private void updateDatabase(JSONObject response, boolean isInsert, int idCity) {
-        try {
-            JSONObject forecast = response.getJSONObject("forecast");
-            JSONObject simpleForecast = forecast.getJSONObject("simpleforecast");
-            JSONArray forecastDay = simpleForecast.getJSONArray("forecastday");
-            for (int i = 0; i < 6; i++) {
-                JSONObject object = forecastDay.getJSONObject(i);
-                JSONObject date = object.getJSONObject("date");
-                String weekday = date.getString("weekday");
-                weekday = weekday.substring(5);
-                int highTemp = object.getJSONObject("high").getInt("celsius");
-                int lowTemp = object.getJSONObject("low").getInt("celsius");
-                String weather = object.getString("conditions");
-                String icon = object.getString("icon");
-
-                WeatherDay weatherDay = new WeatherDay(weekday, weather, highTemp, lowTemp, icon);
-
-                if (isInsert) {
-                    databaseHelper.insertWeatherDay(weatherDay, idCity, i);
-                } else {
-                    databaseHelper.updateWeatherDay(weatherDay, idCity, i);
-                }
-
+        ArrayList<WeatherDay> arrDay = ProcessJson.getAllWeatherDays(response);
+        for (int i = 0; i < arrDay.size(); i++) {
+            if (isInsert) {
+                databaseHelper.insertWeatherDay(arrDay.get(i), idCity, i);
+            } else {
+                databaseHelper.updateWeatherDay(arrDay.get(i), idCity, i);
             }
-        } catch (JSONException ex) {
-            ex.printStackTrace();
         }
+
+//        try {
+//            JSONObject forecast = response.getJSONObject("forecast");
+//            JSONObject simpleForecast = forecast.getJSONObject("simpleforecast");
+//            JSONArray forecastDay = simpleForecast.getJSONArray("forecastday");
+//            for (int i = 0; i < 6; i++) {
+//                JSONObject object = forecastDay.getJSONObject(i);
+//                JSONObject date = object.getJSONObject("date");
+//                String weekday = date.getString("weekday");
+//                weekday = weekday.substring(5);
+//                int highTemp = object.getJSONObject("high").getInt("celsius");
+//                int lowTemp = object.getJSONObject("low").getInt("celsius");
+//                String weather = object.getString("conditions");
+//                String icon = object.getString("icon");
+//
+//                WeatherDay weatherDay = new WeatherDay(weekday, weather, highTemp, lowTemp, icon);
+//
+//                if (isInsert) {
+//                    databaseHelper.insertWeatherDay(weatherDay, idCity, i);
+//                } else {
+//                    databaseHelper.updateWeatherDay(weatherDay, idCity, i);
+//                }
+//
+//            }
+//        } catch (JSONException ex) {
+//            ex.printStackTrace();
+//        }
     }
 
     @Override

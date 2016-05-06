@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.model.City;
+import com.qtd.weatherforecast.model.CityPlus;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.model.WeatherHour;
@@ -108,7 +109,40 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         db.setForeignKeyConstraintsEnabled(true);
     }
 
-    public ArrayList<City> getAllCities() {
+    public synchronized CityPlus getCityByID(int idCity) {
+        CityPlus city = new CityPlus();
+        String CITY_SELECT_QUERY =
+                String.format("Select %s.%s,%s,%s.%s,%s.%s,%s,%s,%s.%s from %s,%s where "
+                                + TABLE_CITY + "." + DatabaseConstant.ID_CITY + "=" + TABLE_CURRENT_WEATHER + "." + DatabaseConstant.ID_CITY + " and "
+                                + TABLE_CITY + "." + DatabaseConstant.ID_CITY + "=" + idCity,
+                        TABLE_CITY, DatabaseConstant.ID_CITY,
+                        DatabaseConstant.NAME,
+                        TABLE_CURRENT_WEATHER, DatabaseConstant.WEATHER,
+                        TABLE_CURRENT_WEATHER, DatabaseConstant.TEMP_C,
+                        DatabaseConstant.LATITUDE,
+                        DatabaseConstant.LONGITUDE,
+                        TABLE_CURRENT_WEATHER, DatabaseConstant.ICON,
+                        TABLE_CITY,
+                        TABLE_CURRENT_WEATHER
+                );
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(CITY_SELECT_QUERY, null);
+        if (cursor.moveToNext()) {
+            String name = cursor.getString(cursor.getColumnIndex(DatabaseConstant.NAME));
+            String weather = cursor.getString(cursor.getColumnIndex(DatabaseConstant.WEATHER));
+            int temp = cursor.getInt(cursor.getColumnIndex(DatabaseConstant.TEMP_C));
+            String lat = cursor.getString(cursor.getColumnIndex(DatabaseConstant.LATITUDE));
+            String lon = cursor.getString(cursor.getColumnIndex(DatabaseConstant.LONGITUDE));
+            int id = cursor.getInt(cursor.getColumnIndex(DatabaseConstant.ID_CITY));
+            String icon = cursor.getString(cursor.getColumnIndex(DatabaseConstant.ICON));
+
+            city = new CityPlus(id, name, temp, weather, lat + "," + lon, true, icon);
+        }
+        cursor.close();
+        return city;
+    }
+
+    public synchronized ArrayList<City> getAllCities() {
         ArrayList<City> cities = new ArrayList<>();
         String CITY_SELECT_QUERY =
                 String.format("Select %s.%s,%s,%s.%s,%s.%s,%s,%s from %s,%s where "
@@ -345,7 +379,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateCurrentWeather(CurrentWeather currentWeather, int idCity) {
+    public synchronized void updateCurrentWeather(CurrentWeather currentWeather, int idCity) {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         try {
@@ -370,7 +404,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateWeatherDay(WeatherDay weatherDay, int idCity, int order) {
+    public synchronized void  updateWeatherDay(WeatherDay weatherDay, int idCity, int order) {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         try {
@@ -391,7 +425,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateWeatherHour(WeatherHour weatherHour, int idCity, int order) {
+    public synchronized void updateWeatherHour(WeatherHour weatherHour, int idCity, int order) {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         try {
@@ -445,6 +479,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             String longitude = cursor.getString(cursor.getColumnIndex(DatabaseConstant.LONGITUDE));
             city.setCoordinate(latitude + "," + longitude);
         }
+        cursor.close();
         return city;
     }
 }

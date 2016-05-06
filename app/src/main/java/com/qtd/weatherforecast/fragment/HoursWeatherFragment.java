@@ -21,12 +21,12 @@ import com.qtd.weatherforecast.adapter.WeatherHourAdapter;
 import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
+import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.WeatherHour;
 import com.qtd.weatherforecast.utility.NetworkUtil;
 import com.qtd.weatherforecast.utility.SharedPreUtils;
 import com.qtd.weatherforecast.utility.StringUtils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -101,43 +101,55 @@ public class HoursWeatherFragment extends Fragment{
     public void displayData(JSONObject response) {
         weatherHours.clear();
         adapter.notifyDataSetChanged();
-        try {
-            JSONArray currentObservation = response.getJSONArray("hourly_forecast");
-            for (int i = 0; i < 24; i++) {
-                JSONObject hour = currentObservation.getJSONObject(i);
-                JSONObject fctime = hour.getJSONObject("FCTTIME");
-                JSONObject temp = hour.getJSONObject("temp");
-                String icon = hour.getString("icon");
 
-                WeatherHour weatherHour = new WeatherHour(fctime.getString("hour") + ":00", hour.getString("pop") + "%", temp.getInt("metric"), icon);
-                weatherHours.add(weatherHour);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        weatherHours.addAll(ProcessJson.getAllWeatherHours(response));
+
+//        try {
+//            JSONArray currentObservation = response.getJSONArray("hourly_forecast");
+//            for (int i = 0; i < 24; i++) {
+//                JSONObject hour = currentObservation.getJSONObject(i);
+//                JSONObject fctime = hour.getJSONObject("FCTTIME");
+//                JSONObject temp = hour.getJSONObject("temp");
+//                String icon = hour.getString("icon");
+//
+//                WeatherHour weatherHour = new WeatherHour(fctime.getString("hour") + ":00", hour.getString("pop") + "%", temp.getInt("metric"), icon);
+//                weatherHours.add(weatherHour);
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
         adapter.notifyDataSetChanged();
     }
 
     private void updateDatabase(JSONObject response,boolean isInsert, int idCity) {
-        try {
-            JSONArray currentObservation = response.getJSONArray("hourly_forecast");
-            for (int i = 0; i < 24; i++) {
-                JSONObject hour = currentObservation.getJSONObject(i);
-                JSONObject fctime = hour.getJSONObject("FCTTIME");
-                JSONObject temp = hour.getJSONObject("temp");
-                String icon = hour.getString("icon");
-
-                WeatherHour weatherHour = new WeatherHour(fctime.getString("hour") + ":00", hour.getString("pop") + "%", temp.getInt("metric"), icon);
-                if (isInsert) {
-                    databaseHelper.insertWeatherHour(weatherHour, idCity, i);
-                } else {
-                    databaseHelper.updateWeatherHour(weatherHour, idCity, i);
-                }
-
+        ArrayList<WeatherHour> arrHour = ProcessJson.getAllWeatherHours(response);
+        for (int i = 0; i < arrHour.size(); i++) {
+            if (isInsert) {
+                databaseHelper.insertWeatherHour(arrHour.get(i), idCity, i);
+            } else {
+                databaseHelper.updateWeatherHour(arrHour.get(i), idCity, i);
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
+
+//        try {
+//            JSONArray currentObservation = response.getJSONArray("hourly_forecast");
+//            for (int i = 0; i < 24; i++) {
+//                JSONObject hour = currentObservation.getJSONObject(i);
+//                JSONObject fctime = hour.getJSONObject("FCTTIME");
+//                JSONObject temp = hour.getJSONObject("temp");
+//                String icon = hour.getString("icon");
+//
+//                WeatherHour weatherHour = new WeatherHour(fctime.getString("hour") + ":00", hour.getString("pop") + "%", temp.getInt("metric"), icon);
+//                if (isInsert) {
+//                    databaseHelper.insertWeatherHour(weatherHour, idCity, i);
+//                } else {
+//                    databaseHelper.updateWeatherHour(weatherHour, idCity, i);
+//                }
+//
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override

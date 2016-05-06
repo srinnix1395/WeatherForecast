@@ -30,7 +30,11 @@ public class WeatherDayAdapter extends RecyclerView.Adapter<WeatherDayViewHolder
     @Override
     public void onBindViewHolder(WeatherDayViewHolder holder, int position) {
         WeatherDay weatherDay = weatherDays.get(position);
-        holder.setupViewHolder(weatherDay, position);
+        if (position == weatherDays.size() - 1) {
+            holder.setupViewHolder(weatherDay, true);
+        } else {
+            holder.setupViewHolder(weatherDay, false);
+        }
     }
 
     @Override

@@ -89,7 +89,6 @@ public class SearchActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 loading.show();
                 final Intent intent = new Intent(SearchActivity.this, MainActivity.class);
-                final boolean a[] = new boolean[3];
 
                 urlConditions = StringUtils.getURL("conditions", tzs.get(item.getItemId()));
                 urlForecast10day = StringUtils.getURL("forecast10day",tzs.get(item.getItemId()));

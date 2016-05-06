@@ -1,7 +1,5 @@
 package com.qtd.weatherforecast.fragment;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +20,7 @@ import com.qtd.weatherforecast.activity.MainActivity;
 import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
+import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.utility.ImageUtils;
 import com.qtd.weatherforecast.utility.NetworkUtil;
@@ -80,6 +79,15 @@ public class CurrentWeatherFragment extends Fragment {
         final int id = SharedPreUtils.getInt("ID", -1);
 
         if (id != -1) {
+            CurrentWeather currentWeather = databaseHelper.getCurrentWeather(id);
+            imvIcon.setImageResource(ImageUtils.getImageResourceCurrentWeather(currentWeather.getIcon()));
+            imvIcon.setImageResource(R.drawable.sun_500);
+            tvTemp.setText(currentWeather.getTemp() + "°");
+            tvHumid.setText(currentWeather.getHumidity());
+            tvWeather.setText(currentWeather.getWeather());
+            tvWind.setText(String.valueOf(currentWeather.getWind()) + " km/h");
+            tvUV.setText(String.valueOf(currentWeather.getUV()));
+
             if (NetworkUtil.getInstance().isNetworkAvailable(view.getContext())) {
                 String url = StringUtils.getURL("conditions", SharedPreUtils.getString(ApiConstant.COORDINATE, "-1"));
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, new Response.Listener<JSONObject>() {
@@ -96,33 +104,22 @@ public class CurrentWeatherFragment extends Fragment {
                 });
                 AppController.getInstance().addToRequestQueue(jsonObjectRequest);
                 tvUpdate.setText("Cập nhật lần cuối: vừa xong");
-            } else {
-                CurrentWeather currentWeather = databaseHelper.getCurrentWeather(id);
-//                imvIcon.setImageResource(ImageUtils.getImageResource(currentWeather.getIcon()));
-                imvIcon.setImageResource(R.drawable.sun_500);
-                tvTemp.setText(currentWeather.getTemp() + "°");
-                tvHumid.setText(currentWeather.getHumidity());
-                tvWeather.setText(currentWeather.getWeather());
-                tvWind.setText(String.valueOf(currentWeather.getWind()) + " km/h");
-//                tvUV.setText(String.valueOf(currentWeather.getUV()));
             }
         }
     }
 
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void displayData(JSONObject s) {
         try {
             JSONObject currentObservation = s.getJSONObject("current_observation");
             String icon = currentObservation.getString("icon");
-
-            imvIcon.setImageResource(ImageUtils.getImageResource(icon));
+            imvIcon.setImageResource(ImageUtils.getImageResourceCurrentWeather(icon));
             tvTemp.setText(currentObservation.getString("temp_c") + "°");
             tvHumid.setText(currentObservation.getString("relative_humidity"));
             tvWeather.setText(currentObservation.getString("weather"));
             tvWind.setText(String.valueOf(currentObservation.getString("wind_gust_kph")) + " km/h");
             String day = currentObservation.getString("observation_time_rfc822");
-//            tvUV.setText(currentObservation.getInt("UV"));
+            tvUV.setText(String.valueOf(currentObservation.getInt("UV")));
             //time = StringUtils.getWeekday(day.substring(0, 3)) + ", " + day.substring(17, 22);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -130,28 +127,35 @@ public class CurrentWeatherFragment extends Fragment {
     }
 
     private void updateDatabase(JSONObject response, boolean isInsert, int idCity) {
-        try {
-            JSONObject currentObservation = response.getJSONObject("current_observation");
-            String day = currentObservation.getString("observation_time_rfc822");
-            String timeUpdate = StringUtils.getWeekday(day.substring(0, 3)) + ", " + day.substring(17, 22);
-            int wind = currentObservation.getInt("wind_gust_kph");
-            String humid = currentObservation.getString("relative_humidity");
-            String weather = currentObservation.getString("weather");
-            int tempc = currentObservation.getInt("temp_c");
-            int uv = currentObservation.getInt("UV");
-            int feelslike = currentObservation.getInt("feelslike_c");
-            String icon = currentObservation.getString("icon");
-
-            CurrentWeather currentWeather = new CurrentWeather(icon, tempc, weather, humid, wind, uv, feelslike, timeUpdate);
-
-            if (isInsert) {
-                databaseHelper.insertCurrentWeather(currentWeather, idCity);
-            } else {
-                databaseHelper.updateCurrentWeather(currentWeather, idCity);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        CurrentWeather currentWeather = ProcessJson.getCurrentWeather(response);
+        if (isInsert) {
+            databaseHelper.insertCurrentWeather(currentWeather, idCity);
+        } else {
+            databaseHelper.updateCurrentWeather(currentWeather, idCity);
         }
+//
+//        try {
+//            JSONObject currentObservation = response.getJSONObject("current_observation");
+//            String day = currentObservation.getString("observation_time_rfc822");
+//            String timeUpdate = StringUtils.getWeekday(day.substring(0, 3)) + ", " + day.substring(17, 22);
+//            int wind = currentObservation.getInt("wind_gust_kph");
+//            String humid = currentObservation.getString("relative_humidity");
+//            String weather = currentObservation.getString("weather");
+//            int tempc = currentObservation.getInt("temp_c");
+//            int uv = currentObservation.getInt("UV");
+//            int feelslike = currentObservation.getInt("feelslike_c");
+//            String icon = currentObservation.getString("icon");
+//
+//            CurrentWeather currentWeather = new CurrentWeather(icon, tempc, weather, humid, wind, uv, feelslike, timeUpdate);
+//
+//            if (isInsert) {
+//                databaseHelper.insertCurrentWeather(currentWeather, idCity);
+//            } else {
+//                databaseHelper.updateCurrentWeather(currentWeather, idCity);
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -181,7 +185,7 @@ public class CurrentWeatherFragment extends Fragment {
 
     public void chooseItem(int idCity) {
         CurrentWeather currentWeather = databaseHelper.getCurrentWeather(idCity);
-        imvIcon.setImageResource(ImageUtils.getImageResource(currentWeather.getIcon()));
+        imvIcon.setImageResource(ImageUtils.getImageResourceCurrentWeather(currentWeather.getIcon()));
         tvTemp.setText(String.valueOf(currentWeather.getTemp()) + "°");
         tvHumid.setText(currentWeather.getHumidity());
         tvWeather.setText(currentWeather.getWeather());
@@ -189,6 +193,6 @@ public class CurrentWeatherFragment extends Fragment {
         String day = StringUtils.getWeekday(Calendar.getInstance().get(Calendar.DAY_OF_WEEK));
         String hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" + Calendar.getInstance().get(Calendar.MINUTE);
         time = day + "," + hour;
-//        tvUV.setText(currentWeather.getUV());
+        tvUV.setText(String.valueOf(currentWeather.getUV()));
     }
 }

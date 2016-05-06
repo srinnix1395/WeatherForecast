@@ -6,12 +6,6 @@ import com.qtd.weatherforecast.constant.ApiConstant;
  * Created by Dell on 4/27/2016.
  */
 public class StringUtils {
-
-    public static String getURL(String method, String national, String city) {
-        String url = ApiConstant.URL + ApiConstant.API_KEY + "/" + method + "/lang:VU/q/" + national + "/" + city + ".json";
-        return url;
-    }
-
     public static String getURL(String method, String tz) {
         String url = ApiConstant.URL + ApiConstant.API_KEY + "/" + method + "/lang:VU/q/" + tz + ".json";
         return url;
