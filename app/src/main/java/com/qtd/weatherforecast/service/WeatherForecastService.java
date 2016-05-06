@@ -40,9 +40,9 @@ import java.util.ArrayList;
 /**
  * Created by Dell on 4/25/2016.
  */
-public class BackgroundService extends Service implements Runnable {
+public class WeatherForecastService extends Service implements Runnable {
     public static final String TAG = "BroadcastService";
-    public static final String BROADCAST_ACTION = "com.qtd.weatherforecast";
+    public static final String BROADCAST_ACTION = "com.qtd.weatherforecast.activity.MainActivity";
     public static final int NOTIFICATION_ID = 0;
 
     private final Handler handler = new Handler();
@@ -52,10 +52,10 @@ public class BackgroundService extends Service implements Runnable {
     private String urlConditions;
     private String urlForecast10day;
     private String urlHourly;
-    MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(this);
+    MyDatabaseHelper databaseHelper;
     NotificationCompat.Builder notiBuilder;
 
-    public BackgroundService() {
+    public WeatherForecastService() {
     }
 
     @Override
@@ -66,7 +66,8 @@ public class BackgroundService extends Service implements Runnable {
     @Override
     public void onCreate() {
         super.onCreate();
-//        intent = new Intent(BROADCAST_ACTION);
+        databaseHelper = MyDatabaseHelper.getInstance(this);
+        intent = new Intent(BROADCAST_ACTION);
         createNotification();
     }
 
@@ -81,9 +82,9 @@ public class BackgroundService extends Service implements Runnable {
             remoteViews.setImageViewResource(R.id.imv_icon, ImageUtils.getImageResourceNotification(city.getIcon()));
             remoteViews.setTextViewText(R.id.tv_location, city.getName());
             remoteViews.setTextViewText(R.id.tv_weather, city.getWeather());
-            remoteViews.setTextViewText(R.id.tv_temp, String.valueOf(city.getTemp()) + "º");
+            remoteViews.setTextViewText(R.id.tv_temp, String.valueOf(city.getTemp()) + "°");
             notiBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.cloud_black)
+                    .setSmallIcon(ImageUtils.getImageResourceCurrentWeather(city.getIcon()))
                     .setContent(remoteViews)
                     .setOngoing(true)
                     .setContentIntent(pendingIntent);
@@ -127,7 +128,7 @@ public class BackgroundService extends Service implements Runnable {
                 AppController.getInstance().addToRequestQueue(objectRequest);
             }
         }
-        handler.postDelayed(this, 10000);
+        handler.postDelayed(this, timeDelay);
     }
 
     private void requestHourly(final JSONArray a, final int idCity) {
@@ -155,6 +156,7 @@ public class BackgroundService extends Service implements Runnable {
                 a.put(response);
                 updateDatabase(a, idCity);
                 updateNoti();
+                broadcastToActivity();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -165,6 +167,11 @@ public class BackgroundService extends Service implements Runnable {
         AppController.getInstance().addToRequestQueue(request2);
     }
 
+    private void broadcastToActivity() {
+        intent.putExtra("Update", true);
+        sendBroadcast(intent);
+    }
+
     private void updateNoti() {
         int id = SharedPreUtils.getInt("ID", - 1);
         if (id != -1) {
@@ -172,8 +179,14 @@ public class BackgroundService extends Service implements Runnable {
             RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification);
             remoteViews.setImageViewResource(R.id.imv_icon, ImageUtils.getImageResourceNotification(cityPlus.getIcon()));
             remoteViews.setTextViewText(R.id.tv_weather, cityPlus.getWeather());
-            remoteViews.setTextViewText(R.id.tv_temp, String.valueOf(cityPlus.getTemp()) + "º");
+            remoteViews.setTextViewText(R.id.tv_temp, String.valueOf(cityPlus.getTemp()) + "°");
+            Intent intent = new Intent(this, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            notiBuilder.setSmallIcon(ImageUtils.getImageResourceCurrentWeather(cityPlus.getIcon()));
             notiBuilder.setContent(remoteViews);
+            notiBuilder.setOngoing(true);
+            notiBuilder.setContentIntent(pendingIntent);
+
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(NOTIFICATION_ID, notiBuilder.build());
         }
@@ -197,5 +210,12 @@ public class BackgroundService extends Service implements Runnable {
         }
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (notiBuilder != null) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.cancel(NOTIFICATION_ID);
+        }
+    }
 }

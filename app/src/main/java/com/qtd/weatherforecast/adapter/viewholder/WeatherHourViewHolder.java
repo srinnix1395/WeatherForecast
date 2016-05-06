@@ -41,7 +41,7 @@ public class WeatherHourViewHolder extends RecyclerView.ViewHolder {
         if (!weatherHour.getRain().equals("0%")) {
             tvRain.setText(weatherHour.getRain());
         }
-        tvTemp.setText(String.valueOf(weatherHour.getTemp()) + "°C");
+        tvTemp.setText(String.valueOf(weatherHour.getTemp()) + "°");
         imvIcon.setImageResource(ImageUtils.getImageResource(weatherHour.getIcon()));
     }
 }

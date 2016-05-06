@@ -23,7 +23,7 @@ public class ProcessJson {
                 JSONObject hour = currentObservation.getJSONObject(i);
                 JSONObject fctime = hour.getJSONObject("FCTTIME");
                 JSONObject temp = hour.getJSONObject("temp");
-                String icon = hour.getString("icon");
+                String icon = hour.getString("icon_url");
 
                 WeatherHour weatherHour = new WeatherHour(fctime.getString("hour") + ":00", hour.getString("pop") + "%", temp.getInt("metric"), icon);
                 arrHour.add(weatherHour);
@@ -48,7 +48,7 @@ public class ProcessJson {
                 int highTemp = object.getJSONObject("high").getInt("celsius");
                 int lowTemp = object.getJSONObject("low").getInt("celsius");
                 String weather = object.getString("conditions");
-                String icon = object.getString("icon");
+                String icon = object.getString("icon_url");
 
                 WeatherDay weatherDay = new WeatherDay(weekday, weather, highTemp, lowTemp, icon);
                 arrDays.add(weatherDay);
@@ -71,7 +71,7 @@ public class ProcessJson {
             int tempc = currentObservation.getInt("temp_c");
             int uv = currentObservation.getInt("UV");
             int feelslike = currentObservation.getInt("feelslike_c");
-            String icon = currentObservation.getString("icon");
+            String icon = currentObservation.getString("icon_url");
 
             currentWeather = new CurrentWeather(icon, tempc, weather, humid, wind, uv, feelslike, timeUpdate);
         } catch (JSONException e) {

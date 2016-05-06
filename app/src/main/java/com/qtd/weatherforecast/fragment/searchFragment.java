@@ -169,6 +169,16 @@ public class SearchFragment extends Fragment{
         adapter.notifyDataSetChanged();
     }
 
+    public void getDataFromDatabase() {
+        int id = SharedPreUtils.getInt("ID", -1);
+        if (id != -1) {
+            cities.clear();
+            adapter.notifyDataSetChanged();
+
+            cities.addAll(databaseHelper.getAllCities());
+            adapter.notifyDataSetChanged();
+        }
+    }
     public interface UpdateChosingCityCallback {
         void checkCitySizeToEnableViewPagerSwipe(int idCity);
     }

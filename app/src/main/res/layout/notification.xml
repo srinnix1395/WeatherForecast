@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_weather"
             android:fontFamily="sans-serif"
-            android:textColor="#9F9E9F"
+            android:textColor="@color/colorGrayDark"
             android:textSize="14sp" />
     </RelativeLayout>
 

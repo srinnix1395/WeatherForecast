@@ -1,12 +1,13 @@
 package com.qtd.weatherforecast.activity;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
@@ -29,10 +30,10 @@ import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.custom.CustomViewPager;
 import com.qtd.weatherforecast.fragment.CurrentWeatherFragment;
-import com.qtd.weatherforecast.fragment.DaysWeatherFragment;
-import com.qtd.weatherforecast.fragment.HoursWeatherFragment;
 import com.qtd.weatherforecast.fragment.SearchFragment;
-import com.qtd.weatherforecast.service.BackgroundService;
+import com.qtd.weatherforecast.fragment.WeatherDayFragment;
+import com.qtd.weatherforecast.fragment.WeatherHourFragment;
+import com.qtd.weatherforecast.service.WeatherForecastService;
 import com.qtd.weatherforecast.utility.NetworkUtil;
 import com.qtd.weatherforecast.utility.SharedPreUtils;
 import com.qtd.weatherforecast.utility.StringUtils;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity
     PopupMenu popupMenu;
     ArrayList<Fragment> fragments;
     AlertDialog alertDialog;
-
+    Intent intent;
     boolean isPlus;
     public static final int REQUEST_CODE = 113;
 
@@ -103,14 +104,17 @@ public class MainActivity extends AppCompatActivity
     private void initComponent() {
         setSupportActionBar(toolbar);
         setupViewPager();
-        Intent intent = new Intent(MainActivity.this, BackgroundService.class);
-        startService(intent);
-//        broadcastReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//            }
-//        };
-//        registerBroadcast();
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                updateDatabase();
+            }
+        };
+        registerBroadcast();
+        if (intent == null) {
+            intent = new Intent(MainActivity.this, WeatherForecastService.class);
+            startService(intent);
+        }
         alertDialog = new AlertDialog.Builder(MainActivity.this)
                 .setMessage("Đã có lỗi trong quá trình xử lý, xin thử lại")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -122,13 +126,20 @@ public class MainActivity extends AppCompatActivity
                 .create();
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
+    private void updateDatabase() {
+        ((SearchFragment) adapter.getItem(0)).getDataFromDatabase();
+        ((CurrentWeatherFragment) adapter.getItem(1)).getDataFromDatabase();
+        ((WeatherHourFragment) adapter.getItem(2)).getDataFromDatabase();
+        ((WeatherDayFragment) adapter.getItem(3)).getDataFromDatabase();
+        Log.d("Update", "Ok");
+    }
+
     private void setupViewPager() {
         fragments = new ArrayList<>();
         fragments.add(new SearchFragment());
         fragments.add(new CurrentWeatherFragment());
-        fragments.add(new HoursWeatherFragment());
-        fragments.add(new DaysWeatherFragment());
+        fragments.add(new WeatherHourFragment());
+        fragments.add(new WeatherDayFragment());
         adapter = new MainPagerAdapter(getSupportFragmentManager(), fragments);
         viewPager.setAdapter(adapter);
         indicator.setViewPager(viewPager);
@@ -143,23 +154,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void registerBroadcast() {
-//        if (!isReceiverRegistered) {
-//            LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(BackgroundService.BROADCAST_ACTION));
-//            isReceiverRegistered = true;
-//        }
+        if (!isReceiverRegistered) {
+            registerReceiver(broadcastReceiver, new IntentFilter(WeatherForecastService.BROADCAST_ACTION));
+            isReceiverRegistered = true;
+        }
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-//        registerBroadcast();
+        registerBroadcast();
+
     }
 
     @Override
     protected void onPause() {
-//        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
-//        isReceiverRegistered = false;
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        isReceiverRegistered = false;
         super.onPause();
     }
 
@@ -227,10 +239,10 @@ public class MainActivity extends AppCompatActivity
                 ((CurrentWeatherFragment) adapter.getItem(id)).updateData(s, idCity, isInsert);
                 break;
             case 2:
-                ((HoursWeatherFragment) adapter.getItem(id)).updateData(s, idCity, isInsert);
+                ((WeatherHourFragment) adapter.getItem(id)).updateData(s, idCity, isInsert);
                 break;
             case 3:
-                ((DaysWeatherFragment) adapter.getItem(id)).updateData(s, idCity, isInsert);
+                ((WeatherDayFragment) adapter.getItem(id)).updateData(s, idCity, isInsert);
                 break;
         }
 
@@ -308,8 +320,8 @@ public class MainActivity extends AppCompatActivity
         SharedPreUtils.putString(ApiConstant.COORDINATE, coordinate);
         ((SearchFragment) adapter.getItem(0)).chooseItem(idCity);
         ((CurrentWeatherFragment) adapter.getItem(1)).chooseItem(idCity);
-        ((HoursWeatherFragment) adapter.getItem(2)).chooseItem(idCity);
-        ((DaysWeatherFragment) adapter.getItem(3)).chooseItem(idCity);
+        ((WeatherHourFragment) adapter.getItem(2)).chooseItem(idCity);
+        ((WeatherDayFragment) adapter.getItem(3)).chooseItem(idCity);
     }
 
     @Override

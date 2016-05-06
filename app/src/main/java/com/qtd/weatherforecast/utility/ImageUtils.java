@@ -6,10 +6,10 @@ import com.qtd.weatherforecast.R;
  * Created by Dell on 5/4/2016.
  */
 public class ImageUtils {
-    public static int getImageResource(String icon) {
-//        String[] s = url.split("/");
-//        String[] s2 = s[6].split("\\.");
-        switch (icon) {
+    public static int getImageResource(String url) {
+        String[] s = url.split("/");
+        String[] s2 = s[6].split("\\.");
+        switch (s2[0]) {
             case "chanceflurries":
                 return R.drawable.cloud_drizzle_alt;
             case "nt_chanceflurries":
@@ -77,8 +77,10 @@ public class ImageUtils {
         return R.drawable.shades;
     }
 
-    public static int getImageResourceCurrentWeather(String icon) {
-        switch (icon) {
+    public static int getImageResourceCurrentWeather(String url) {
+        String[] s = url.split("/");
+        String[] s2 = s[6].split("\\.");
+        switch (s2[0]) {
             case "chanceflurries":
                 return R.drawable.cloud_drizzle_alt_500;
             case "nt_chanceflurries":
@@ -146,8 +148,10 @@ public class ImageUtils {
         return 0;
     }
 
-    public static int getImageResourceNotification(String icon) {
-        switch (icon) {
+    public static int getImageResourceNotification(String url) {
+        String[] s = url.split("/");
+        String[] s2 = s[6].split("\\.");
+        switch (s2[0]) {
             case "chanceflurries":
                 return R.drawable.cloud_drizzle_alt_black;
             case "nt_chanceflurries":
