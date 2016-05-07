@@ -25,8 +25,11 @@
             android:theme="@style/DialogTheme"/>
         <service android:name=".service.WeatherForecastService"
             android:enabled="true"
-            android:exported="true"/>
-
+            android:exported="false"/>
+        <service
+            android:name=".service.WeatherIntentService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
