@@ -96,8 +96,9 @@ public class SearchFragment extends Fragment{
         if (isVisibleToUser) {
             ((MainActivity)getActivity()).getImvRenew().setImageResource(R.drawable.ic_plus_white_24dp);
             ((MainActivity) getActivity()).setPlus(true);
-            ((MainActivity) getActivity()).getTvLocation().setText("Vị trí");
-            ((MainActivity) getActivity()).getTvTime().setText("");
+            ((MainActivity) getActivity()).getTv1().setVisibility(View.VISIBLE);
+            ((MainActivity) getActivity()).getTvLocation().setVisibility(View.INVISIBLE);
+            ((MainActivity) getActivity()).getTvTime().setVisibility(View.INVISIBLE);
 
         }
     }
@@ -107,14 +108,15 @@ public class SearchFragment extends Fragment{
         try {
             JSONObject object = new JSONObject(s);
             JSONObject currentObservation = object.getJSONObject("current_observation");
-            JSONObject observationLocation = currentObservation.getJSONObject("observation_location");
-            String name = observationLocation.getString("city");
+            JSONObject displayLocation = currentObservation.getJSONObject("display_location");
+            String name = displayLocation.getString("city");
+            String fullName = displayLocation.getString("full");
             int tempc = currentObservation.getInt("temp_c");
             String weather = currentObservation.getString("weather");
-            String coordinate = observationLocation.getString("latitude") + "," + observationLocation.getString("longitude");
+            String coordinate = displayLocation.getString("latitude") + "," + displayLocation.getString("longitude");
 
             if (isInsert) {
-                City city = new City(0, name, tempc, weather, coordinate, true);
+                City city = new City(0, name, tempc, weather, coordinate, true, fullName);
                 id = databaseHelper.insertCity(city);
                 SharedPreUtils.putInt("ID", (int)id);
                 SharedPreUtils.putString(DatabaseConstant.NAME, name);
@@ -176,6 +178,11 @@ public class SearchFragment extends Fragment{
             adapter.notifyDataSetChanged();
 
             cities.addAll(databaseHelper.getAllCities());
+            for (int i = 0; i < cities.size(); i++) {
+                if (cities.get(i).getId() != id) {
+                    cities.get(i).setChosen(false);
+                }
+            }
             adapter.notifyDataSetChanged();
         }
     }

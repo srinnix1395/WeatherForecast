@@ -67,6 +67,9 @@ public class MainActivity extends AppCompatActivity
     @Bind(R.id.imv_renew)
     ImageView imvRenew;
 
+    @Bind(R.id.tv_1)
+    TextView tv1;
+
     private BroadcastReceiver broadcastReceiver;
     private boolean isReceiverRegistered;
     MainPagerAdapter adapter;
@@ -206,7 +209,8 @@ public class MainActivity extends AppCompatActivity
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.tv_setting:
-                        Log.d("setting", "");
+                        Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+                        startActivity(intent);
                         break;
                     case R.id.tv_info:
                         Log.d("info", "");
@@ -330,6 +334,10 @@ public class MainActivity extends AppCompatActivity
             viewPager.setPagingEnabled(false);
             indicator.setVisibility(View.INVISIBLE);
         }
+    }
+
+    public TextView getTv1() {
+        return tv1;
     }
 }
 

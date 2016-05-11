@@ -6,8 +6,8 @@ package com.qtd.weatherforecast.model;
 public class CityPlus extends City {
     private String icon;
 
-    public CityPlus(int id, String name, int temp, String weather, String coordinate, boolean isChosen, String icon) {
-        super(id, name, temp, weather, coordinate, isChosen);
+    public CityPlus(int id, String name, int temp, String weather, String coordinate, boolean isChosen, String fullName, String icon) {
+        super(id, name, temp, weather, coordinate, isChosen, fullName);
         this.icon = icon;
     }
 

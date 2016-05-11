@@ -49,6 +49,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 "(" +
                 DatabaseConstant.ID_CITY + " INTEGER PRIMARY KEY , " + // Define a primary key
                 DatabaseConstant.NAME + " NVARCHAR(100) ," +
+                DatabaseConstant.FULLNAME + " NVARCHAR(100) ," +
                 DatabaseConstant.LATITUDE + " NVARCHAR(50) ," +
                 DatabaseConstant.LONGITUDE + " NVARCHAR(50))";
 
@@ -112,11 +113,12 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public synchronized CityPlus getCityByID(int idCity) {
         CityPlus city = new CityPlus();
         String CITY_SELECT_QUERY =
-                String.format("Select %s.%s,%s,%s.%s,%s.%s,%s,%s,%s.%s from %s,%s where "
+                String.format("Select %s.%s,%s,%s,%s.%s,%s.%s,%s,%s,%s.%s from %s,%s where "
                                 + TABLE_CITY + "." + DatabaseConstant.ID_CITY + "=" + TABLE_CURRENT_WEATHER + "." + DatabaseConstant.ID_CITY + " and "
                                 + TABLE_CITY + "." + DatabaseConstant.ID_CITY + "=" + idCity,
                         TABLE_CITY, DatabaseConstant.ID_CITY,
                         DatabaseConstant.NAME,
+                        DatabaseConstant.FULLNAME,
                         TABLE_CURRENT_WEATHER, DatabaseConstant.WEATHER,
                         TABLE_CURRENT_WEATHER, DatabaseConstant.TEMP_C,
                         DatabaseConstant.LATITUDE,
@@ -129,6 +131,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(CITY_SELECT_QUERY, null);
         if (cursor.moveToNext()) {
             String name = cursor.getString(cursor.getColumnIndex(DatabaseConstant.NAME));
+            String fullName = cursor.getString(cursor.getColumnIndex(DatabaseConstant.FULLNAME));
             String weather = cursor.getString(cursor.getColumnIndex(DatabaseConstant.WEATHER));
             int temp = cursor.getInt(cursor.getColumnIndex(DatabaseConstant.TEMP_C));
             String lat = cursor.getString(cursor.getColumnIndex(DatabaseConstant.LATITUDE));
@@ -136,7 +139,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             int id = cursor.getInt(cursor.getColumnIndex(DatabaseConstant.ID_CITY));
             String icon = cursor.getString(cursor.getColumnIndex(DatabaseConstant.ICON));
 
-            city = new CityPlus(id, name, temp, weather, lat + "," + lon, true, icon);
+            city = new CityPlus(id, name, temp, weather, lat + "," + lon, true,fullName, icon);
         }
         cursor.close();
         return city;
@@ -145,10 +148,11 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public synchronized ArrayList<City> getAllCities() {
         ArrayList<City> cities = new ArrayList<>();
         String CITY_SELECT_QUERY =
-                String.format("Select %s.%s,%s,%s.%s,%s.%s,%s,%s from %s,%s where "
+                String.format("Select %s.%s,%s,%s,%s.%s,%s.%s,%s,%s from %s,%s where "
                         + TABLE_CITY + "." + DatabaseConstant.ID_CITY + "=" + TABLE_CURRENT_WEATHER + "." + DatabaseConstant.ID_CITY,
                         TABLE_CITY, DatabaseConstant.ID_CITY,
                         DatabaseConstant.NAME,
+                        DatabaseConstant.FULLNAME,
                         TABLE_CURRENT_WEATHER, DatabaseConstant.WEATHER,
                         TABLE_CURRENT_WEATHER, DatabaseConstant.TEMP_C,
                         DatabaseConstant.LATITUDE,
@@ -161,13 +165,14 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         try {
             while (cursor.moveToNext()) {
                 String name = cursor.getString(cursor.getColumnIndex(DatabaseConstant.NAME));
+                String fullName = cursor.getString(cursor.getColumnIndex(DatabaseConstant.FULLNAME));
                 String weather = cursor.getString(cursor.getColumnIndex(DatabaseConstant.WEATHER));
                 int temp = cursor.getInt(cursor.getColumnIndex(DatabaseConstant.TEMP_C));
                 String lat = cursor.getString(cursor.getColumnIndex(DatabaseConstant.LATITUDE));
                 String lon = cursor.getString(cursor.getColumnIndex(DatabaseConstant.LONGITUDE));
                 int id = cursor.getInt(cursor.getColumnIndex(DatabaseConstant.ID_CITY));
 
-                City city = new City(id, name, temp, weather, lat + "," + lon, true);
+                City city = new City(id, name, temp, weather, lat + "," + lon, true, fullName);
                 cities.add(city);
             }
         } catch (Exception e) {
@@ -294,6 +299,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
             ContentValues contentValues = new ContentValues();
             contentValues.put(DatabaseConstant.NAME, city.getName());
+            contentValues.put(DatabaseConstant.FULLNAME, city.getFullName());
             String[] temp = city.getCoordinate().split(",");
             contentValues.put(DatabaseConstant.LATITUDE, temp[0]);
             contentValues.put(DatabaseConstant.LONGITUDE, temp[1]);
@@ -463,9 +469,10 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     public City getFirstCity() {
         SQLiteDatabase db = getReadableDatabase();
-        String sql = String.format("Select %s,%s,%s,%s from %s",
+        String sql = String.format("Select %s,%s,%s,%s,%s from %s",
                 DatabaseConstant.ID_CITY,
                 DatabaseConstant.NAME,
+                DatabaseConstant.FULLNAME,
                 DatabaseConstant.LATITUDE,
                 DatabaseConstant.LONGITUDE,
                 TABLE_CITY
@@ -474,6 +481,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         City city = new City();
         if (cursor.moveToNext()) {
             city.setId(cursor.getInt(cursor.getColumnIndex(DatabaseConstant.ID_CITY)));
+            city.setFullName(cursor.getString(cursor.getColumnIndex(DatabaseConstant.FULLNAME)));
             city.setName(cursor.getString(cursor.getColumnIndex(DatabaseConstant.NAME)));
             String latitude = cursor.getString(cursor.getColumnIndex(DatabaseConstant.LATITUDE));
             String longitude = cursor.getString(cursor.getColumnIndex(DatabaseConstant.LONGITUDE));

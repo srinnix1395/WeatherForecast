@@ -10,14 +10,16 @@ public class City {
     protected String weather;
     protected String coordinate;
     protected boolean isChosen;
+    protected String fullName;
 
-    public City(int id, String name, int temp, String weather, String coordinate, boolean isChosen) {
+    public City(int id, String name, int temp, String weather, String coordinate, boolean isChosen, String fullName) {
         this.id = id;
         this.name = name;
         this.temp = temp;
         this.weather = weather;
         this.coordinate = coordinate;
         this.isChosen = isChosen;
+        this.fullName = fullName;
     }
 
     public City(int id, String name, String coordinate) {
@@ -79,5 +81,13 @@ public class City {
 
     public void setWeather(String weather) {
         this.weather = weather;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }

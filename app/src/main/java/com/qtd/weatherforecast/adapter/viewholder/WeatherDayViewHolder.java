@@ -51,6 +51,8 @@ public class WeatherDayViewHolder extends RecyclerView.ViewHolder {
         tvLowTemp.setText(weatherDay.getLowTemp() + "°");
         if (isLast) {
             imvGach.setImageResource(R.drawable.background_gach_trong);
+        } else {
+            imvGach.setImageResource(R.drawable.background_gach_gray);
         }
     }
 }

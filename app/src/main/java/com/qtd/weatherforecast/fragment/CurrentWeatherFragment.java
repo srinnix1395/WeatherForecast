@@ -121,7 +121,10 @@ public class CurrentWeatherFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             ((MainActivity) getActivity()).getTvTime().setText(time);
-            ((MainActivity) getActivity()).getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
+                ((MainActivity) getActivity()).getTvTime().setVisibility(View.VISIBLE);
+            ((MainActivity) getActivity()).getTv1().setVisibility(View.INVISIBLE);
+            ((MainActivity) getActivity()).getTvLocation().setVisibility(View.VISIBLE);
+            ((MainActivity) getActivity()).getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
             ((MainActivity) getActivity()).getImvRenew().setImageResource(R.drawable.ic_autorenew_white_24dp);
             ((MainActivity) getActivity()).setPlus(false);
         }

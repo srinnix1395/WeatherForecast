@@ -23,13 +23,10 @@
         </activity>
         <activity android:name=".activity.SearchActivity"
             android:theme="@style/DialogTheme"/>
+        <activity android:name=".activity.SettingActivity"/>
         <service android:name=".service.WeatherForecastService"
             android:enabled="true"
             android:exported="false"/>
-        <service
-            android:name=".service.WeatherIntentService"
-            android:enabled="true"
-            android:exported="false" />
     </application>
 
 </manifest>

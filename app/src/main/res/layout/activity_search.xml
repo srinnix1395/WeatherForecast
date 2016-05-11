@@ -4,29 +4,34 @@
     android:layout_height="match_parent"
     android:background="@color/blackFade"
     android:orientation="vertical">
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:background="@color/colorGrayDark"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/colorGrayDark">
+
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
             <EditText
-                style="@style/EditTextStyle"
                 android:id="@+id/et_location"
-                android:hint="Nhập thành phố"
-                android:layout_marginRight="30dp"
+                style="@style/EditTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                />
+                android:layout_marginRight="30dp"
+                android:hint="Nhập thành phố">
+
+                <requestFocus />
+            </EditText>
         </RelativeLayout>
 
     </android.support.v7.widget.Toolbar>
+
     <View
-        android:layout_below="@+id/toolbar"
         android:id="@+id/view_anchor"
         android:layout_width="1dp"
         android:layout_height="1dp"
-        />
+        android:layout_below="@+id/toolbar" />
 </RelativeLayout>

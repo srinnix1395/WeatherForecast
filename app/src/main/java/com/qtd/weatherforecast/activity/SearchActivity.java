@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.android.volley.Request;
@@ -59,7 +58,6 @@ public class SearchActivity extends AppCompatActivity {
     ProgressDialog loading;
     public static final int RESULT_CODE = 114;
     AlertDialog alertDialog;
-    ;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,7 +68,7 @@ public class SearchActivity extends AppCompatActivity {
         getWindow().setGravity(Gravity.TOP);
         ButterKnife.bind(this);
         initComponent();
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
     private void initComponent() {
@@ -220,7 +218,7 @@ public class SearchActivity extends AppCompatActivity {
                             JSONArray array = response.getJSONArray("RESULTS");
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject object = array.getJSONObject(i);
-                                if (object.length() == 10) {
+                                if ((object.length() == 10 || object.length() == 9) && object.getString("type").equals("city") ) {
                                     tzs.add(object.getString("lat") + "," + object.getString("lon"));
                                     popupMenu.getMenu().add(1,i,i,object.getString("name"));
                                 }

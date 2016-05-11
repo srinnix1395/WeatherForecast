@@ -6,6 +6,7 @@ package com.qtd.weatherforecast.constant;
 public class DatabaseConstant {
     public static final String ID_CITY = "id_city";
     public static final String NAME = "name";
+    public static final String FULLNAME = "full_name";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
     public static final String ID_CURRENT_WEATHER = "id_current_weather";
