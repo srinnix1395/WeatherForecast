@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.android.volley.Request;
@@ -68,7 +69,7 @@ public class SearchActivity extends AppCompatActivity {
         getWindow().setGravity(Gravity.TOP);
         ButterKnife.bind(this);
         initComponent();
-//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
     private void initComponent() {
@@ -91,7 +92,7 @@ public class SearchActivity extends AppCompatActivity {
                 urlConditions = StringUtils.getURL("conditions", tzs.get(item.getItemId()));
                 urlForecast10day = StringUtils.getURL("forecast10day",tzs.get(item.getItemId()));
                 urlHourly = StringUtils.getURL("hourly", tzs.get(item.getItemId()));
-
+                Log.d("search", tzs.get(item.getItemId()));
                 alertDialog = new AlertDialog.Builder(SearchActivity.this)
                         .setMessage("Đã có lỗi trong quá trình xử lý, xin thử lại")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {

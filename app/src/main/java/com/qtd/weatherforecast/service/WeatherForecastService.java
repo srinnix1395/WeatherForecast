@@ -191,7 +191,6 @@ public class WeatherForecastService extends Service {
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(NOTIFICATION_ID, notiBuilder.build());
         }
-
     }
 
     private void updateDatabase(JSONArray a, int idCity) {

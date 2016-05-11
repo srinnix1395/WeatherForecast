@@ -21,10 +21,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="30dp"
-                android:hint="Nhập thành phố">
+                android:hint="Nhập thành phố" />
 
-                <requestFocus />
-            </EditText>
         </RelativeLayout>
 
     </android.support.v7.widget.Toolbar>

@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                updateDatabase();
+                getDataFromDatabase();
             }
         };
         registerBroadcast();
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity
                 .create();
     }
 
-    private void updateDatabase() {
+    private void getDataFromDatabase() {
         ((SearchFragment) adapter.getItem(0)).getDataFromDatabase();
         ((CurrentWeatherFragment) adapter.getItem(1)).getDataFromDatabase();
         ((WeatherHourFragment) adapter.getItem(2)).getDataFromDatabase();
@@ -152,6 +152,9 @@ public class MainActivity extends AppCompatActivity
         if (id == -1) {
             viewPager.setPagingEnabled(false);
             indicator.setVisibility(View.INVISIBLE);
+            viewPager.setCurrentItem(0);
+        } else {
+            viewPager.setCurrentItem(1);
         }
 
     }
