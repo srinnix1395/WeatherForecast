@@ -7,8 +7,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 import com.qtd.weatherforecast.R;
+import com.qtd.weatherforecast.utils.SharedPreUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -20,6 +23,9 @@ import butterknife.OnClick;
 public class SettingActivity extends AppCompatActivity {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
+
+    @Bind(R.id.switch_notification)
+    Switch aSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +47,16 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    SharedPreUtils.putBoolean("notification", true);
+                } else {
+                    SharedPreUtils.putBoolean("notification", false);
+                }
+            }
+        });
     }
 
     @OnClick(R.id.imv_logo)

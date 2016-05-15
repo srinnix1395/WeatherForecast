@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -73,6 +74,9 @@ public class MainActivity extends AppCompatActivity
     @Bind(R.id.tv_1)
     TextView tv1;
 
+    @Bind(R.id.layout_location)
+    RelativeLayout layoutLocation;
+
     private BroadcastReceiver broadcastReceiver;
     private boolean isReceiverRegistered;
     MainPagerAdapter adapter;
@@ -82,7 +86,6 @@ public class MainActivity extends AppCompatActivity
     Intent intent;
     boolean isPlus;
     public static final int REQUEST_CODE = 113;
-    Animation rotation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,22 +93,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         initComponent();
-    }
-
-    public void setPlus(boolean plus) {
-        isPlus = plus;
-    }
-
-    public ImageView getImvRenew() {
-        return imvRenew;
-    }
-
-    public TextView getTvLocation() {
-        return tvLocation;
-    }
-
-    public TextView getTvTime() {
-        return tvTime;
     }
 
     private void initComponent() {
@@ -135,9 +122,6 @@ public class MainActivity extends AppCompatActivity
                 })
                 .create();
 
-        rotation = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation);
-        rotation.setRepeatCount(Animation.INFINITE);
-
         imvRenew.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -145,14 +129,13 @@ public class MainActivity extends AppCompatActivity
                     case MotionEvent.ACTION_DOWN: {
                         ImageView imageView = (ImageView) v;
                         imageView.setBackgroundResource(R.drawable.circle_button);
-                        imageView.invalidate();
+                        renewOnClick();
                         break;
                     }
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL: {
                         ImageView imageView = (ImageView) v;
                         imageView.setBackground(null);
-                        imageView.invalidate();
                         break;
                     }
                 }
@@ -214,13 +197,13 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
     }
 
-    @OnClick(R.id.imv_renew)
     void renewOnClick() {
         if (isPlus) {
             Intent intent = new Intent(MainActivity.this, SearchActivity.class);
             startActivityForResult(intent, REQUEST_CODE);
         } else {
             if (NetworkUtil.getInstance().isNetworkAvailable(MainActivity.this)) {
+                Animation rotation = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation);
                 imvRenew.startAnimation(rotation);
                 updateData();
             } else {
@@ -368,6 +351,8 @@ public class MainActivity extends AppCompatActivity
         ((CurrentWeatherFragment) adapter.getItem(1)).chooseItem(idCity);
         ((WeatherHourFragment) adapter.getItem(2)).chooseItem(idCity);
         ((WeatherDayFragment) adapter.getItem(3)).chooseItem(idCity);
+
+
     }
 
     @Override
@@ -378,8 +363,41 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (popupMenu != null) {
+            popupMenu.dismiss();
+        }
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+    }
+
     public TextView getTv1() {
         return tv1;
+    }
+
+    public void setPlus(boolean plus) {
+        isPlus = plus;
+    }
+
+    public boolean isPlus() {
+        return isPlus;
+    }
+
+    public ImageView getImvRenew() {
+        return imvRenew;
+    }
+
+    public TextView getTvLocation() {
+        return tvLocation;
+    }
+
+    public TextView getTvTime() {
+        return tvTime;
+    }
+
+    public RelativeLayout getLayoutLocation() {
+        return layoutLocation;
     }
 }
 

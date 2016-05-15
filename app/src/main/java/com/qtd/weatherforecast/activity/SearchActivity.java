@@ -146,7 +146,7 @@ public class SearchActivity extends AppCompatActivity {
         loading = new ProgressDialog(this);
         loading.setIndeterminate(true);
         loading.setTitle("Đang xử lý...");
-
+        loading.setCanceledOnTouchOutside(false);
     }
 
     private void requestHourly(final Intent intent) {

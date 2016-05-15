@@ -62,7 +62,7 @@ public class WeatherForecastService extends Service {
     public void onCreate() {
         super.onCreate();
         databaseHelper = MyDatabaseHelper.getInstance(this);
-        //createNotification();
+        createNotification();
     }
 
     private void createNotification() {
@@ -155,7 +155,7 @@ public class WeatherForecastService extends Service {
                 Log.d("forecast10day", response.toString());
                 a.put(response);
                 updateDatabase(a, idCity);
-                //updateNoti();
+                updateNoti();
                 broadcastToActivity();
             }
         }, new Response.ErrorListener() {
@@ -214,7 +214,7 @@ public class WeatherForecastService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIFICATION_ID);
     }
 }

@@ -6,6 +6,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -82,6 +85,9 @@ public class CurrentWeatherFragment extends Fragment {
             tvWind.setText(String.valueOf(currentWeather.getWind()) + " km/h");
             tvUV.setText(String.valueOf(currentWeather.getUV()));
             tvFeel.setText(String.valueOf(currentWeather.getFeelslike()) + "°");
+            time = StringUtils.getCurrentDateTime(currentWeather.getTime());
+            ((MainActivity) getActivity()).getTvTime().setText(time);
+            ((MainActivity) getActivity()).getTvTime().setVisibility(View.VISIBLE);
         }
     }
 
@@ -117,12 +123,67 @@ public class CurrentWeatherFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            ((MainActivity) getActivity()).getTvTime().setText(time);
+            if (((MainActivity) getActivity()).isPlus()) {
+                Animation rotation1 = AnimationUtils.loadAnimation(view.getContext(), R.anim.clockwise_rotation_finite1);
+                Animation fadeOut = AnimationUtils.loadAnimation(view.getContext(), R.anim.fade_out);
+                AnimationSet set1 = new AnimationSet(false);
+                set1.addAnimation(rotation1);
+                set1.addAnimation(fadeOut);
+                set1.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        ((MainActivity) getActivity()).getImvRenew().setImageResource(R.drawable.ic_autorenew_white_24dp);
+                        Animation rotation2 = AnimationUtils.loadAnimation(view.getContext(), R.anim.clockwise_rotation_finite2);
+                        Animation fadeIn = AnimationUtils.loadAnimation(view.getContext(), R.anim.fade_in);
+                        AnimationSet set2 = new AnimationSet(false);
+                        set2.addAnimation(fadeIn);
+                        set2.addAnimation(rotation2);
+                        ((MainActivity) getActivity()).getImvRenew().startAnimation(set2);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+                ((MainActivity) getActivity()).getImvRenew().startAnimation(set1);
+
+                Animation animationUp = AnimationUtils.loadAnimation(view.getContext(), R.anim.translate_up);
+                animationUp.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        ((MainActivity) getActivity()).getTvTime().setText(time);
+                        ((MainActivity) getActivity()).getTvTime().setVisibility(View.VISIBLE);
+                        ((MainActivity) getActivity()).getTv1().setVisibility(View.INVISIBLE);
+                        ((MainActivity) getActivity()).getTvLocation().setVisibility(View.VISIBLE);
+                        ((MainActivity) getActivity()).getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                ((MainActivity) getActivity()).getTv1().startAnimation(animationUp);
+            } else {
+                ((MainActivity) getActivity()).getTvTime().setText(time);
                 ((MainActivity) getActivity()).getTvTime().setVisibility(View.VISIBLE);
-            ((MainActivity) getActivity()).getTv1().setVisibility(View.INVISIBLE);
-            ((MainActivity) getActivity()).getTvLocation().setVisibility(View.VISIBLE);
-            ((MainActivity) getActivity()).getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
-            ((MainActivity) getActivity()).getImvRenew().setImageResource(R.drawable.ic_autorenew_white_24dp);
+                ((MainActivity) getActivity()).getTv1().setVisibility(View.INVISIBLE);
+                ((MainActivity) getActivity()).getTvLocation().setVisibility(View.VISIBLE);
+                ((MainActivity) getActivity()).getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
+            }
+
             ((MainActivity) getActivity()).setPlus(false);
         }
     }

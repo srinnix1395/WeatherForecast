@@ -16,13 +16,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp">
-
-            <TextView
-                android:id="@+id/tv_location"
-                style="@style/TextViewHighStyle"
+            <RelativeLayout
+                android:id="@+id/layout_location"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/tv_location"
+                    style="@style/TextViewHighStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
+                <TextView
+                    android:id="@+id/tv_time"
+                    style="@style/TextViewLowStyle"
+                    android:layout_marginTop="-4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tv_location"
+                    android:textColor="@color/colorGray"
+                    android:textSize="16sp" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/tv_1"
@@ -33,15 +46,6 @@
                 android:text="Vị trí"
                 android:textSize="24sp" />
 
-            <TextView
-                android:id="@+id/tv_time"
-                style="@style/TextViewLowStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/tv_location"
-                android:textColor="@color/colorGray"
-                android:textSize="16sp" />
-
             <ImageButton
                 android:id="@+id/imv_renew"
                 android:layout_width="44dp"
@@ -50,6 +54,8 @@
                 android:layout_marginRight="3dp"
                 android:layout_toLeftOf="@+id/imv_more"
                 android:background="@android:color/transparent"
+                android:padding="8dp"
+                android:scaleType="centerCrop"
                 android:src="@drawable/ic_autorenew_white_24dp" />
 
             <ImageView
