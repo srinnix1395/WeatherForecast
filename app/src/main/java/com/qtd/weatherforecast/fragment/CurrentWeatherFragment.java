@@ -16,14 +16,12 @@ import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.CurrentWeather;
-import com.qtd.weatherforecast.utility.ImageUtils;
-import com.qtd.weatherforecast.utility.SharedPreUtils;
-import com.qtd.weatherforecast.utility.StringUtils;
+import com.qtd.weatherforecast.utils.ImageUtils;
+import com.qtd.weatherforecast.utils.SharedPreUtils;
+import com.qtd.weatherforecast.utils.StringUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.Calendar;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -78,7 +76,6 @@ public class CurrentWeatherFragment extends Fragment {
         if (id != -1) {
             CurrentWeather currentWeather = databaseHelper.getCurrentWeather(id);
             imvIcon.setImageResource(ImageUtils.getImageResourceCurrentWeather(currentWeather.getIcon()));
-            imvIcon.setImageResource(R.drawable.sun_500);
             tvTemp.setText(currentWeather.getTemp() + "°");
             tvHumid.setText(currentWeather.getHumidity());
             tvWeather.setText(currentWeather.getWeather());
@@ -101,7 +98,7 @@ public class CurrentWeatherFragment extends Fragment {
             String day = currentObservation.getString("observation_time_rfc822");
             tvUV.setText(String.valueOf(currentObservation.getInt("UV")));
             tvFeel.setText(String.valueOf(currentObservation.getInt("feelslike_c")) + "°");
-            //time = StringUtils.getWeekday(day.substring(0, 3)) + ", " + day.substring(17, 22);
+            time = StringUtils.getCurrentDateTime(currentObservation.getString("local_tz_offset"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -151,9 +148,7 @@ public class CurrentWeatherFragment extends Fragment {
         tvHumid.setText(currentWeather.getHumidity());
         tvWeather.setText(currentWeather.getWeather());
         tvWind.setText(String.valueOf(currentWeather.getWind()) + " km/h");
-        String day = StringUtils.getWeekday(Calendar.getInstance().get(Calendar.DAY_OF_WEEK));
-        String hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" + Calendar.getInstance().get(Calendar.MINUTE);
-        time = day + "," + hour;
+        time = StringUtils.getCurrentDateTime(currentWeather.getTime());
         tvUV.setText(String.valueOf(currentWeather.getUV()));
     }
 
@@ -188,9 +183,7 @@ public class CurrentWeatherFragment extends Fragment {
             tvHumid.setText(currentWeather.getHumidity());
             tvWeather.setText(currentWeather.getWeather());
             tvWind.setText(String.valueOf(currentWeather.getWind()) + " km/h");
-            String day = StringUtils.getWeekday(Calendar.getInstance().get(Calendar.DAY_OF_WEEK));
-            String hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" + Calendar.getInstance().get(Calendar.MINUTE);
-            time = day + "," + hour;
+            time = StringUtils.getCurrentDateTime(currentWeather.getTime());
             tvUV.setText(String.valueOf(currentWeather.getUV()));
         }
     }

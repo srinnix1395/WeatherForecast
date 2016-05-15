@@ -16,7 +16,7 @@ import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.WeatherDay;
-import com.qtd.weatherforecast.utility.SharedPreUtils;
+import com.qtd.weatherforecast.utils.SharedPreUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;

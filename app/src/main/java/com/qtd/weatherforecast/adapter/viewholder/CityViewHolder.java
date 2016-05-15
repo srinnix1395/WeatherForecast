@@ -65,11 +65,13 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
 
     @OnClick(R.id.imv_clear)
     void imvClearOnClick() {
+        Log.d("city", "clear");
         callback.deleteItemCity(id);
     }
 
     @OnClick(R.id.cardView_item)
     void cardViewOnClick() {
+        Log.d("city", "choose");
         callback.choseItemCity(id, name, coordinate);
     }
 

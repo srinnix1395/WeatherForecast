@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.model.WeatherHour;
-import com.qtd.weatherforecast.utility.ImageUtils;
+import com.qtd.weatherforecast.utils.ImageUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

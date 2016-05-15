@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
@@ -13,6 +12,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +27,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.qtd.weatherforecast.AppController;
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.constant.ApiConstant;
-import com.qtd.weatherforecast.utility.NetworkUtil;
-import com.qtd.weatherforecast.utility.StringUtils;
+import com.qtd.weatherforecast.utils.NetworkUtil;
+import com.qtd.weatherforecast.utils.StringUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,7 +47,7 @@ public class SearchActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     @Bind(R.id.et_location)
-    EditText completeTextViewLocation;
+    EditText etLocation;
 
     PopupMenu popupMenu;
     ArrayList<String> tzs = new ArrayList<>();
@@ -61,12 +61,13 @@ public class SearchActivity extends AppCompatActivity {
     AlertDialog alertDialog;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_search);
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         getWindow().setGravity(Gravity.TOP);
+        setFinishOnTouchOutside(false);
         ButterKnife.bind(this);
         initComponent();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -82,7 +83,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
-        popupMenu = new PopupMenu(SearchActivity.this, completeTextViewLocation);
+        popupMenu = new PopupMenu(SearchActivity.this, etLocation);
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -92,6 +93,7 @@ public class SearchActivity extends AppCompatActivity {
                 urlConditions = StringUtils.getURL("conditions", tzs.get(item.getItemId()));
                 urlForecast10day = StringUtils.getURL("forecast10day",tzs.get(item.getItemId()));
                 urlHourly = StringUtils.getURL("hourly", tzs.get(item.getItemId()));
+
                 Log.d("search", tzs.get(item.getItemId()));
                 alertDialog = new AlertDialog.Builder(SearchActivity.this)
                         .setMessage("Đã có lỗi trong quá trình xử lý, xin thử lại")
@@ -124,7 +126,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
-        completeTextViewLocation.addTextChangedListener(new TextWatcher() {
+        etLocation.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -133,6 +135,7 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 getAutoComplete(s);
+                Log.d("On", "ok");
             }
 
             @Override
@@ -143,6 +146,7 @@ public class SearchActivity extends AppCompatActivity {
         loading = new ProgressDialog(this);
         loading.setIndeterminate(true);
         loading.setTitle("Đang xử lý...");
+
     }
 
     private void requestHourly(final Intent intent) {
@@ -200,9 +204,7 @@ public class SearchActivity extends AppCompatActivity {
                         }
                     })
                     .create().show();
-        }else if (s.length() >= 2) {
-            tzs.clear();
-            popupMenu.getMenu().clear();
+        }else if (s.length() >= 3) {
             requestAutoComplete();
         } else {
             tzs.clear();
@@ -211,19 +213,26 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void requestAutoComplete() {
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url + completeTextViewLocation.getText(),
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url + etLocation.getText(),
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            tzs.clear();
+                            popupMenu.getMenu().clear();
+                            Log.d("response", response.toString());
+
                             JSONArray array = response.getJSONArray("RESULTS");
+                            int j = 0;
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject object = array.getJSONObject(i);
                                 if ((object.length() == 10 || object.length() == 9) && object.getString("type").equals("city") ) {
                                     tzs.add(object.getString("lat") + "," + object.getString("lon"));
-                                    popupMenu.getMenu().add(1,i,i,object.getString("name"));
+                                    popupMenu.getMenu().add(Menu.NONE, j, j, object.getString("name"));
+                                    j++;
                                 }
                             }
+                            popupMenu.dismiss();
                             popupMenu.show();
                         } catch (JSONException e) {
                             e.printStackTrace();

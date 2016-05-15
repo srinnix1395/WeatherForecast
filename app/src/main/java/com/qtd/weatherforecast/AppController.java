@@ -5,7 +5,7 @@ import android.app.Application;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.qtd.weatherforecast.utility.SharedPreUtils;
+import com.qtd.weatherforecast.utils.SharedPreUtils;
 
 /**
  * Created by Dell on 4/24/2016.

@@ -3,7 +3,6 @@ package com.qtd.weatherforecast.database;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.model.WeatherHour;
-import com.qtd.weatherforecast.utility.StringUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +39,7 @@ public class ProcessJson {
             JSONObject forecast = response.getJSONObject("forecast");
             JSONObject simpleForecast = forecast.getJSONObject("simpleforecast");
             JSONArray forecastDay = simpleForecast.getJSONArray("forecastday");
-            for (int i = 0; i < 6; i++) {
+            for (int i = 1; i < 7; i++) {
                 JSONObject object = forecastDay.getJSONObject(i);
                 JSONObject date = object.getJSONObject("date");
                 String weekday = date.getString("weekday");
@@ -63,8 +62,7 @@ public class ProcessJson {
         CurrentWeather currentWeather = new CurrentWeather();
         try {
             JSONObject currentObservation = response.getJSONObject("current_observation");
-            String day = currentObservation.getString("observation_time_rfc822");
-            String timeUpdate = StringUtils.getWeekday(day.substring(0, 3)) + ", " + day.substring(17, 22);
+            String timeUpdate = currentObservation.getString("local_tz_offset");
             int wind = currentObservation.getInt("wind_gust_kph");
             String humid = currentObservation.getString("relative_humidity");
             String weather = currentObservation.getString("weather");

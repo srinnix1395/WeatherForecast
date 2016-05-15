@@ -1,7 +1,8 @@
 package com.qtd.weatherforecast.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,6 +12,7 @@ import com.qtd.weatherforecast.R;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Dell on 5/8/2016.
@@ -20,7 +22,7 @@ public class SettingActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
         ButterKnife.bind(this);
@@ -40,4 +42,12 @@ public class SettingActivity extends AppCompatActivity {
         });
 
     }
+
+    @OnClick(R.id.imv_logo)
+    void imvLogoOnClick() {
+        Uri uri = Uri.parse("http://www.wunderground.com");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
+
 }

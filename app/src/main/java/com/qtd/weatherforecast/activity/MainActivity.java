@@ -14,7 +14,10 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,9 +37,9 @@ import com.qtd.weatherforecast.fragment.SearchFragment;
 import com.qtd.weatherforecast.fragment.WeatherDayFragment;
 import com.qtd.weatherforecast.fragment.WeatherHourFragment;
 import com.qtd.weatherforecast.service.WeatherForecastService;
-import com.qtd.weatherforecast.utility.NetworkUtil;
-import com.qtd.weatherforecast.utility.SharedPreUtils;
-import com.qtd.weatherforecast.utility.StringUtils;
+import com.qtd.weatherforecast.utils.NetworkUtil;
+import com.qtd.weatherforecast.utils.SharedPreUtils;
+import com.qtd.weatherforecast.utils.StringUtils;
 import com.viewpagerindicator.CirclePageIndicator;
 
 import org.json.JSONObject;
@@ -79,6 +82,7 @@ public class MainActivity extends AppCompatActivity
     Intent intent;
     boolean isPlus;
     public static final int REQUEST_CODE = 113;
+    Animation rotation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +111,7 @@ public class MainActivity extends AppCompatActivity
     private void initComponent() {
         setSupportActionBar(toolbar);
         setupViewPager();
+
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -114,10 +119,12 @@ public class MainActivity extends AppCompatActivity
             }
         };
         registerBroadcast();
+
         if (intent == null) {
             intent = new Intent(MainActivity.this, WeatherForecastService.class);
             startService(intent);
         }
+
         alertDialog = new AlertDialog.Builder(MainActivity.this)
                 .setMessage("Đã có lỗi trong quá trình xử lý, xin thử lại")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -127,6 +134,31 @@ public class MainActivity extends AppCompatActivity
                     }
                 })
                 .create();
+
+        rotation = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation);
+        rotation.setRepeatCount(Animation.INFINITE);
+
+        imvRenew.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        ImageView imageView = (ImageView) v;
+                        imageView.setBackgroundResource(R.drawable.circle_button);
+                        imageView.invalidate();
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL: {
+                        ImageView imageView = (ImageView) v;
+                        imageView.setBackground(null);
+                        imageView.invalidate();
+                        break;
+                    }
+                }
+                return true;
+            }
+        });
     }
 
     private void getDataFromDatabase() {
@@ -147,6 +179,7 @@ public class MainActivity extends AppCompatActivity
         viewPager.setAdapter(adapter);
         indicator.setViewPager(viewPager);
         viewPager.setOffscreenPageLimit(4);
+
 
         int id = SharedPreUtils.getInt("ID", -1);
         if (id == -1) {
@@ -188,6 +221,7 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intent, REQUEST_CODE);
         } else {
             if (NetworkUtil.getInstance().isNetworkAvailable(MainActivity.this)) {
+                imvRenew.startAnimation(rotation);
                 updateData();
             } else {
                 new AlertDialog.Builder(MainActivity.this)
@@ -304,6 +338,7 @@ public class MainActivity extends AppCompatActivity
                 sendDataToFragment(data[0], 1, idCity, false);
                 sendDataToFragment(data[1], 2, idCity, false);
                 sendDataToFragment(data[2], 3, idCity, false);
+                stopAnimation();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -313,6 +348,10 @@ public class MainActivity extends AppCompatActivity
             }
         });
         AppController.getInstance().addToRequestQueue(request2);
+    }
+
+    private void stopAnimation() {
+        imvRenew.clearAnimation();
     }
 
     @Override

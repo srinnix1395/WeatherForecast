@@ -1,4 +1,4 @@
-package com.qtd.weatherforecast.utility;
+package com.qtd.weatherforecast.utils;
 
 import android.content.Context;
 

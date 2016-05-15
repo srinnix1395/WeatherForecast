@@ -18,7 +18,7 @@ import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.model.City;
-import com.qtd.weatherforecast.utility.SharedPreUtils;
+import com.qtd.weatherforecast.utils.SharedPreUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -157,13 +157,16 @@ public class SearchFragment extends Fragment{
             }
         }
         databaseHelper.deleteCity(idCity);
-        City city = databaseHelper.getFirstCity();
-        setCheckedCities(city.getId());
+        int idChoosen = SharedPreUtils.getInt("ID", -1);
+        if (idChoosen == idCity) {
+            City city = databaseHelper.getFirstCity();
+            setCheckedCities(city.getId());
+            SharedPreUtils.putInt("ID", city.getId());
+            SharedPreUtils.putString(DatabaseConstant.NAME, city.getName());
+            SharedPreUtils.putString(ApiConstant.COORDINATE, city.getCoordinate());
+            callback.checkCitySizeToEnableViewPagerSwipe(city.getId());
+        }
         adapter.notifyDataSetChanged();
-        SharedPreUtils.putInt("ID", city.getId());
-        SharedPreUtils.putString(DatabaseConstant.NAME, city.getName());
-        SharedPreUtils.putString(ApiConstant.COORDINATE, city.getCoordinate());
-        callback.checkCitySizeToEnableViewPagerSwipe(city.getId());
     }
 
     public void chooseItem(int idCity) {

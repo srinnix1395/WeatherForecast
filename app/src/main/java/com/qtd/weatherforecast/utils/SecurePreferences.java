@@ -1,4 +1,4 @@
-package com.qtd.weatherforecast.utility;/*
+package com.qtd.weatherforecast.utils;/*
  * Copyright (C) 2013, Daniel Abraham
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

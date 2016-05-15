@@ -1,4 +1,4 @@
-package com.qtd.weatherforecast.utility;
+package com.qtd.weatherforecast.utils;
 
 import com.qtd.weatherforecast.R;
 
