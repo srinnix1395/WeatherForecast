@@ -9,6 +9,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.qtd.weatherforecast.R;
+import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.model.City;
 
 import butterknife.Bind;
@@ -35,12 +36,14 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
     int id = 0;
     String name = "";
     String coordinate = "";
+    String timeZone = "";
     DeleteItemCallback callback;
 
     public CityViewHolder(View itemView) {
         super(itemView);
         view = itemView;
         ButterKnife.bind(this, view);
+//        initComponent();
         try {
             callback = (DeleteItemCallback) view.getContext();
         } catch (Exception e) {
@@ -48,10 +51,18 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
+    private void initComponent() {
+        tvCity = (TextView) view.findViewById(R.id.tv_city);
+        tvWeather = (TextView) view.findViewById(R.id.tv_weather);
+        radioButton = (RadioButton) view.findViewById(R.id.radio_chosen);
+        cardView = (CardView) view.findViewById(R.id.cardView_item);
+    }
+
     public void setupViewHolder(City city) {
         id = city.getId();
         name = city.getName();
         coordinate = city.getCoordinate();
+        timeZone = new MyDatabaseHelper(view.getContext()).getCurrentWeather(id).getTime();
         tvCity.setText(city.getName());
         tvWeather.setText(String.valueOf(city.getTemp()) + "°, " + city.getWeather());
         if (city.isChosen()) {
@@ -72,16 +83,16 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
     @OnClick(R.id.cardView_item)
     void cardViewOnClick() {
         Log.d("city", "choose");
-        callback.choseItemCity(id, name, coordinate);
+        callback.choseItemCity(id, name, coordinate, timeZone);
     }
 
     @OnClick(R.id.radio_chosen)
     void radioChosenOnClick() {
-        callback.choseItemCity(id, name, coordinate);
+        callback.choseItemCity(id, name, coordinate,timeZone);
     }
 
     public interface DeleteItemCallback {
         void deleteItemCity(int idCity);
-        void choseItemCity(int idCity, String name, String coordinate);
+        void choseItemCity(int idCity, String name, String coordinate, String timeZone);
     }
 }

@@ -26,6 +26,7 @@ public class DatabaseConstant {
     public static final String ORDER = "so_thu_tu";
     public static final String UV = "uv";
     public static final String FEELS_LIKE = "feels_like";
+    public static final String TIME_ZONE = "time_zone";
 
-
+    public static final String LAST_UPDATE = "last_update";
 }

@@ -3,6 +3,8 @@ package com.qtd.weatherforecast.utils;
 import android.content.Context;
 
 import com.qtd.weatherforecast.AppController;
+import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.constant.DatabaseConstant;
 
 import java.util.List;
 
@@ -119,7 +121,7 @@ public class SharedPreUtils {
         return AppController.getSharedPreferences().getIntFromShare(key, defValue);
     }
 
-    public static void putLong(String key, int value) {
+    public static void putLong(String key, long value) {
         AppController.getSharedPreferences().putLongToShare(key, value);
     }
 
@@ -159,4 +161,10 @@ public class SharedPreUtils {
         preferences.edit().clear().commit();
     }
 
+    public static void putData(int ID, String name, String coordinate, String timeUpdate) {
+        AppController.getSharedPreferences().putIntToShare("ID", ID);
+        AppController.getSharedPreferences().putStringOrReplace(DatabaseConstant.NAME, name);
+        AppController.getSharedPreferences().putStringOrReplace(ApiConstant.COORDINATE, coordinate);
+        AppController.getSharedPreferences().putStringOrReplace(DatabaseConstant.TIME_ZONE, timeUpdate);
+    }
 }

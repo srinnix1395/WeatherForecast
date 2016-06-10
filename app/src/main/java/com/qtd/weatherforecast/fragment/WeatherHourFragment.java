@@ -59,7 +59,19 @@ public class WeatherHourFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         weatherHours = new ArrayList<>();
         adapter = new WeatherHourAdapter(weatherHours);
+//        recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
+//        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(view.getContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
+//            @Override
+//            public void onClick(View view, int position) {
+//
+//            }
+//
+//            @Override
+//            public void onLongClick(View view, int position) {
+//
+//            }
+//        }));
     }
 
     private void initData() {

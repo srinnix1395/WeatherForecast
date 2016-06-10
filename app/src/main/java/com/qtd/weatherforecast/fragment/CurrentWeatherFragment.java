@@ -88,6 +88,7 @@ public class CurrentWeatherFragment extends Fragment {
             time = StringUtils.getCurrentDateTime(currentWeather.getTime());
             ((MainActivity) getActivity()).getTvTime().setText(time);
             ((MainActivity) getActivity()).getTvTime().setVisibility(View.VISIBLE);
+            tvUpdate.setText("Cập nhật " + StringUtils.getTimeAgo());
         }
     }
 
@@ -247,5 +248,14 @@ public class CurrentWeatherFragment extends Fragment {
             time = StringUtils.getCurrentDateTime(currentWeather.getTime());
             tvUV.setText(String.valueOf(currentWeather.getUV()));
         }
+    }
+
+    public void updateTextViewRecent() {
+        String timeAgo = StringUtils.getTimeAgo();
+        tvUpdate.setText("Cập nhật " + timeAgo);
+    }
+
+    public void updateTime() {
+        time = StringUtils.getCurrentDateTime(SharedPreUtils.getString(DatabaseConstant.TIME_ZONE, "+0700"));
     }
 }

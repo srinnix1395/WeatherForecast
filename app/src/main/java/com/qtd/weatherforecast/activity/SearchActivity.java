@@ -26,7 +26,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.qtd.weatherforecast.AppController;
 import com.qtd.weatherforecast.R;
+import com.qtd.weatherforecast.adapter.AutoCompleteTextViewLocationAdapter;
 import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.utils.NetworkUtil;
 import com.qtd.weatherforecast.utils.StringUtils;
 
@@ -48,6 +50,8 @@ public class SearchActivity extends AppCompatActivity {
 
     @Bind(R.id.et_location)
     EditText etLocation;
+//    @Bind(R.id.actvLocation)
+//    AutoCompleteTextView autocompleteLocation;
 
     PopupMenu popupMenu;
     ArrayList<String> tzs = new ArrayList<>();
@@ -59,6 +63,8 @@ public class SearchActivity extends AppCompatActivity {
     ProgressDialog loading;
     public static final int RESULT_CODE = 114;
     AlertDialog alertDialog;
+    private ArrayList<City> cities;
+    private AutoCompleteTextViewLocationAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +97,7 @@ public class SearchActivity extends AppCompatActivity {
                 final Intent intent = new Intent(SearchActivity.this, MainActivity.class);
 
                 urlConditions = StringUtils.getURL("conditions", tzs.get(item.getItemId()));
-                urlForecast10day = StringUtils.getURL("forecast10day",tzs.get(item.getItemId()));
+                urlForecast10day = StringUtils.getURL("forecast10day", tzs.get(item.getItemId()));
                 urlHourly = StringUtils.getURL("hourly", tzs.get(item.getItemId()));
 
                 Log.d("search", tzs.get(item.getItemId()));
@@ -135,7 +141,6 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 getAutoComplete(s);
-                Log.d("On", "ok");
             }
 
             @Override
@@ -143,6 +148,10 @@ public class SearchActivity extends AppCompatActivity {
 
             }
         });
+//        cities = new ArrayList<>();
+//        adapter = new AutoCompleteTextViewLocationAdapter(this, android.R.layout.select_dialog_item, cities);
+//        autocompleteLocation.setAdapter(adapter);
+
         loading = new ProgressDialog(this);
         loading.setIndeterminate(true);
         loading.setTitle("Đang xử lý...");
@@ -174,14 +183,7 @@ public class SearchActivity extends AppCompatActivity {
                 Log.d("forecast10day", response.toString());
                 intent.putExtra("forecast10days", response.toString());
                 setResult(RESULT_CODE, intent);
-                try{
-                    SearchActivity.this.finish();
-                } finally {
-                    Log.d("finish", "finally");
-                    popupMenu.dismiss();
-                    loading.dismiss();
-                    alertDialog.dismiss();
-                }
+                SearchActivity.this.finish();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -204,7 +206,7 @@ public class SearchActivity extends AppCompatActivity {
                         }
                     })
                     .create().show();
-        }else if (s.length() >= 3) {
+        } else if (s.length() >= 3) {
             requestAutoComplete();
         } else {
             tzs.clear();
@@ -213,7 +215,11 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void requestAutoComplete() {
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url + etLocation.getText(),
+        String keyWord = etLocation.getText().toString();
+        if (keyWord.contains(" ")) {
+            keyWord = keyWord.replace(" ", "%20");
+        }
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url + keyWord,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -226,12 +232,16 @@ public class SearchActivity extends AppCompatActivity {
                             int j = 0;
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject object = array.getJSONObject(i);
-                                if ((object.length() == 10 || object.length() == 9) && object.getString("type").equals("city") ) {
+                                if ((object.length() == 10 || object.length() == 9) && object.getString("type").equals("city")) {
                                     tzs.add(object.getString("lat") + "," + object.getString("lon"));
                                     popupMenu.getMenu().add(Menu.NONE, j, j, object.getString("name"));
+//                                    City city = new City(0, object.getString("name"), object.getString("lat") + "," + object.getString("lon"));
+//                                    cities.add(city);
                                     j++;
                                 }
                             }
+//                            adapter.notifyDataSetChanged();
+//                            autocompleteLocation.setAdapter(adapter);
                             popupMenu.dismiss();
                             popupMenu.show();
                         } catch (JSONException e) {
@@ -246,5 +256,13 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
         AppController.getInstance().addToRequestQueue(objectRequest);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (popupMenu != null) popupMenu.dismiss();
+        if (loading != null) loading.dismiss();
+        if (alertDialog != null) alertDialog.dismiss();
     }
 }

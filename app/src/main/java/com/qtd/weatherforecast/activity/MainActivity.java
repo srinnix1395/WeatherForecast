@@ -52,7 +52,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity
-        implements CityViewHolder.DeleteItemCallback, SearchFragment.UpdateChosingCityCallback {
+        implements CityViewHolder.DeleteItemCallback, SearchFragment.UpdateChoosingCityCallback {
+    private static final String TAG = "MainActivity";
     @Bind(R.id.toolbar_home)
     Toolbar toolbar;
 
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity
     AlertDialog alertDialog;
     Intent intent;
     boolean isPlus;
-    public static final int REQUEST_CODE = 113;
+    public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 113;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,11 +103,19 @@ public class MainActivity extends AppCompatActivity
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                getDataFromDatabase();
+                if (intent.getBooleanExtra("Update", false)) {
+                    getDataFromDatabase();
+                    SharedPreUtils.putLong("LastUpdate", System.currentTimeMillis());
+                } else {
+                    if (adapter.getItem(1).isVisible()) {
+                        tvTime.setText(StringUtils.getCurrentDateTime(SharedPreUtils.getString(DatabaseConstant.TIME_ZONE, "+0700")));
+                    } else {
+                        ((CurrentWeatherFragment) adapter.getItem(1)).updateTime();
+                    }
+                }
+                ((CurrentWeatherFragment) adapter.getItem(1)).updateTextViewRecent();
             }
         };
-        registerBroadcast();
-
         if (intent == null) {
             intent = new Intent(MainActivity.this, WeatherForecastService.class);
             startService(intent);
@@ -187,25 +196,33 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         registerBroadcast();
-
     }
 
     @Override
     protected void onPause() {
+        super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         isReceiverRegistered = false;
-        super.onPause();
     }
 
     void renewOnClick() {
         if (isPlus) {
             Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-            startActivityForResult(intent, REQUEST_CODE);
+//            Intent intent = null;
+//            try {
+//                intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+//                        .build(this);
+//            } catch (GooglePlayServicesRepairableException e) {
+//                e.printStackTrace();
+//            } catch (GooglePlayServicesNotAvailableException e) {
+//                e.printStackTrace();
+//            }
+            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
         } else {
             if (NetworkUtil.getInstance().isNetworkAvailable(MainActivity.this)) {
                 Animation rotation = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation);
                 imvRenew.startAnimation(rotation);
-                updateData();
+                updateData(SharedPreUtils.getString(ApiConstant.COORDINATE, "-1"));
             } else {
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage("Không có kết nối Internet, xin thử lại sau")
@@ -244,7 +261,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE && resultCode == SearchActivity.RESULT_CODE) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE && resultCode == SearchActivity.RESULT_CODE) {
             String conditions = data.getStringExtra("conditions");
             int idCity = ((SearchFragment) adapter.getItem(0)).updateDataAndGetID(conditions, true);
             sendDataToFragment(conditions, 1, idCity, true);
@@ -252,9 +269,22 @@ public class MainActivity extends AppCompatActivity
             sendDataToFragment(hourly, 2, idCity, true);
             String forecast = data.getStringExtra("forecast10days");
             sendDataToFragment(forecast, 3, idCity, true);
+            ((SearchFragment) adapter.getItem(0)).updateNoti();
             viewPager.setPagingEnabled(true);
             indicator.setVisibility(View.VISIBLE);
         }
+//        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+//            if (resultCode == RESULT_OK) {
+//                Place place = PlaceAutocomplete.getPlace(this, data);
+//                String coordinate = place.getLatLng().toString().replace("(", " ").replace(")", " ").trim();
+//
+//            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+//                Status status = PlaceAutocomplete.getStatus(this, data);
+//                Log.i(TAG, status.getStatusMessage());
+//            } else if (resultCode == RESULT_CANCELED) {
+//                // The user canceled the operation.
+//            }
+//        }
     }
 
     private void sendDataToFragment(String s, int id, int idCity, boolean isInsert) {
@@ -272,8 +302,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void updateData() {
-        final String coordinate = SharedPreUtils.getString(ApiConstant.COORDINATE, "-1");
+    private void updateData(final String coordinate) {
         final String[] data = new String[3];
         String urlConditions = StringUtils.getURL("conditions", coordinate);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, urlConditions, new Response.Listener<JSONObject>() {
@@ -322,6 +351,8 @@ public class MainActivity extends AppCompatActivity
                 sendDataToFragment(data[1], 2, idCity, false);
                 sendDataToFragment(data[2], 3, idCity, false);
                 stopAnimation();
+                SharedPreUtils.putLong("LastUpdate", System.currentTimeMillis());
+                ((CurrentWeatherFragment) adapter.getItem(1)).updateTextViewRecent();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -343,10 +374,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void choseItemCity(int idCity, String name, String coordinate) {
-        SharedPreUtils.putInt("ID", idCity);
-        SharedPreUtils.putString(DatabaseConstant.NAME, name);
-        SharedPreUtils.putString(ApiConstant.COORDINATE, coordinate);
+    public void choseItemCity(int idCity, String name, String coordinate, String timeZone) {
+        SharedPreUtils.putData(idCity, name, coordinate, timeZone);
         ((SearchFragment) adapter.getItem(0)).chooseItem(idCity);
         ((CurrentWeatherFragment) adapter.getItem(1)).chooseItem(idCity);
         ((WeatherHourFragment) adapter.getItem(2)).chooseItem(idCity);

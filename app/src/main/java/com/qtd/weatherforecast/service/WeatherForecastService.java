@@ -40,15 +40,14 @@ import java.util.ArrayList;
 /**
  * Created by Dell on 4/25/2016.
  */
-public class WeatherForecastService extends Service {
+public class WeatherForecastService extends Service implements Runnable {
     public static final String TAG = "BroadcastService";
     public static final String BROADCAST_ACTION = "com.qtd.weatherforecast.activity.MainActivity";
-    public static final int NOTIFICATION_ID = 0;
+    public static final int NOTIFICATION_ID = 1012;
 
-    private final Handler handler = new Handler();
-    private int timeDelay = 180000;
-
-    MyDatabaseHelper databaseHelper;
+    private int timeDelay = 60000;
+    private Handler handler;
+    int count = 0;
 
     public WeatherForecastService() {
     }
@@ -58,19 +57,14 @@ public class WeatherForecastService extends Service {
         return null;
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        databaseHelper = MyDatabaseHelper.getInstance(this);
-        createNotification();
-    }
-
     private void createNotification() {
         int id = SharedPreUtils.getInt("ID", -1);
         if (id != -1) {
             Intent intent = new Intent(this, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(this);
             CityPlus city = databaseHelper.getCityByID(id);
+            databaseHelper.close();
 
             RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification);
             remoteViews.setImageViewResource(R.id.imv_icon, ImageUtils.getImageResourceNotification(city.getIcon()));
@@ -81,7 +75,8 @@ public class WeatherForecastService extends Service {
                     .setSmallIcon(ImageUtils.getImageResourceCurrentWeather(city.getIcon()))
                     .setContent(remoteViews)
                     .setOngoing(true)
-                    .setContentIntent(pendingIntent);
+                    .setContentIntent(pendingIntent)
+                    .setTicker(city.getTemp() + "°");
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(NOTIFICATION_ID, notiBuilder.build());
         }
@@ -90,17 +85,116 @@ public class WeatherForecastService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        handler.removeCallbacks(downloadDataRunnable);
-        handler.postDelayed(downloadDataRunnable, 1000);
+        createNotification();
+        handler = new Handler();
+        this.run();
         return START_STICKY;
     }
 
+    private void requestHourly(final JSONArray a, final int idCity, final String coordinate) {
+        String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
+        JsonObjectRequest request1 = new JsonObjectRequest(Request.Method.GET, urlHourly, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d("hourly", response.toString());
+                a.put(response);
+                requestForecast10day(a, idCity, coordinate);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("error", error.toString());
+            }
+        });
+        AppController.getInstance().addToRequestQueue(request1);
+    }
 
-    private Runnable downloadDataRunnable = new Runnable() {
-        @Override
-        public void run() {
+    private void requestForecast10day(final JSONArray a, final int idCity, String coordinate) {
+        String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
+        JsonObjectRequest request2 = new JsonObjectRequest(Request.Method.GET, urlForecast10day, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d("forecast10day", response.toString());
+                a.put(response);
+                updateDatabase(a, idCity);
+                updateNoti();
+                broadcastToActivity(true);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("error", error.toString());
+            }
+        });
+        AppController.getInstance().addToRequestQueue(request2);
+    }
+
+    private void broadcastToActivity(boolean isUpdateData) {
+        Intent intent = new Intent(BROADCAST_ACTION);
+        intent.putExtra("Update", false);
+        if (isUpdateData) {
+            intent.putExtra("Update", true);
+        }
+        sendBroadcast(intent);
+    }
+
+    private void updateNoti() {
+        int id = SharedPreUtils.getInt("ID", -1);
+        if (id != -1) {
+            MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(this);
+            CityPlus cityPlus = databaseHelper.getCityByID(id);
+            databaseHelper.close();
+            RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification);
+            remoteViews.setImageViewResource(R.id.imv_icon, ImageUtils.getImageResourceNotification(cityPlus.getIcon()));
+            remoteViews.setTextViewText(R.id.tv_weather, cityPlus.getWeather());
+            remoteViews.setTextViewText(R.id.tv_temp, String.valueOf(cityPlus.getTemp()) + "°");
+            remoteViews.setTextViewText(R.id.tv_location, cityPlus.getFullName());
+            Intent intent = new Intent(WeatherForecastService.this, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(WeatherForecastService.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(WeatherForecastService.this)
+                    .setSmallIcon(ImageUtils.getImageResourceCurrentWeather(cityPlus.getIcon()))
+                    .setContent(remoteViews)
+                    .setOngoing(true)
+                    .setContentIntent(pendingIntent)
+                    .setTicker(cityPlus.getTemp() + "°");
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(NOTIFICATION_ID, notiBuilder.build());
+        }
+    }
+
+    private void updateDatabase(JSONArray a, int idCity) {
+        try {
+            MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(this);
+            CurrentWeather currentWeather = ProcessJson.getCurrentWeather(a.getJSONObject(0));
+            databaseHelper.updateCurrentWeather(currentWeather, idCity);
+            ArrayList<WeatherHour> arrHour = ProcessJson.getAllWeatherHours(a.getJSONObject(1));
+            for (int i = 0; i < arrHour.size(); i++) {
+                databaseHelper.updateWeatherHour(arrHour.get(i), idCity, i);
+            }
+            ArrayList<WeatherDay> arrDay = ProcessJson.getAllWeatherDays(a.getJSONObject(2));
+            for (int i = 0; i < arrDay.size(); i++) {
+                databaseHelper.updateWeatherDay(arrDay.get(i), idCity, i);
+            }
+            databaseHelper.close();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NOTIFICATION_ID);
+    }
+
+    @Override
+    public void run() {
+        if (count == 0) {
             if (NetworkUtil.getInstance().isNetworkAvailable(WeatherForecastService.this)) {
+                MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(this);
                 final ArrayList<City> cities = databaseHelper.getAllCities();
+                databaseHelper.close();
                 for (int i = 0; i < cities.size(); i++) {
                     City temp = cities.get(i);
                     final int id = temp.getId();
@@ -124,97 +218,13 @@ public class WeatherForecastService extends Service {
                     AppController.getInstance().addToRequestQueue(objectRequest);
                 }
             }
-            handler.postDelayed(this, timeDelay);
+        } else {
+            broadcastToActivity(false);
         }
-    };
-
-
-    private synchronized void requestHourly(final JSONArray a, final int idCity, final String coordinate) {
-        String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
-        JsonObjectRequest request1 = new JsonObjectRequest(Request.Method.GET, urlHourly, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.d("hourly", response.toString());
-                a.put(response);
-                requestForecast10day(a, idCity, coordinate);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("error", error.toString());
-            }
-        });
-        AppController.getInstance().addToRequestQueue(request1);
-    }
-
-    private synchronized void requestForecast10day(final JSONArray a, final int idCity, String coordinate) {
-        String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
-        JsonObjectRequest request2 = new JsonObjectRequest(Request.Method.GET, urlForecast10day, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.d("forecast10day", response.toString());
-                a.put(response);
-                updateDatabase(a, idCity);
-                updateNoti();
-                broadcastToActivity();
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("error", error.toString());
-            }
-        });
-        AppController.getInstance().addToRequestQueue(request2);
-    }
-
-    private synchronized void broadcastToActivity() {
-        Intent intent = new Intent(BROADCAST_ACTION);
-        intent.putExtra("Update", true);
-        sendBroadcast(intent);
-    }
-
-    private synchronized void updateNoti() {
-        int id = SharedPreUtils.getInt("ID", -1);
-        if (id != -1) {
-            CityPlus cityPlus = databaseHelper.getCityByID(id);
-            RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification);
-            remoteViews.setImageViewResource(R.id.imv_icon, ImageUtils.getImageResourceNotification(cityPlus.getIcon()));
-            remoteViews.setTextViewText(R.id.tv_weather, cityPlus.getWeather());
-            remoteViews.setTextViewText(R.id.tv_temp, String.valueOf(cityPlus.getTemp()) + "°");
-            remoteViews.setTextViewText(R.id.tv_location, cityPlus.getFullName());
-            Intent intent = new Intent(WeatherForecastService.this, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(WeatherForecastService.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(WeatherForecastService.this)
-                    .setSmallIcon(ImageUtils.getImageResourceCurrentWeather(cityPlus.getIcon()))
-                    .setContent(remoteViews)
-                    .setOngoing(true)
-                    .setContentIntent(pendingIntent);
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_ID, notiBuilder.build());
+        count++;
+        if (count == Integer.MAX_VALUE / 2) {
+            count = 0;
         }
-    }
-
-    private synchronized void updateDatabase(JSONArray a, int idCity) {
-        try {
-            CurrentWeather currentWeather = ProcessJson.getCurrentWeather(a.getJSONObject(0));
-            databaseHelper.updateCurrentWeather(currentWeather, idCity);
-            ArrayList<WeatherHour> arrHour = ProcessJson.getAllWeatherHours(a.getJSONObject(1));
-            for (int i = 0; i < arrHour.size(); i++) {
-                databaseHelper.updateWeatherHour(arrHour.get(i), idCity, i);
-            }
-            ArrayList<WeatherDay> arrDay = ProcessJson.getAllWeatherDays(a.getJSONObject(2));
-            for (int i = 0; i < arrDay.size(); i++) {
-                databaseHelper.updateWeatherDay(arrDay.get(i), idCity, i);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NOTIFICATION_ID);
+        handler.postDelayed(this, timeDelay);
     }
 }
