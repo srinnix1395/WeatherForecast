@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity
             public void onReceive(Context context, Intent intent) {
                 if (intent.getBooleanExtra("Update", false)) {
                     getDataFromDatabase();
-                    SharedPreUtils.putLong("LastUpdate", System.currentTimeMillis());
+                    SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
                 } else {
                     if (adapter.getItem(1).isVisible()) {
                         tvTime.setText(StringUtils.getCurrentDateTime(SharedPreUtils.getString(DatabaseConstant.TIME_ZONE, "+0700")));
@@ -351,7 +351,7 @@ public class MainActivity extends AppCompatActivity
                 sendDataToFragment(data[1], 2, idCity, false);
                 sendDataToFragment(data[2], 3, idCity, false);
                 stopAnimation();
-                SharedPreUtils.putLong("LastUpdate", System.currentTimeMillis());
+                SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
                 ((CurrentWeatherFragment) adapter.getItem(1)).updateTextViewRecent();
             }
         }, new Response.ErrorListener() {
@@ -380,8 +380,7 @@ public class MainActivity extends AppCompatActivity
         ((CurrentWeatherFragment) adapter.getItem(1)).chooseItem(idCity);
         ((WeatherHourFragment) adapter.getItem(2)).chooseItem(idCity);
         ((WeatherDayFragment) adapter.getItem(3)).chooseItem(idCity);
-
-
+        
     }
 
     @Override

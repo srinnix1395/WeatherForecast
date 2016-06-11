@@ -71,7 +71,7 @@ public class ProcessJson {
             int feelslike = currentObservation.getInt("feelslike_c");
             String icon = currentObservation.getString("icon_url");
 
-            currentWeather = new CurrentWeather(icon, tempc, weather, humid, wind, uv, feelslike, timeUpdate);
+            currentWeather = new CurrentWeather(icon, tempc, weather, humid, wind, uv, feelslike, timeUpdate, System.currentTimeMillis());
         } catch (JSONException e) {
             e.printStackTrace();
         }

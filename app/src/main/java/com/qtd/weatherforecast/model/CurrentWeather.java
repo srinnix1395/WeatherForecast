@@ -12,12 +12,13 @@ public class CurrentWeather {
     int UV;
     int feelslike;
     String time;
+    long lastUpdate;
 
     public CurrentWeather() {
 
     }
 
-    public CurrentWeather(String icon, int temp, String weather, String humidity, int wind, int UV, int feelslike, String time) {
+    public CurrentWeather(String icon, int temp, String weather, String humidity, int wind, int UV, int feelslike, String time, long lastUpdate) {
         this.icon = icon;
         this.temp = temp;
         this.weather = weather;
@@ -26,6 +27,7 @@ public class CurrentWeather {
         this.UV = UV;
         this.feelslike = feelslike;
         this.time = time;
+        this.lastUpdate = lastUpdate;
     }
 
     public String getIcon() {
@@ -90,5 +92,13 @@ public class CurrentWeather {
 
     public void setFeelslike(int feelslike) {
         this.feelslike = feelslike;
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }

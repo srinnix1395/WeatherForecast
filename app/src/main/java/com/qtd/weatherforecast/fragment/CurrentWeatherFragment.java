@@ -102,10 +102,12 @@ public class CurrentWeatherFragment extends Fragment {
             tvHumid.setText(currentObservation.getString("relative_humidity"));
             tvWeather.setText(currentObservation.getString("weather"));
             tvWind.setText(String.valueOf(currentObservation.getString("wind_gust_kph")) + " km/h");
-            String day = currentObservation.getString("observation_time_rfc822");
+//            String day = currentObservation.getString("observation_time_rfc822");
             tvUV.setText(String.valueOf(currentObservation.getInt("UV")));
             tvFeel.setText(String.valueOf(currentObservation.getInt("feelslike_c")) + "°");
             time = StringUtils.getCurrentDateTime(currentObservation.getString("local_tz_offset"));
+            SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
+            updateTextViewRecent();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -212,6 +214,8 @@ public class CurrentWeatherFragment extends Fragment {
         tvWind.setText(String.valueOf(currentWeather.getWind()) + " km/h");
         time = StringUtils.getCurrentDateTime(currentWeather.getTime());
         tvUV.setText(String.valueOf(currentWeather.getUV()));
+        SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, currentWeather.getLastUpdate());
+        updateTextViewRecent();
     }
 
     @Bind(R.id.layout_UV)
@@ -247,6 +251,7 @@ public class CurrentWeatherFragment extends Fragment {
             tvWind.setText(String.valueOf(currentWeather.getWind()) + " km/h");
             time = StringUtils.getCurrentDateTime(currentWeather.getTime());
             tvUV.setText(String.valueOf(currentWeather.getUV()));
+            updateTextViewRecent();
         }
     }
 

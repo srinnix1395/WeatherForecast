@@ -64,6 +64,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 DatabaseConstant.TIME + " NVARCHAR(100) ," +
                 DatabaseConstant.UV + " INTEGER ," +
                 DatabaseConstant.FEELS_LIKE + " INTEGER ," +
+                DatabaseConstant.LAST_UPDATE + " INTEGER ," +
                 DatabaseConstant.ID_CITY + " INTEGER)";
 
         String CREATE_HOUR_TABLE = "CREATE TABLE " + TABLE_HOUR +
@@ -221,7 +222,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public CurrentWeather getCurrentWeather(int id) {
         CurrentWeather currentWeather = new CurrentWeather();
         String CURRENT_WEATHER_SELECT_QUERY =
-                String.format("Select %s,%s,%s,%s,%s,%s,%s,%s from %s where "
+                String.format("Select %s,%s,%s,%s,%s,%s,%s,%s,%s from %s where "
                                 + TABLE_CURRENT_WEATHER + "." + DatabaseConstant.ID_CITY + "=" +id,
                         DatabaseConstant.ICON,
                         DatabaseConstant.TEMP_C,
@@ -231,6 +232,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                         DatabaseConstant.TIME,
                         DatabaseConstant.UV,
                         DatabaseConstant.FEELS_LIKE,
+                        DatabaseConstant.LAST_UPDATE,
                         TABLE_CURRENT_WEATHER
                 );
         SQLiteDatabase db = getReadableDatabase();
@@ -245,6 +247,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 currentWeather.setUV(cursor.getInt(cursor.getColumnIndex(DatabaseConstant.UV)));
                 currentWeather.setFeelslike(cursor.getInt(cursor.getColumnIndex(DatabaseConstant.FEELS_LIKE)));
                 currentWeather.setTime(cursor.getString(cursor.getColumnIndex(DatabaseConstant.TIME)));
+                currentWeather.setLastUpdate(cursor.getLong(cursor.getColumnIndex(DatabaseConstant.LAST_UPDATE)));
             }
         } catch (Exception e) {
             Log.d("Error", "Error while trying to get current weather ");
@@ -350,6 +353,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(DatabaseConstant.UV, currentWeather.getUV());
             contentValues.put(DatabaseConstant.FEELS_LIKE, currentWeather.getFeelslike());
             contentValues.put(DatabaseConstant.TIME, currentWeather.getTime());
+            contentValues.put(DatabaseConstant.LAST_UPDATE, currentWeather.getLastUpdate());
             contentValues.put(DatabaseConstant.ID_CITY, idCity);
 
             long result = db.insertOrThrow(TABLE_CURRENT_WEATHER, null, contentValues);
@@ -398,6 +402,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(DatabaseConstant.UV, currentWeather.getUV());
             contentValues.put(DatabaseConstant.FEELS_LIKE, currentWeather.getFeelslike());
             contentValues.put(DatabaseConstant.TIME, currentWeather.getTime());
+            contentValues.put(DatabaseConstant.LAST_UPDATE, currentWeather.getLastUpdate());
             contentValues.put(DatabaseConstant.ID_CITY, idCity);
 
             long result = db.update(TABLE_CURRENT_WEATHER,contentValues, DatabaseConstant.ID_CITY + "=" + idCity, null);

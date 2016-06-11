@@ -1,6 +1,7 @@
 package com.qtd.weatherforecast.utils;
 
 import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.constant.DatabaseConstant;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -58,7 +59,7 @@ public class StringUtils {
 
     public static String getTimeAgo() {
         long now = System.currentTimeMillis();
-        long time = SharedPreUtils.getLong("LastUpdate", 0);
+        long time = SharedPreUtils.getLong(DatabaseConstant.LAST_UPDATE, 0);
 
         long diff = now - time;
         if (diff < MINUTE_MILLIS) {
