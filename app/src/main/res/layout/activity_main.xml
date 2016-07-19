@@ -16,10 +16,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp">
+
             <RelativeLayout
                 android:id="@+id/layout_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
                 <TextView
                     android:id="@+id/tv_location"
                     style="@style/TextViewHighStyle"
@@ -29,10 +31,10 @@
                 <TextView
                     android:id="@+id/tv_time"
                     style="@style/TextViewLowStyle"
-                    android:layout_marginTop="-4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/tv_location"
+                    android:layout_marginTop="-4dp"
                     android:textColor="@color/colorGray"
                     android:textSize="16sp" />
             </RelativeLayout>
@@ -46,17 +48,19 @@
                 android:text="Vị trí"
                 android:textSize="24sp" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/imv_renew"
                 android:layout_width="44dp"
                 android:layout_height="44dp"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="3dp"
                 android:layout_toLeftOf="@+id/imv_more"
-                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:background="?attr/selectableItemBackground"
                 android:padding="8dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_autorenew_white_24dp" />
+                android:src="@drawable/ic_autorenew_white_24dp"
+                tools:targetApi="lollipop" />
 
             <ImageView
                 android:id="@+id/imv_more"
@@ -66,16 +70,19 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="5dp"
+                android:clickable="true"
+                android:background="?attr/selectableItemBackground"
                 android:scaleType="center"
-                android:src="@drawable/ic_dots_vertical_white_24dp" />
+                android:src="@drawable/ic_dots_vertical_white_24dp"
+                tools:targetApi="lollipop" />
 
-            <View
-                android:id="@+id/view_anchor"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:layout_alignParentEnd="true"
-                android:layout_marginRight="203dp"
-                android:layout_marginTop="3dp" />
+            <!--<View-->
+                <!--android:id="@+id/view_anchor"-->
+                <!--android:layout_width="100dp"-->
+                <!--android:layout_height="100dp"-->
+                <!--android:layout_alignParentEnd="true"-->
+                <!--android:layout_marginRight="203dp"-->
+                <!--android:layout_marginTop="3dp" />-->
         </RelativeLayout>
 
     </android.support.v7.widget.Toolbar>

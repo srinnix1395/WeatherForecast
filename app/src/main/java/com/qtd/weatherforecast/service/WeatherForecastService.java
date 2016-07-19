@@ -3,8 +3,12 @@ package com.qtd.weatherforecast.service;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -19,6 +23,7 @@ import com.qtd.weatherforecast.AppController;
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.activity.MainActivity;
 import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.City;
@@ -28,6 +33,7 @@ import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.model.WeatherHour;
 import com.qtd.weatherforecast.utils.ImageUtils;
 import com.qtd.weatherforecast.utils.NetworkUtil;
+import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.qtd.weatherforecast.utils.StringUtils;
 
@@ -41,15 +47,29 @@ import java.util.ArrayList;
  * Created by Dell on 4/25/2016.
  */
 public class WeatherForecastService extends Service implements Runnable {
-    public static final String TAG = "BroadcastService";
-    public static final String BROADCAST_ACTION = "com.qtd.weatherforecast.activity.MainActivity";
+    public static final String ACTION_DATABASE_CHANGED = "com.qtd.weatherforecast.activity.MainActivity";
     public static final int NOTIFICATION_ID = 1012;
+    public static final String STATE_UPDATE_CHANGED = "state_update_changed";
+    public static final String STATE_START = "state_start";
+    public static final String STATE_END = "state_end";
+    public static final String STATE = "state";
+    public static final String STATE_NOTIFICATION = "state_noti";
 
-    private int timeDelay = 60000;
+    private int timeDelay = 180000;
     private Handler handler;
-    int count = 0;
+    private boolean isRegistered = false;
+    private NetworkBroadcastReceiver receiver;
 
-    public WeatherForecastService() {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        if (!isRegistered) {
+            receiver = new NetworkBroadcastReceiver();
+            IntentFilter filters = new IntentFilter();
+            filters.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+            registerReceiver(receiver, filters);
+            isRegistered = true;
+        }
     }
 
     @Override
@@ -57,7 +77,7 @@ public class WeatherForecastService extends Service implements Runnable {
         return null;
     }
 
-    private void createNotification() {
+    public void createNotification() {
         int id = SharedPreUtils.getInt("ID", -1);
         if (id != -1) {
             Intent intent = new Intent(this, MainActivity.class);
@@ -85,7 +105,10 @@ public class WeatherForecastService extends Service implements Runnable {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        createNotification();
+        boolean onNotify = SharedPreUtils.getBoolean(STATE_NOTIFICATION, true);
+        if (onNotify) {
+            NotificationUtils.createNotification(WeatherForecastService.this);
+        }
         handler = new Handler();
         this.run();
         return START_STICKY;
@@ -104,6 +127,7 @@ public class WeatherForecastService extends Service implements Runnable {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("error", error.toString());
+                broadcastUpdateState(STATE_UPDATE_CHANGED, STATE_END);
             }
         });
         AppController.getInstance().addToRequestQueue(request1);
@@ -117,26 +141,23 @@ public class WeatherForecastService extends Service implements Runnable {
                 Log.d("forecast10day", response.toString());
                 a.put(response);
                 updateDatabase(a, idCity);
-                updateNoti();
-                broadcastToActivity(true);
+                if (SharedPreUtils.getBoolean(STATE_NOTIFICATION, true)) {
+                    NotificationUtils.updateNotification(WeatherForecastService.this);
+                }
+                broadcastDatabaseState();
+                broadcastUpdateState(STATE_UPDATE_CHANGED, STATE_END);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("error", error.toString());
+                broadcastUpdateState(STATE_UPDATE_CHANGED, STATE_END);
             }
         });
         AppController.getInstance().addToRequestQueue(request2);
     }
 
-    private void broadcastToActivity(boolean isUpdateData) {
-        Intent intent = new Intent(BROADCAST_ACTION);
-        intent.putExtra("Update", false);
-        if (isUpdateData) {
-            intent.putExtra("Update", true);
-        }
-        sendBroadcast(intent);
-    }
+
 
     private void updateNoti() {
         int id = SharedPreUtils.getInt("ID", -1);
@@ -176,6 +197,7 @@ public class WeatherForecastService extends Service implements Runnable {
                 databaseHelper.updateWeatherDay(arrDay.get(i), idCity, i);
             }
             databaseHelper.close();
+            SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -186,45 +208,82 @@ public class WeatherForecastService extends Service implements Runnable {
         super.onDestroy();
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIFICATION_ID);
+        if (isRegistered) {
+            unregisterReceiver(receiver);
+        }
     }
 
     @Override
     public void run() {
-        if (count == 0) {
-            if (NetworkUtil.getInstance().isNetworkAvailable(WeatherForecastService.this)) {
-                MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(this);
-                final ArrayList<City> cities = databaseHelper.getAllCities();
-                databaseHelper.close();
-                for (int i = 0; i < cities.size(); i++) {
-                    City temp = cities.get(i);
-                    final int id = temp.getId();
-                    final String coordinate = cities.get(i).getCoordinate();
-                    String urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, coordinate);
-
-                    final JSONArray array = new JSONArray();
-
-                    JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, urlConditions, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            array.put(response);
-                            requestHourly(array, id, coordinate);
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.d("Error", error.toString());
-                        }
-                    });
-                    AppController.getInstance().addToRequestQueue(objectRequest);
-                }
-            }
-        } else {
-            broadcastToActivity(false);
-        }
-        count++;
-        if (count == Integer.MAX_VALUE / 2) {
-            count = 0;
+        if (NetworkUtil.getInstance().isNetworkAvailable(WeatherForecastService.this)) {
+            requestData();
         }
         handler.postDelayed(this, timeDelay);
     }
+
+    private void requestData() {
+        MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(this);
+        final ArrayList<City> cities = databaseHelper.getAllCities();
+        databaseHelper.close();
+        broadcastUpdateState(STATE_UPDATE_CHANGED, STATE_START);
+        for (int i = 0; i < cities.size(); i++) {
+            City temp = cities.get(i);
+            final int id = temp.getId();
+            final String coordinate = cities.get(i).getCoordinate();
+            String urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, coordinate);
+
+            final JSONArray array = new JSONArray();
+
+            JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, urlConditions, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    array.put(response);
+                    requestHourly(array, id, coordinate);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("Error", error.toString());
+                    broadcastUpdateState(STATE_UPDATE_CHANGED, STATE_END);
+                }
+            });
+            AppController.getInstance().addToRequestQueue(objectRequest);
+        }
+    }
+
+    private void broadcastUpdateState(String action, String state) {
+        Intent intent = new Intent(action);
+        intent.putExtra(STATE, state);
+        sendBroadcast(intent);
+    }
+
+    private void broadcastDatabaseState() {
+        Intent intent = new Intent(ACTION_DATABASE_CHANGED);
+        sendBroadcast(intent);
+    }
+
+    class NetworkBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")) {
+                if (isOnline(WeatherForecastService.this)) {
+                    long time = SharedPreUtils.getLong(DatabaseConstant.LAST_UPDATE, 0);
+                    long now = System.currentTimeMillis();
+                    if (now - time > 60000) {
+                        requestData();
+                    }
+                }
+            }
+        }
+
+        public boolean isOnline(Context context) {
+
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            //should check null because in airplane mode it will be null
+            return (netInfo != null && netInfo.isConnected());
+
+        }
+    }
+
 }

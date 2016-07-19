@@ -9,6 +9,7 @@
         android:id="@+id/imv_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="-20dp"
         android:layout_above="@+id/tv_temp" />
 
     <TextView
@@ -18,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:textColor="@android:color/white"
-        android:textSize="72sp" />
+        android:textSize="84sp" />
 
     <TextView
         android:id="@+id/tv_weather"
@@ -28,7 +29,7 @@
         android:layout_below="@id/tv_temp"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/white"
-        android:textSize="24sp" />
+        android:textSize="36sp" />
 
     <RelativeLayout
         android:id="@+id/layout_humid"
@@ -46,7 +47,7 @@
             android:layout_alignParentStart="true"
             android:text="Độ ẩm"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/tv_humid"
@@ -55,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/tv2"
@@ -67,7 +68,7 @@
             android:layout_marginTop="5dp"
             android:text="Gió"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/tv_wind"
@@ -78,7 +79,7 @@
             android:layout_below="@+id/tv_humid"
             android:layout_marginTop="5dp"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -97,7 +98,7 @@
             android:layout_alignParentStart="true"
             android:text="Cảm thấy"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/tv_feelslike"
@@ -106,7 +107,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/tv4"
@@ -118,7 +119,7 @@
             android:layout_marginTop="5dp"
             android:text="Chỉ số UV"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/tv_uv"
@@ -129,7 +130,7 @@
             android:layout_below="@+id/tv_feelslike"
             android:layout_marginTop="5dp"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
     </RelativeLayout>
 
     <TextView

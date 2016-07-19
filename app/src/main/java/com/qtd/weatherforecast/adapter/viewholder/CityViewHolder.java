@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.model.City;
+import com.qtd.weatherforecast.utils.SharedPreUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -62,7 +63,7 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
         id = city.getId();
         name = city.getName();
         coordinate = city.getCoordinate();
-        timeZone = new MyDatabaseHelper(view.getContext()).getCurrentWeather(id).getTime();
+        timeZone = MyDatabaseHelper.getInstance(view.getContext()).getCurrentWeather(id).getTime();
         tvCity.setText(city.getName());
         tvWeather.setText(String.valueOf(city.getTemp()) + "°, " + city.getWeather());
         if (city.isChosen()) {
@@ -82,17 +83,23 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
 
     @OnClick(R.id.cardView_item)
     void cardViewOnClick() {
-        Log.d("city", "choose");
-        callback.choseItemCity(id, name, coordinate, timeZone);
+        int idChoosen = SharedPreUtils.getInt("ID", -1);
+        if (idChoosen != id) {
+            callback.choseItemCity(id, name, coordinate, timeZone);
+        }
     }
 
     @OnClick(R.id.radio_chosen)
     void radioChosenOnClick() {
-        callback.choseItemCity(id, name, coordinate,timeZone);
+        int idChoosen = SharedPreUtils.getInt("ID", -1);
+        if (idChoosen != id) {
+            callback.choseItemCity(id, name, coordinate, timeZone);
+        }
     }
 
     public interface DeleteItemCallback {
         void deleteItemCity(int idCity);
+
         void choseItemCity(int idCity, String name, String coordinate, String timeZone);
     }
 }

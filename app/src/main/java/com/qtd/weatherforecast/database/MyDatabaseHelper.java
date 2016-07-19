@@ -32,11 +32,11 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     private static MyDatabaseHelper instance;
 
-    public MyDatabaseHelper(Context context) {
+    private MyDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    public static MyDatabaseHelper getInstance(Context context) {
+    public static synchronized MyDatabaseHelper getInstance(Context context) {
         if (instance == null) {
             instance = new MyDatabaseHelper(context);
         }

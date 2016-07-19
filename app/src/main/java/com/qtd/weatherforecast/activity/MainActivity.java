@@ -7,14 +7,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -78,13 +76,13 @@ public class MainActivity extends AppCompatActivity
     @Bind(R.id.layout_location)
     RelativeLayout layoutLocation;
 
-    private BroadcastReceiver broadcastReceiver;
+    private MainBroadcastReceiver broadcastReceiver;
     private boolean isReceiverRegistered;
-    MainPagerAdapter adapter;
-    PopupMenu popupMenu;
-    ArrayList<Fragment> fragments;
-    AlertDialog alertDialog;
-    Intent intent;
+    private MainPagerAdapter adapter;
+    private PopupMenu popupMenu;
+    private ArrayList<Fragment> fragments;
+    private AlertDialog alertDialog;
+    private Intent intent;
     boolean isPlus;
     public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 113;
 
@@ -100,22 +98,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         setupViewPager();
 
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getBooleanExtra("Update", false)) {
-                    getDataFromDatabase();
-                    SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
-                } else {
-                    if (adapter.getItem(1).isVisible()) {
-                        tvTime.setText(StringUtils.getCurrentDateTime(SharedPreUtils.getString(DatabaseConstant.TIME_ZONE, "+0700")));
-                    } else {
-                        ((CurrentWeatherFragment) adapter.getItem(1)).updateTime();
-                    }
-                }
-                ((CurrentWeatherFragment) adapter.getItem(1)).updateTextViewRecent();
-            }
-        };
+        broadcastReceiver = new MainBroadcastReceiver();
+
         if (intent == null) {
             intent = new Intent(MainActivity.this, WeatherForecastService.class);
             startService(intent);
@@ -130,27 +114,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 })
                 .create();
-
-        imvRenew.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN: {
-                        ImageView imageView = (ImageView) v;
-                        imageView.setBackgroundResource(R.drawable.circle_button);
-                        renewOnClick();
-                        break;
-                    }
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL: {
-                        ImageView imageView = (ImageView) v;
-                        imageView.setBackground(null);
-                        break;
-                    }
-                }
-                return true;
-            }
-        });
     }
 
     private void getDataFromDatabase() {
@@ -186,7 +149,11 @@ public class MainActivity extends AppCompatActivity
 
     private void registerBroadcast() {
         if (!isReceiverRegistered) {
-            registerReceiver(broadcastReceiver, new IntentFilter(WeatherForecastService.BROADCAST_ACTION));
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(WeatherForecastService.ACTION_DATABASE_CHANGED);
+            filter.addAction(WeatherForecastService.STATE_UPDATE_CHANGED);
+            filter.addAction(Intent.ACTION_TIME_TICK);
+            registerReceiver(broadcastReceiver, filter);
             isReceiverRegistered = true;
         }
     }
@@ -201,22 +168,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        unregisterReceiver(broadcastReceiver);
         isReceiverRegistered = false;
     }
 
+    @OnClick(R.id.imv_renew)
     void renewOnClick() {
         if (isPlus) {
             Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-//            Intent intent = null;
-//            try {
-//                intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-//                        .build(this);
-//            } catch (GooglePlayServicesRepairableException e) {
-//                e.printStackTrace();
-//            } catch (GooglePlayServicesNotAvailableException e) {
-//                e.printStackTrace();
-//            }
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
         } else {
             if (NetworkUtil.getInstance().isNetworkAvailable(MainActivity.this)) {
@@ -239,7 +198,7 @@ public class MainActivity extends AppCompatActivity
 
     @OnClick(R.id.imv_more)
     void imvMoreOnClick() {
-        popupMenu = new PopupMenu(MainActivity.this, findViewById(R.id.view_anchor));
+        popupMenu = new PopupMenu(MainActivity.this, findViewById(R.id.imv_more));
         popupMenu.getMenuInflater().inflate(R.menu.menu, popupMenu.getMenu());
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
@@ -273,18 +232,6 @@ public class MainActivity extends AppCompatActivity
             viewPager.setPagingEnabled(true);
             indicator.setVisibility(View.VISIBLE);
         }
-//        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
-//            if (resultCode == RESULT_OK) {
-//                Place place = PlaceAutocomplete.getPlace(this, data);
-//                String coordinate = place.getLatLng().toString().replace("(", " ").replace(")", " ").trim();
-//
-//            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-//                Status status = PlaceAutocomplete.getStatus(this, data);
-//                Log.i(TAG, status.getStatusMessage());
-//            } else if (resultCode == RESULT_CANCELED) {
-//                // The user canceled the operation.
-//            }
-//        }
     }
 
     private void sendDataToFragment(String s, int id, int idCity, boolean isInsert) {
@@ -314,7 +261,9 @@ public class MainActivity extends AppCompatActivity
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Log.d("error", error.toString());
+                alertDialog.show();
+                stopAnimation();
             }
         });
         AppController.getInstance().addToRequestQueue(request);
@@ -334,6 +283,7 @@ public class MainActivity extends AppCompatActivity
             public void onErrorResponse(VolleyError error) {
                 Log.d("error", error.toString());
                 alertDialog.show();
+                stopAnimation();
             }
         });
         AppController.getInstance().addToRequestQueue(request1);
@@ -359,6 +309,7 @@ public class MainActivity extends AppCompatActivity
             public void onErrorResponse(VolleyError error) {
                 Log.d("error", error.toString());
                 alertDialog.show();
+                stopAnimation();
             }
         });
         AppController.getInstance().addToRequestQueue(request2);
@@ -380,7 +331,7 @@ public class MainActivity extends AppCompatActivity
         ((CurrentWeatherFragment) adapter.getItem(1)).chooseItem(idCity);
         ((WeatherHourFragment) adapter.getItem(2)).chooseItem(idCity);
         ((WeatherDayFragment) adapter.getItem(3)).chooseItem(idCity);
-        
+
     }
 
     @Override
@@ -397,7 +348,9 @@ public class MainActivity extends AppCompatActivity
         if (popupMenu != null) {
             popupMenu.dismiss();
         }
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        if (isReceiverRegistered) {
+            unregisterReceiver(broadcastReceiver);
+        }
     }
 
     public TextView getTv1() {
@@ -426,6 +379,46 @@ public class MainActivity extends AppCompatActivity
 
     public RelativeLayout getLayoutLocation() {
         return layoutLocation;
+    }
+
+    class MainBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case WeatherForecastService.ACTION_DATABASE_CHANGED: {
+                    getDataFromDatabase();
+                    break;
+                }
+                case Intent.ACTION_TIME_TICK: {
+                    if (adapter.getItem(1).isVisible()) {
+                        tvTime.setText(StringUtils.getCurrentDateTime(SharedPreUtils.getString(DatabaseConstant.TIME_ZONE, "+0700")));
+                    }
+                    ((CurrentWeatherFragment) adapter.getItem(1)).updateTime();
+                    ((CurrentWeatherFragment) adapter.getItem(1)).updateTextViewRecent();
+                    break;
+                }
+                case WeatherForecastService.STATE_UPDATE_CHANGED: {
+                    String state = intent.getStringExtra(WeatherForecastService.STATE);
+                    Log.e("state", state);
+                    switch (state) {
+                        case WeatherForecastService.STATE_START: {
+                            if (adapter.getItem(1).isVisible()) {
+                                Animation rotation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.clockwise_rotation);
+                                imvRenew.startAnimation(rotation);
+                            }
+                            break;
+                        }
+                        case WeatherForecastService.STATE_END: {
+                            if (adapter.getItem(1).isVisible()) {
+                                imvRenew.getAnimation().setRepeatCount(0);
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
 }
 

@@ -11,6 +11,8 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.qtd.weatherforecast.R;
+import com.qtd.weatherforecast.service.WeatherForecastService;
+import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 
 import butterknife.Bind;
@@ -47,13 +49,16 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
+        aSwitch.setChecked(SharedPreUtils.getBoolean(WeatherForecastService.STATE_NOTIFICATION, true));
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    SharedPreUtils.putBoolean("notification", true);
+                    SharedPreUtils.putBoolean(WeatherForecastService.STATE_NOTIFICATION, true);
+                    NotificationUtils.createNotification(SettingActivity.this);
                 } else {
-                    SharedPreUtils.putBoolean("notification", false);
+                    SharedPreUtils.putBoolean(WeatherForecastService.STATE_NOTIFICATION, false);
+                    NotificationUtils.clearNotification(SettingActivity.this);
                 }
             }
         });
