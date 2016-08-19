@@ -16,8 +16,7 @@ public class StringUtils {
     private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
 
     public static String getURL(String method, String tz) {
-        String url = ApiConstant.URL + ApiConstant.API_KEY_WU + "/" + method + "/lang:VU/q/" + tz + ".json";
-        return url;
+        return ApiConstant.URL + ApiConstant.API_KEY_WU + "/" + method + "/lang:VU/q/" + tz + ".json";
     }
 
     public static String getWeekday(int i) {

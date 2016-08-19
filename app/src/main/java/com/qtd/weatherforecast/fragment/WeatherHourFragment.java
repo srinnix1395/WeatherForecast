@@ -33,13 +33,10 @@ public class WeatherHourFragment extends Fragment {
     @Bind(R.id.recycleView)
     RecyclerView recyclerView;
 
-    WeatherHourAdapter adapter;
-    ArrayList<WeatherHour> weatherHours;
-    LinearLayoutManager layoutManager;
-
-    MyDatabaseHelper databaseHelper;
-
-    View view;
+    private WeatherHourAdapter adapter;
+    private ArrayList<WeatherHour> weatherHours;
+    private MyDatabaseHelper databaseHelper;
+    private View view;
 
     @Nullable
     @Override
@@ -53,35 +50,21 @@ public class WeatherHourFragment extends Fragment {
 
 
     private void initComponent() {
-        layoutManager = new LinearLayoutManager(view.getContext());
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.setHasFixedSize(true);
+
         weatherHours = new ArrayList<>();
         adapter = new WeatherHourAdapter(weatherHours);
-//        recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
-//        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(view.getContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
-//            @Override
-//            public void onClick(View view, int position) {
-//
-//            }
-//
-//            @Override
-//            public void onLongClick(View view, int position) {
-//
-//            }
-//        }));
     }
 
     private void initData() {
         databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
-        final int id = SharedPreUtils.getInt("ID", -1);
+        final int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             weatherHours.addAll(databaseHelper.getAllWeatherHours(id));
             adapter.notifyDataSetChanged();
         }
-
     }
 
     public void displayData(JSONObject response) {
@@ -107,7 +90,7 @@ public class WeatherHourFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             ((MainActivity) getActivity()).getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
-            ((MainActivity) getActivity()).getTvTime().setText("24 giờ tiếp theo");
+            ((MainActivity) getActivity()).getTvTime().setText(R.string.twentyFourHoursToGo);
         }
     }
 
@@ -115,11 +98,7 @@ public class WeatherHourFragment extends Fragment {
         try {
             JSONObject object = new JSONObject(s);
             displayData(object);
-            if (isInsert) {
-                updateDatabase(object, true, idCity);
-            } else {
-                updateDatabase(object, false, idCity);
-            }
+            updateDatabase(object, isInsert, idCity);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -133,7 +112,7 @@ public class WeatherHourFragment extends Fragment {
 
 
     public void getDataFromDatabase() {
-        int id = SharedPreUtils.getInt("ID", -1);
+        int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             weatherHours.clear();
             adapter.notifyDataSetChanged();

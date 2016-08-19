@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/blackFade"
@@ -10,39 +11,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorGrayDark"
-        android:elevation="5dp"></android.support.v7.widget.Toolbar>
+        android:elevation="4dp"
+        tools:targetApi="lollipop" />
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp">
+        android:layout_height="@dimen/itemSettingHeight">
 
         <TextView
+            style="?android:attr/textAppearanceMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
-            android:text="Đơn vị"
+            android:layout_marginStart="15dp"
+            android:text="@string/unit"
             android:textColor="@android:color/white"
             android:textSize="20sp" />
 
         <TextView
-            android:layout_height="wrap_content"
+            style="?android:attr/textAppearanceMedium"
+            android:layout_width="@dimen/defaultSize"
+            android:layout_height="@dimen/defaultSize"
             android:layout_centerVertical="true"
-            android:layout_marginRight="20dp"
-            android:layout_toLeftOf="@+id/tv_C"
-            android:text="°F"
+            android:layout_toStartOf="@+id/tv_C"
+            android:gravity="center"
+            android:text="@string/farenheit"
             android:textColor="@color/colorGrayDark"
-            android:textSize="20sp"
-            android:layout_width="wrap_content" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/tv_C"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/defaultSize"
+            android:layout_height="@dimen/defaultSize"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="15dp"
-            android:text="°C"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:gravity="center"
+            android:text="@string/celcius"
             android:textColor="@android:color/white"
             android:textSize="20sp" />
 
@@ -56,26 +61,26 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:layout_marginTop="2dp">
+        android:layout_height="@dimen/itemSettingHeight">
 
         <TextView
+            style="?android:attr/textAppearanceMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
-            android:text="Thông báo"
+            android:layout_marginStart="15dp"
+            android:text="@string/report"
             android:textColor="@android:color/white"
             android:textSize="20sp" />
 
         <Switch
-            android:checked="true"
             android:id="@+id/switch_notification"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="15dp" />
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:checked="true" />
 
         <View
             android:layout_width="match_parent"
@@ -87,24 +92,26 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:layout_marginTop="2dp">
+        android:layout_height="@dimen/itemSettingHeight">
 
         <TextView
+            style="?android:attr/textAppearanceMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
-            android:text="Hình nền"
+            android:layout_marginStart="15dp"
+            android:text="@string/background"
             android:textColor="@android:color/white"
             android:textSize="20sp" />
+
         <ImageView
-            android:layout_width="65dp"
-            android:layout_marginRight="15dp"
-            android:layout_height="65dp"
-            android:src="@drawable/blue_background"
+            android:layout_width="@dimen/itemSettingHeight"
+            android:layout_height="@dimen/itemSettingHeight"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:scaleType="center"
-            android:layout_alignParentEnd="true"/>
+            android:src="@drawable/blue_background" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="0.2dp"
@@ -114,7 +121,6 @@
 
     <ImageView
         android:id="@+id/imv_logo"
-        style="?android:attr/borderlessButtonStyle"
         android:layout_width="220dp"
         android:layout_height="150dp"
         android:layout_gravity="center"

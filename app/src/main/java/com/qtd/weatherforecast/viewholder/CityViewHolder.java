@@ -1,4 +1,4 @@
-package com.qtd.weatherforecast.adapter.viewholder;
+package com.qtd.weatherforecast.viewholder;
 
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
@@ -9,6 +9,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.qtd.weatherforecast.R;
+import com.qtd.weatherforecast.callback.ViewHolderCallback;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
@@ -38,25 +39,17 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
     String name = "";
     String coordinate = "";
     String timeZone = "";
-    DeleteItemCallback callback;
+    ViewHolderCallback callback;
 
     public CityViewHolder(View itemView) {
         super(itemView);
         view = itemView;
         ButterKnife.bind(this, view);
-//        initComponent();
         try {
-            callback = (DeleteItemCallback) view.getContext();
+            callback = (ViewHolderCallback) view.getContext();
         } catch (Exception e) {
             Log.d("error city view holder", e.toString());
         }
-    }
-
-    private void initComponent() {
-        tvCity = (TextView) view.findViewById(R.id.tv_city);
-        tvWeather = (TextView) view.findViewById(R.id.tv_weather);
-        radioButton = (RadioButton) view.findViewById(R.id.radio_chosen);
-        cardView = (CardView) view.findViewById(R.id.cardView_item);
     }
 
     public void setupViewHolder(City city) {
@@ -66,13 +59,16 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
         timeZone = MyDatabaseHelper.getInstance(view.getContext()).getCurrentWeather(id).getTime();
         tvCity.setText(city.getName());
         tvWeather.setText(String.valueOf(city.getTemp()) + "°, " + city.getWeather());
-        if (city.isChosen()) {
-            radioButton.setChecked(true);
-            cardView.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), android.R.color.white));
-        } else {
-            radioButton.setChecked(false);
-            cardView.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.colorWhiteFade));
-        }
+
+        radioButton.setChecked(city.isChosen());
+        cardView.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), city.isChosen() ? android.R.color.white : R.color.colorWhiteFade));
+
+//        if (city.isChosen()) {
+//            cardView.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), android.R.color.white));
+//        } else {
+//            cardView.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.colorWhiteFade));
+//        }
+
     }
 
     @OnClick(R.id.imv_clear)
@@ -81,25 +77,11 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
         callback.deleteItemCity(id);
     }
 
-    @OnClick(R.id.cardView_item)
+    @OnClick({R.id.cardView_item, R.id.radio_chosen})
     void cardViewOnClick() {
-        int idChoosen = SharedPreUtils.getInt("ID", -1);
-        if (idChoosen != id) {
+        int idChosen = SharedPreUtils.getInt("ID", -1);
+        if (idChosen != id) {
             callback.choseItemCity(id, name, coordinate, timeZone);
         }
-    }
-
-    @OnClick(R.id.radio_chosen)
-    void radioChosenOnClick() {
-        int idChoosen = SharedPreUtils.getInt("ID", -1);
-        if (idChoosen != id) {
-            callback.choseItemCity(id, name, coordinate, timeZone);
-        }
-    }
-
-    public interface DeleteItemCallback {
-        void deleteItemCity(int idCity);
-
-        void choseItemCity(int idCity, String name, String coordinate, String timeZone);
     }
 }

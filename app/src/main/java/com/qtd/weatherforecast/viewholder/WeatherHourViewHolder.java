@@ -1,4 +1,4 @@
-package com.qtd.weatherforecast.adapter.viewholder;
+package com.qtd.weatherforecast.viewholder;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -28,18 +28,17 @@ public class WeatherHourViewHolder extends RecyclerView.ViewHolder {
     @Bind(R.id.imv_icon)
     ImageView imvIcon;
 
-    View view;
-
     public WeatherHourViewHolder(View itemView) {
         super(itemView);
-        view = itemView;
-        ButterKnife.bind(this, view);
+        ButterKnife.bind(this, itemView);
     }
 
     public void setupViewHolder(WeatherHour weatherHour) {
         tvHour.setText(weatherHour.getHour());
         if (!weatherHour.getRain().equals("0%")) {
             tvRain.setText(weatherHour.getRain());
+        } else {
+            tvRain.setText("");
         }
         tvTemp.setText(String.valueOf(weatherHour.getTemp()) + "°");
         imvIcon.setImageResource(ImageUtils.getImageResource(weatherHour.getIcon()));

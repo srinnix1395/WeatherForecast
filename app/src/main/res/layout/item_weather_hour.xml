@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="70dp"
-    android:orientation="vertical">
+    android:layout_height="70dp">
 
     <TextView
         android:id="@+id/tv_hour"
         style="@style/TextViewHighStyle"
-        android:textSize="25sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="20dp" />
+        android:layout_marginStart="20dp"
+        android:textSize="25sp" />
 
     <ImageView
         android:id="@+id/imv_icon"
@@ -21,21 +20,21 @@
 
     <TextView
         android:id="@+id/tv_rain"
+        style="@style/TextViewHighStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/TextViewHighStyle"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
-        android:layout_toRightOf="@id/imv_icon"
-        android:layout_marginLeft="5dp"
+        android:layout_toEndOf="@id/imv_icon"
         android:textSize="15sp" />
 
     <TextView
         android:id="@+id/tv_temp"
+        style="@style/TextViewHighStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="20dp"
-        style="@style/TextViewHighStyle"
+        android:layout_marginEnd="20dp"
         android:textSize="20sp" />
 </RelativeLayout>

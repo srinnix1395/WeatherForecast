@@ -10,9 +10,7 @@ import java.util.ArrayList;
  * Created by Dell on 4/25/2016.
  */
 public class MainPagerAdapter extends FragmentPagerAdapter {
-    private static int NUM_ITEMS = 4;
-
-    ArrayList<Fragment> fragments;
+    private ArrayList<Fragment> fragments;
 
     public MainPagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments) {
         super(fm);
@@ -21,22 +19,11 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        switch (position) {
-            case 0:
-                return fragments.get(0);
-            case 1:
-                return fragments.get(1);
-            case 2:
-                return fragments.get(2);
-            case 3:
-                return fragments.get(3);
-            default:
-                return null;
-        }
+        return fragments.get(position);
     }
 
     @Override
     public int getCount() {
-        return NUM_ITEMS;
+        return fragments.size();
     }
 }

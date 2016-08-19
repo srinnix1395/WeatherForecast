@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.qtd.weatherforecast.R;
-import com.qtd.weatherforecast.adapter.viewholder.WeatherHourViewHolder;
+import com.qtd.weatherforecast.viewholder.WeatherHourViewHolder;
 import com.qtd.weatherforecast.model.WeatherHour;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Created by Dell on 4/26/2016.
  */
 public class WeatherHourAdapter extends RecyclerView.Adapter<WeatherHourViewHolder> {
-    ArrayList<WeatherHour> weatherHours;
+    private ArrayList<WeatherHour> weatherHours;
 
     public WeatherHourAdapter(ArrayList<WeatherHour> weatherHours) {
         this.weatherHours = weatherHours;
@@ -29,8 +29,7 @@ public class WeatherHourAdapter extends RecyclerView.Adapter<WeatherHourViewHold
 
     @Override
     public void onBindViewHolder(WeatherHourViewHolder holder, int position) {
-        WeatherHour weatherHour = weatherHours.get(position);
-        holder.setupViewHolder(weatherHour);
+        holder.setupViewHolder(weatherHours.get(position));
     }
 
     @Override

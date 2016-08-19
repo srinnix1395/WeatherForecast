@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/blackFade"
-    android:orientation="vertical">
+    android:background="@color/blackFade">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -20,14 +19,14 @@
                 style="@style/EditTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="30dp"
-                android:hint="Nhập thành phố" />
+                android:layout_marginEnd="30dp"
+                android:hint="@string/inputCity" />
             <!--<AutoCompleteTextView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:id="@+id/actvLocation"-->
-                <!--style="@style/EditTextStyle"-->
-                <!--android:layout_marginRight="30dp"/>-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/actvLocation"-->
+            <!--style="@style/EditTextStyle"-->
+            <!--android:layout_marginRight="30dp"/>-->
         </RelativeLayout>
 
     </android.support.v7.widget.Toolbar>

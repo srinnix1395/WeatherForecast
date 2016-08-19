@@ -1,5 +1,6 @@
 package com.qtd.weatherforecast.database;
 
+import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.model.WeatherHour;
@@ -17,15 +18,14 @@ public class ProcessJson {
     public static ArrayList<WeatherHour> getAllWeatherHours(JSONObject response) {
         ArrayList<WeatherHour> arrHour = new ArrayList<>();
         try {
-            JSONArray currentObservation = response.getJSONArray("hourly_forecast");
+            JSONArray currentObservation = response.getJSONArray(ApiConstant.HOURLY_FORECAST);
             for (int i = 0; i < 24; i++) {
                 JSONObject hour = currentObservation.getJSONObject(i);
-                JSONObject fctime = hour.getJSONObject("FCTTIME");
-                JSONObject temp = hour.getJSONObject("temp");
-                String icon = hour.getString("icon_url");
+                JSONObject fctime = hour.getJSONObject(ApiConstant.FCTIME);
+                JSONObject temp = hour.getJSONObject(ApiConstant.TEMP);
+                String icon = hour.getString(ApiConstant.ICON_URL);
 
-                WeatherHour weatherHour = new WeatherHour(fctime.getString("hour") + ":00", hour.getString("pop") + "%", temp.getInt("metric"), icon);
-                arrHour.add(weatherHour);
+                arrHour.add(new WeatherHour(fctime.getString(ApiConstant.HOUR) + ":00", hour.getString(ApiConstant.POP) + "%", temp.getInt(ApiConstant.METRIC), icon));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -36,21 +36,21 @@ public class ProcessJson {
     public static ArrayList<WeatherDay> getAllWeatherDays(JSONObject response) {
         ArrayList<WeatherDay> arrDays = new ArrayList<>();
         try {
-            JSONObject forecast = response.getJSONObject("forecast");
-            JSONObject simpleForecast = forecast.getJSONObject("simpleforecast");
-            JSONArray forecastDay = simpleForecast.getJSONArray("forecastday");
+            JSONObject forecast = response.getJSONObject(ApiConstant.FORECAST);
+            JSONObject simpleForecast = forecast.getJSONObject(ApiConstant.SIMPLE_FORECAST);
+            JSONArray forecastDay = simpleForecast.getJSONArray(ApiConstant.FORECAST_DAY);
             for (int i = 1; i < 7; i++) {
                 JSONObject object = forecastDay.getJSONObject(i);
-                JSONObject date = object.getJSONObject("date");
-                String weekday = date.getString("weekday");
-                weekday = weekday.substring(5);
-                int highTemp = object.getJSONObject("high").getInt("celsius");
-                int lowTemp = object.getJSONObject("low").getInt("celsius");
-                String weather = object.getString("conditions");
-                String icon = object.getString("icon_url");
+                JSONObject date = object.getJSONObject(ApiConstant.DATE);
 
-                WeatherDay weatherDay = new WeatherDay(weekday, weather, highTemp, lowTemp, icon);
-                arrDays.add(weatherDay);
+                String weekday = date.getString(ApiConstant.WEEKDAY);
+                weekday = weekday.substring(5);
+                int highTemp = object.getJSONObject(ApiConstant.HIGH).getInt(ApiConstant.CELCIUS);
+                int lowTemp = object.getJSONObject(ApiConstant.LOW).getInt(ApiConstant.CELCIUS);
+                String weather = object.getString(ApiConstant.CONDITIONS);
+                String icon = object.getString(ApiConstant.ICON_URL);
+
+                arrDays.add(new WeatherDay(weekday, weather, highTemp, lowTemp, icon));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -61,15 +61,16 @@ public class ProcessJson {
     public static CurrentWeather getCurrentWeather(JSONObject response) {
         CurrentWeather currentWeather = new CurrentWeather();
         try {
-            JSONObject currentObservation = response.getJSONObject("current_observation");
-            String timeUpdate = currentObservation.getString("local_tz_offset");
-            int wind = currentObservation.getInt("wind_gust_kph");
-            String humid = currentObservation.getString("relative_humidity");
-            String weather = currentObservation.getString("weather");
-            int tempc = currentObservation.getInt("temp_c");
-            int uv = currentObservation.getInt("UV");
-            int feelslike = currentObservation.getInt("feelslike_c");
-            String icon = currentObservation.getString("icon_url");
+            JSONObject currentObservation = response.getJSONObject(ApiConstant.CURRENT_OBSERVATION);
+
+            String timeUpdate = currentObservation.getString(ApiConstant.LOCAL_TZ_OFFSET);
+            int wind = currentObservation.getInt(ApiConstant.WIND_GUST);
+            String humid = currentObservation.getString(ApiConstant.RELATIVE_HUMIDITY);
+            String weather = currentObservation.getString(ApiConstant.WEATHER);
+            int tempc = currentObservation.getInt(ApiConstant.TEMP_C);
+            int uv = currentObservation.getInt(ApiConstant.UV);
+            int feelslike = currentObservation.getInt(ApiConstant.FEELS_LIKE_C);
+            String icon = currentObservation.getString(ApiConstant.ICON_URL);
 
             currentWeather = new CurrentWeather(icon, tempc, weather, humid, wind, uv, feelslike, timeUpdate, System.currentTimeMillis());
         } catch (JSONException e) {

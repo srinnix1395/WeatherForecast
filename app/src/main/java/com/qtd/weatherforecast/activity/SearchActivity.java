@@ -1,5 +1,6 @@
 package com.qtd.weatherforecast.activity;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,9 +27,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.qtd.weatherforecast.AppController;
 import com.qtd.weatherforecast.R;
-import com.qtd.weatherforecast.adapter.AutoCompleteTextViewLocationAdapter;
 import com.qtd.weatherforecast.constant.ApiConstant;
-import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.utils.NetworkUtil;
 import com.qtd.weatherforecast.utils.StringUtils;
 
@@ -53,18 +52,16 @@ public class SearchActivity extends AppCompatActivity {
 //    @Bind(R.id.actvLocation)
 //    AutoCompleteTextView autocompleteLocation;
 
-    PopupMenu popupMenu;
-    ArrayList<String> tzs = new ArrayList<>();
-    String url = ApiConstant.AUTOCOMPLETE_API;
-    String urlConditions = "";
-    String urlForecast10day = "";
-    String urlHourly = "";
+    private PopupMenu popupMenu;
+    private ArrayList<String> tzs = new ArrayList<>();
+    private String urlConditions = "";
+    private String urlForecast10day = "";
+    private String urlHourly = "";
 
-    ProgressDialog loading;
-    public static final int RESULT_CODE = 114;
-    AlertDialog alertDialog;
-    private ArrayList<City> cities;
-    private AutoCompleteTextViewLocationAdapter adapter;
+    private ProgressDialog loading;
+    private AlertDialog alertDialog;
+//    private ArrayList<City> cities;
+//    private AutoCompleteTextViewLocationAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,18 +93,17 @@ public class SearchActivity extends AppCompatActivity {
                 loading.show();
                 final Intent intent = new Intent(SearchActivity.this, MainActivity.class);
 
-                urlConditions = StringUtils.getURL("conditions", tzs.get(item.getItemId()));
-                urlForecast10day = StringUtils.getURL("forecast10day", tzs.get(item.getItemId()));
-                urlHourly = StringUtils.getURL("hourly", tzs.get(item.getItemId()));
+                urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, tzs.get(item.getItemId()));
+                urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, tzs.get(item.getItemId()));
+                urlHourly = StringUtils.getURL(ApiConstant.HOURLY, tzs.get(item.getItemId()));
 
                 Log.d("search", tzs.get(item.getItemId()));
                 alertDialog = new AlertDialog.Builder(SearchActivity.this)
-                        .setMessage("Đã có lỗi trong quá trình xử lý, xin thử lại")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setMessage(getString(R.string.errorOnProcessing))
+                        .setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                return;
                             }
                         }).create();
 
@@ -116,7 +112,7 @@ public class SearchActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d("conditions", response.toString());
-                        intent.putExtra("conditions", response.toString());
+                        intent.putExtra(ApiConstant.CONDITIONS, response.toString());
                         requestHourly(intent);
                     }
                 }, new Response.ErrorListener() {
@@ -154,7 +150,7 @@ public class SearchActivity extends AppCompatActivity {
 
         loading = new ProgressDialog(this);
         loading.setIndeterminate(true);
-        loading.setTitle("Đang xử lý...");
+        loading.setTitle(getString(R.string.loading));
         loading.setCanceledOnTouchOutside(false);
     }
 
@@ -163,7 +159,7 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("hourly", response.toString());
-                intent.putExtra("hourly", response.toString());
+                intent.putExtra(ApiConstant.HOURLY, response.toString());
                 requestForecast10day(intent);
             }
         }, new Response.ErrorListener() {
@@ -181,8 +177,8 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("forecast10day", response.toString());
-                intent.putExtra("forecast10days", response.toString());
-                setResult(RESULT_CODE, intent);
+                intent.putExtra(ApiConstant.FORECAST10DAY, response.toString());
+                setResult(Activity.RESULT_OK, intent);
                 SearchActivity.this.finish();
             }
         }, new Response.ErrorListener() {
@@ -196,10 +192,10 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void getAutoComplete(CharSequence s) {
-        if (!NetworkUtil.getInstance().isNetworkAvailable(this)) {
+        if (!NetworkUtil.isNetworkAvailable(this)) {
             new AlertDialog.Builder(SearchActivity.this, R.style.DialogTheme)
-                    .setMessage("Hãy kết nối internet để thêm địa điểm")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    .setMessage(getString(R.string.pleaseConnectInternet))
+                    .setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
@@ -219,6 +215,8 @@ public class SearchActivity extends AppCompatActivity {
         if (keyWord.contains(" ")) {
             keyWord = keyWord.replace(" ", "%20");
         }
+
+        String url = ApiConstant.AUTOCOMPLETE_API;
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url + keyWord,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -228,13 +226,13 @@ public class SearchActivity extends AppCompatActivity {
                             popupMenu.getMenu().clear();
                             Log.d("response", response.toString());
 
-                            JSONArray array = response.getJSONArray("RESULTS");
+                            JSONArray array = response.getJSONArray(ApiConstant.RESULTS);
                             int j = 0;
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject object = array.getJSONObject(i);
-                                if ((object.length() == 10 || object.length() == 9) && object.getString("type").equals("city")) {
-                                    tzs.add(object.getString("lat") + "," + object.getString("lon"));
-                                    popupMenu.getMenu().add(Menu.NONE, j, j, object.getString("name"));
+                                if ((object.length() == 10 || object.length() == 9) && object.getString(ApiConstant.TYPE).equals(ApiConstant.CITY)) {
+                                    tzs.add(object.getString(ApiConstant.LAT) + "," + object.getString(ApiConstant.LON));
+                                    popupMenu.getMenu().add(Menu.NONE, j, j, object.getString(ApiConstant.NAME));
 //                                    City city = new City(0, object.getString("name"), object.getString("lat") + "," + object.getString("lon"));
 //                                    cities.add(city);
                                     j++;

@@ -1,14 +1,9 @@
 package com.qtd.weatherforecast.fragment;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,17 +13,17 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.widget.RemoteViews;
 
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.activity.MainActivity;
 import com.qtd.weatherforecast.adapter.CityAdapter;
+import com.qtd.weatherforecast.callback.FragmentCallback;
+import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.model.City;
-import com.qtd.weatherforecast.model.CityPlus;
 import com.qtd.weatherforecast.model.CurrentWeather;
-import com.qtd.weatherforecast.service.WeatherForecastService;
-import com.qtd.weatherforecast.utils.ImageUtils;
+import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 
 import org.json.JSONException;
@@ -46,10 +41,10 @@ public class SearchFragment extends Fragment {
     @Bind(R.id.recycleView_search_fragment)
     RecyclerView recyclerView;
 
-    CityAdapter adapter;
-    ArrayList<City> cities;
-    View view;
-    UpdateChoosingCityCallback callback;
+    private CityAdapter adapter;
+    private ArrayList<City> cities;
+    private View view;
+    private FragmentCallback callback;
 
     @Nullable
     @Override
@@ -67,7 +62,7 @@ public class SearchFragment extends Fragment {
         super.onAttach(context);
         try {
             if (context instanceof MainActivity) {
-                callback = (UpdateChoosingCityCallback) context;
+                callback = (FragmentCallback) context;
             }
         } catch (Exception e) {
             Log.d("Err casting searchFrg", "cast context to activity");
@@ -75,25 +70,24 @@ public class SearchFragment extends Fragment {
     }
 
     private void initComponent() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.setHasFixedSize(true);
+
         cities = new ArrayList<>();
         adapter = new CityAdapter(cities);
         recyclerView.setAdapter(adapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     public void initData() {
         MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
-        int id = SharedPreUtils.getInt("ID", -1);
+
+        int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         Log.d("id", String.valueOf(id));
         if (id != -1) {
             cities.addAll(databaseHelper.getAllCities());
-            for (int i = 0; i < cities.size(); i++) {
-                if (cities.get(i).getId() != id) {
-                    cities.get(i).setChosen(false);
+            for (City city : cities) {
+                if (city.getId() != id) {
+                    city.setChosen(false);
                 }
             }
             adapter.notifyDataSetChanged();
@@ -164,17 +158,17 @@ public class SearchFragment extends Fragment {
 
     public int updateDataAndGetID(String s, boolean isInsert) {
         MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
-        long id = SharedPreUtils.getInt("ID", -1);
+        long id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         try {
             JSONObject object = new JSONObject(s);
-            JSONObject currentObservation = object.getJSONObject("current_observation");
-            String timeUpdate = currentObservation.getString("local_tz_offset");
-            JSONObject displayLocation = currentObservation.getJSONObject("display_location");
-            String name = displayLocation.getString("city");
-            String fullName = displayLocation.getString("full");
-            int tempc = currentObservation.getInt("temp_c");
-            String weather = currentObservation.getString("weather");
-            String coordinate = displayLocation.getString("latitude") + "," + displayLocation.getString("longitude");
+            JSONObject currentObservation = object.getJSONObject(ApiConstant.CURRENT_OBSERVATION);
+            String timeUpdate = currentObservation.getString(ApiConstant.LOCAL_TZ_OFFSET);
+            JSONObject displayLocation = currentObservation.getJSONObject(ApiConstant.DISPLAY_LOCATION);
+            String name = displayLocation.getString(ApiConstant.CITY);
+            String fullName = displayLocation.getString(ApiConstant.FULL);
+            int tempc = currentObservation.getInt(ApiConstant.TEMP_C);
+            String weather = currentObservation.getString(ApiConstant.WEATHER);
+            String coordinate = displayLocation.getString(ApiConstant.LATITUDE) + "," + displayLocation.getString(ApiConstant.LONGITUDE);
 
             if (isInsert) {
                 City city = new City(0, name, tempc, weather, coordinate, true, fullName);
@@ -184,10 +178,10 @@ public class SearchFragment extends Fragment {
                 cities.add(city);
                 setCheckedCities((int) id);
             } else {
-                for (int i = 0; i < cities.size(); i++) {
-                    if (cities.get(i).getId() == id) {
-                        cities.get(i).setTemp(tempc);
-                        cities.get(i).setWeather(weather);
+                for (City city : cities) {
+                    if (city.getId() == id) {
+                        city.setTemp(tempc);
+                        city.setWeather(weather);
                     }
                 }
             }
@@ -199,87 +193,64 @@ public class SearchFragment extends Fragment {
     }
 
     private void setCheckedCities(int idChecked) {
-        for (int i = 0; i < cities.size(); i++) {
-            if (cities.get(i).getId() != idChecked) {
-                cities.get(i).setChosen(false);
+        for (City city : cities) {
+            if (city.getId() != idChecked) {
+                city.setChosen(false);
             } else {
-                cities.get(i).setChosen(true);
+                city.setChosen(true);
             }
         }
     }
 
     public void deleteItem(int idCity) {
         MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
-        for (int i = cities.size() - 1; i >= 0; i--) {
-            if (cities.get(i).getId() == idCity) {
-                cities.remove(i);
+
+        for (City city : cities) {
+            if (city.getId() == idCity) {
+                cities.remove(city);
                 break;
             }
         }
+
         databaseHelper.deleteCity(idCity);
-        int idChosen = SharedPreUtils.getInt("ID", -1);
+        int idChosen = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (idChosen == idCity) {
             City city = databaseHelper.getFirstCity();
             CurrentWeather currentWeather = databaseHelper.getCurrentWeather(city.getId());
             setCheckedCities(city.getId());
             SharedPreUtils.putData(city.getId(), city.getName(), city.getCoordinate(), currentWeather.getTime());
             if (city.getId() == -1) {
-                NotificationManager notificationManager = (NotificationManager) view.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.cancel(WeatherForecastService.NOTIFICATION_ID);
+                NotificationUtils.clearNotification(view.getContext());
             }
             callback.checkCitySizeToEnableViewPagerSwipe(city.getId());
         }
         adapter.notifyDataSetChanged();
-        updateNoti();
+        NotificationUtils.updateNotification(view.getContext());
     }
 
     public void chooseItem(int idCity) {
         setCheckedCities(idCity);
         adapter.notifyDataSetChanged();
-        updateNoti();
-    }
-
-
-    public void updateNoti() {
-        MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
-        int id = SharedPreUtils.getInt("ID", -1);
-        if (id != -1) {
-            CityPlus cityPlus = databaseHelper.getCityByID(id);
-            RemoteViews remoteViews = new RemoteViews(view.getContext().getPackageName(), R.layout.notification);
-            remoteViews.setImageViewResource(R.id.imv_icon, ImageUtils.getImageResourceNotification(cityPlus.getIcon()));
-            remoteViews.setTextViewText(R.id.tv_weather, cityPlus.getWeather());
-            remoteViews.setTextViewText(R.id.tv_temp, String.valueOf(cityPlus.getTemp()) + "°");
-            remoteViews.setTextViewText(R.id.tv_location, cityPlus.getFullName());
-            Intent intent = new Intent(view.getContext(), MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(view.getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(view.getContext())
-                    .setSmallIcon(ImageUtils.getImageResourceCurrentWeather(cityPlus.getIcon()))
-                    .setContent(remoteViews)
-                    .setOngoing(true)
-                    .setContentIntent(pendingIntent);
-            NotificationManager notificationManager = (NotificationManager) view.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(WeatherForecastService.NOTIFICATION_ID, notiBuilder.build());
-        }
+        NotificationUtils.updateNotification(view.getContext());
     }
 
     public void getDataFromDatabase() {
         MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
-        int id = SharedPreUtils.getInt("ID", -1);
+        int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             cities.clear();
             adapter.notifyDataSetChanged();
 
             cities.addAll(databaseHelper.getAllCities());
-            for (int i = 0; i < cities.size(); i++) {
-                if (cities.get(i).getId() != id) {
-                    cities.get(i).setChosen(false);
+
+            for (City city : cities) {
+                if (city.getId() != id) {
+                    city.setChosen(false);
                 }
             }
             adapter.notifyDataSetChanged();
         }
     }
 
-    public interface UpdateChoosingCityCallback {
-        void checkCitySizeToEnableViewPagerSwipe(int idCity);
-    }
+
 }

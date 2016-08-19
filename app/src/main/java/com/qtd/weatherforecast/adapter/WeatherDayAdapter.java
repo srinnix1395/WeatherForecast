@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.qtd.weatherforecast.R;
-import com.qtd.weatherforecast.adapter.viewholder.WeatherDayViewHolder;
+import com.qtd.weatherforecast.viewholder.WeatherDayViewHolder;
 import com.qtd.weatherforecast.model.WeatherDay;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Created by Dell on 4/26/2016.
  */
 public class WeatherDayAdapter extends RecyclerView.Adapter<WeatherDayViewHolder> {
-    ArrayList<WeatherDay> weatherDays;
+    private ArrayList<WeatherDay> weatherDays;
 
     public WeatherDayAdapter(ArrayList<WeatherDay> weatherDays) {
         this.weatherDays = weatherDays;

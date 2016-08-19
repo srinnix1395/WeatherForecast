@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.activity.MainActivity;
+import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.database.ProcessJson;
@@ -58,10 +59,15 @@ public class CurrentWeatherFragment extends Fragment {
     @Bind(R.id.tv_feelslike)
     TextView tvFeel;
 
-    View view;
-    String time = "";
+    @Bind(R.id.layout_UV)
+    RelativeLayout layoutUV;
 
-    MyDatabaseHelper databaseHelper;
+    @Bind(R.id.layout_humid)
+    RelativeLayout layoutHumid;
+
+    private View view;
+    private String time = "";
+    private MyDatabaseHelper databaseHelper;
 
     @Nullable
     @Override
@@ -74,7 +80,7 @@ public class CurrentWeatherFragment extends Fragment {
 
     private void initComponent() {
         databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
-        final int id = SharedPreUtils.getInt("ID", -1);
+        final int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
 
         if (id != -1) {
             CurrentWeather currentWeather = databaseHelper.getCurrentWeather(id);
@@ -84,7 +90,7 @@ public class CurrentWeatherFragment extends Fragment {
             tvWeather.setText(currentWeather.getWeather());
             tvWind.setText(String.valueOf(currentWeather.getWind()) + " km/h");
             tvUV.setText(String.valueOf(currentWeather.getUV()));
-            tvFeel.setText(String.valueOf(currentWeather.getFeelslike()) + "°");
+            tvFeel.setText(String.valueOf(currentWeather.getFeelsLike()) + "°");
             time = StringUtils.getCurrentDateTime(currentWeather.getTime());
             ((MainActivity) getActivity()).getTvTime().setText(time);
             ((MainActivity) getActivity()).getTvTime().setVisibility(View.VISIBLE);
@@ -95,17 +101,17 @@ public class CurrentWeatherFragment extends Fragment {
 
     private void displayData(JSONObject s) {
         try {
-            JSONObject currentObservation = s.getJSONObject("current_observation");
-            String icon = currentObservation.getString("icon_url");
+            JSONObject currentObservation = s.getJSONObject(ApiConstant.CURRENT_OBSERVATION);
+            String icon = currentObservation.getString(ApiConstant.ICON_URL);
             imvIcon.setImageResource(ImageUtils.getImageResourceCurrentWeather(icon));
-            tvTemp.setText(String.valueOf(currentObservation.getInt("temp_c")) + "°");
-            tvHumid.setText(currentObservation.getString("relative_humidity"));
-            tvWeather.setText(currentObservation.getString("weather"));
-            tvWind.setText(String.valueOf(currentObservation.getString("wind_gust_kph")) + " km/h");
+            tvTemp.setText(String.valueOf(currentObservation.getInt(ApiConstant.TEMP_C)) + "°");
+            tvHumid.setText(currentObservation.getString(ApiConstant.RELATIVE_HUMIDITY));
+            tvWeather.setText(currentObservation.getString(ApiConstant.WEATHER));
+            tvWind.setText(String.valueOf(currentObservation.getString(ApiConstant.WIND_GUST)) + " km/h");
 //            String day = currentObservation.getString("observation_time_rfc822");
-            tvUV.setText(String.valueOf(currentObservation.getInt("UV")));
-            tvFeel.setText(String.valueOf(currentObservation.getInt("feelslike_c")) + "°");
-            time = StringUtils.getCurrentDateTime(currentObservation.getString("local_tz_offset"));
+            tvUV.setText(String.valueOf(currentObservation.getInt(ApiConstant.UV)));
+            tvFeel.setText(String.valueOf(currentObservation.getInt(ApiConstant.FEELS_LIKE_C)) + "°");
+            time = StringUtils.getCurrentDateTime(currentObservation.getString(ApiConstant.LOCAL_TZ_OFFSET));
             SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
             updateTextViewRecent();
         } catch (JSONException e) {
@@ -195,11 +201,7 @@ public class CurrentWeatherFragment extends Fragment {
         try {
             JSONObject object = new JSONObject(s);
             displayData(object);
-            if (isInsert) {
-                updateDatabase(object, true, idCity);
-            } else {
-                updateDatabase(object, false, idCity);
-            }
+            updateDatabase(object, isInsert, idCity);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -218,30 +220,30 @@ public class CurrentWeatherFragment extends Fragment {
         updateTextViewRecent();
     }
 
-    @Bind(R.id.layout_UV)
-    RelativeLayout layoutUV;
-    @Bind(R.id.layout_humid)
-    RelativeLayout layoutHumid;
 
-    @OnClick(R.id.layout_humid)
-    void layoutHumidOnClick() {
-        if (layoutHumid.getVisibility() == View.VISIBLE) {
-            layoutHumid.setVisibility(View.INVISIBLE);
-            layoutUV.setVisibility(View.VISIBLE);
+    @OnClick({R.id.layout_humid, R.id.layout_UV})
+    void layoutInfoOnClick(View v) {
+        switch (v.getId()) {
+            case R.id.layout_humid:{
+                if (layoutHumid.getVisibility() == View.VISIBLE) {
+                    layoutHumid.setVisibility(View.INVISIBLE);
+                    layoutUV.setVisibility(View.VISIBLE);
+                }
+                break;
+            }
+            case R.id.layout_UV:{
+                if (layoutUV.getVisibility() == View.VISIBLE) {
+                    layoutUV.setVisibility(View.INVISIBLE);
+                    layoutHumid.setVisibility(View.VISIBLE);
+                }
+                break;
+            }
         }
-    }
 
-
-    @OnClick(R.id.layout_UV)
-    void layoutUVOnClick() {
-        if (layoutUV.getVisibility() == View.VISIBLE) {
-            layoutUV.setVisibility(View.INVISIBLE);
-            layoutHumid.setVisibility(View.VISIBLE);
-        }
     }
 
     public void getDataFromDatabase() {
-        int id = SharedPreUtils.getInt("ID", -1);
+        int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             CurrentWeather currentWeather = databaseHelper.getCurrentWeather(id);
             imvIcon.setImageResource(ImageUtils.getImageResourceCurrentWeather(currentWeather.getIcon()));

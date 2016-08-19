@@ -1,5 +1,6 @@
 package com.qtd.weatherforecast.activity;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,8 +28,10 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.qtd.weatherforecast.AppController;
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.adapter.MainPagerAdapter;
-import com.qtd.weatherforecast.adapter.viewholder.CityViewHolder;
+import com.qtd.weatherforecast.callback.FragmentCallback;
+import com.qtd.weatherforecast.callback.ViewHolderCallback;
 import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.custom.CustomViewPager;
 import com.qtd.weatherforecast.fragment.CurrentWeatherFragment;
@@ -37,6 +40,7 @@ import com.qtd.weatherforecast.fragment.WeatherDayFragment;
 import com.qtd.weatherforecast.fragment.WeatherHourFragment;
 import com.qtd.weatherforecast.service.WeatherForecastService;
 import com.qtd.weatherforecast.utils.NetworkUtil;
+import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.qtd.weatherforecast.utils.StringUtils;
 import com.viewpagerindicator.CirclePageIndicator;
@@ -49,8 +53,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity
-        implements CityViewHolder.DeleteItemCallback, SearchFragment.UpdateChoosingCityCallback {
+public class MainActivity extends AppCompatActivity implements ViewHolderCallback, FragmentCallback {
     private static final String TAG = "MainActivity";
     @Bind(R.id.toolbar_home)
     Toolbar toolbar;
@@ -80,11 +83,9 @@ public class MainActivity extends AppCompatActivity
     private boolean isReceiverRegistered;
     private MainPagerAdapter adapter;
     private PopupMenu popupMenu;
-    private ArrayList<Fragment> fragments;
     private AlertDialog alertDialog;
     private Intent intent;
     boolean isPlus;
-    public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 113;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,8 +107,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         alertDialog = new AlertDialog.Builder(MainActivity.this)
-                .setMessage("Đã có lỗi trong quá trình xử lý, xin thử lại")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setMessage(getString(R.string.errorOnProcessing))
+                .setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setupViewPager() {
-        fragments = new ArrayList<>();
+        ArrayList<Fragment> fragments = new ArrayList<>();
         fragments.add(new SearchFragment());
         fragments.add(new CurrentWeatherFragment());
         fragments.add(new WeatherHourFragment());
@@ -150,8 +151,8 @@ public class MainActivity extends AppCompatActivity
     private void registerBroadcast() {
         if (!isReceiverRegistered) {
             IntentFilter filter = new IntentFilter();
-            filter.addAction(WeatherForecastService.ACTION_DATABASE_CHANGED);
-            filter.addAction(WeatherForecastService.STATE_UPDATE_CHANGED);
+            filter.addAction(AppConstant.ACTION_DATABASE_CHANGED);
+            filter.addAction(AppConstant.STATE_UPDATE_CHANGED);
             filter.addAction(Intent.ACTION_TIME_TICK);
             registerReceiver(broadcastReceiver, filter);
             isReceiverRegistered = true;
@@ -176,15 +177,15 @@ public class MainActivity extends AppCompatActivity
     void renewOnClick() {
         if (isPlus) {
             Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+            startActivityForResult(intent, AppConstant.PLACE_AUTOCOMPLETE_REQUEST_CODE);
         } else {
-            if (NetworkUtil.getInstance().isNetworkAvailable(MainActivity.this)) {
+            if (NetworkUtil.isNetworkAvailable(MainActivity.this)) {
                 Animation rotation = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation);
                 imvRenew.startAnimation(rotation);
                 updateData(SharedPreUtils.getString(ApiConstant.COORDINATE, "-1"));
             } else {
                 new AlertDialog.Builder(MainActivity.this)
-                        .setMessage("Không có kết nối Internet, xin thử lại sau")
+                        .setMessage(getString(R.string.noInternetConnection))
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -198,37 +199,44 @@ public class MainActivity extends AppCompatActivity
 
     @OnClick(R.id.imv_more)
     void imvMoreOnClick() {
-        popupMenu = new PopupMenu(MainActivity.this, findViewById(R.id.imv_more));
-        popupMenu.getMenuInflater().inflate(R.menu.menu, popupMenu.getMenu());
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.tv_setting:
-                        Intent intent = new Intent(MainActivity.this, SettingActivity.class);
-                        startActivity(intent);
-                        break;
-                    case R.id.tv_info:
-                        Log.d("info", "");
-                        break;
+        if (popupMenu == null) {
+            popupMenu = new PopupMenu(MainActivity.this, findViewById(R.id.imv_more));
+            popupMenu.getMenuInflater().inflate(R.menu.menu, popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.tv_setting:
+                            Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+                            startActivity(intent);
+                            break;
+                        case R.id.tv_info:
+                            Log.d("info", "");
+                            break;
+                    }
+                    return true;
                 }
-                return true;
-            }
-        });
+            });
+        }
         popupMenu.show();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE && resultCode == SearchActivity.RESULT_CODE) {
-            String conditions = data.getStringExtra("conditions");
+        if (requestCode == AppConstant.PLACE_AUTOCOMPLETE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            String conditions = data.getStringExtra(ApiConstant.CONDITIONS);
+
             int idCity = ((SearchFragment) adapter.getItem(0)).updateDataAndGetID(conditions, true);
             sendDataToFragment(conditions, 1, idCity, true);
-            String hourly = data.getStringExtra("hourly");
+
+            String hourly = data.getStringExtra(ApiConstant.HOURLY);
             sendDataToFragment(hourly, 2, idCity, true);
-            String forecast = data.getStringExtra("forecast10days");
+
+            String forecast = data.getStringExtra(ApiConstant.FORECAST10DAY);
             sendDataToFragment(forecast, 3, idCity, true);
-            ((SearchFragment) adapter.getItem(0)).updateNoti();
+
+            NotificationUtils.updateNotification(this);
+
             viewPager.setPagingEnabled(true);
             indicator.setVisibility(View.VISIBLE);
         }
@@ -251,7 +259,7 @@ public class MainActivity extends AppCompatActivity
 
     private void updateData(final String coordinate) {
         final String[] data = new String[3];
-        String urlConditions = StringUtils.getURL("conditions", coordinate);
+        String urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, coordinate);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, urlConditions, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -270,7 +278,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void requestHourly(final String coordinate, final String[] data) {
-        String urlHourly = StringUtils.getURL("hourly", coordinate);
+        String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
         JsonObjectRequest request1 = new JsonObjectRequest(Request.Method.GET, urlHourly, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -290,7 +298,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void requestForecast10day(String coordinate, final String[] data) {
-        String urlForecast10day = StringUtils.getURL("forecast10day", coordinate);
+        String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
         JsonObjectRequest request2 = new JsonObjectRequest(Request.Method.GET, urlForecast10day, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -385,7 +393,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case WeatherForecastService.ACTION_DATABASE_CHANGED: {
+                case AppConstant.ACTION_DATABASE_CHANGED: {
                     getDataFromDatabase();
                     break;
                 }
@@ -397,18 +405,17 @@ public class MainActivity extends AppCompatActivity
                     ((CurrentWeatherFragment) adapter.getItem(1)).updateTextViewRecent();
                     break;
                 }
-                case WeatherForecastService.STATE_UPDATE_CHANGED: {
-                    String state = intent.getStringExtra(WeatherForecastService.STATE);
-                    Log.e("state", state);
+                case AppConstant.STATE_UPDATE_CHANGED: {
+                    String state = intent.getStringExtra(AppConstant.STATE);
                     switch (state) {
-                        case WeatherForecastService.STATE_START: {
+                        case AppConstant.STATE_START: {
                             if (adapter.getItem(1).isVisible()) {
                                 Animation rotation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.clockwise_rotation);
                                 imvRenew.startAnimation(rotation);
                             }
                             break;
                         }
-                        case WeatherForecastService.STATE_END: {
+                        case AppConstant.STATE_END: {
                             if (adapter.getItem(1).isVisible()) {
                                 imvRenew.getAnimation().setRepeatCount(0);
                             }

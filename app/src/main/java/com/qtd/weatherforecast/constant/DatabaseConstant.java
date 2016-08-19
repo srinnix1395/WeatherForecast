@@ -4,6 +4,17 @@ package com.qtd.weatherforecast.constant;
  * Created by Dell on 4/28/2016.
  */
 public class DatabaseConstant {
+    //Database info
+    public static final String DATABASE_NAME = "dbWeatherForecast";
+    public static final int DATABASE_VERSION = 1;
+
+    //Table names
+    public static final String TABLE_HOUR = "tbHour";
+    public static final String TABLE_DAY = "tbDay";
+    public static final String TABLE_CITY = "tbCity";
+    public static final String TABLE_CURRENT_WEATHER = "tbCurrentWeather";
+
+    //properties
     public static final String ID_CITY = "id_city";
     public static final String NAME = "name";
     public static final String FULLNAME = "full_name";
@@ -29,4 +40,7 @@ public class DatabaseConstant {
     public static final String TIME_ZONE = "time_zone";
 
     public static final String LAST_UPDATE = "last_update";
+
+
+    public static final String _ID = "ID";
 }

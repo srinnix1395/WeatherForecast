@@ -1,4 +1,4 @@
-package com.qtd.weatherforecast.adapter.viewholder;
+package com.qtd.weatherforecast.viewholder;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -31,10 +31,10 @@ public class WeatherDayViewHolder extends RecyclerView.ViewHolder {
     @Bind(R.id.imv_icon)
     ImageView imvIcon;
 
-    @Bind(R.id.imv_gach)
-    ImageView imvGach;
+    @Bind(R.id.imv_line)
+    ImageView imvLine;
 
-    View view;
+    private View view;
 
     public WeatherDayViewHolder(View itemView) {
         super(itemView);
@@ -49,10 +49,11 @@ public class WeatherDayViewHolder extends RecyclerView.ViewHolder {
         imvIcon.setImageResource(icon);
         tvHighTemp.setText(weatherDay.getHighTemp() + "°");
         tvLowTemp.setText(weatherDay.getLowTemp() + "°");
+
         if (isLast) {
-            imvGach.setImageResource(R.drawable.background_gach_trong);
+            imvLine.setImageResource(R.drawable.background_gach_trong);
         } else {
-            imvGach.setImageResource(R.drawable.background_gach_gray);
+            imvLine.setImageResource(R.drawable.background_gach_gray);
         }
     }
 }

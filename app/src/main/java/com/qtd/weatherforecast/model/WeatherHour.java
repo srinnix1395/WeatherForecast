@@ -4,10 +4,10 @@ package com.qtd.weatherforecast.model;
  * Created by Dell on 4/26/2016.
  */
 public class WeatherHour {
-    String hour;
-    String rain;
-    int temp;
-    String url;
+    private String hour;
+    private String rain;
+    private int temp;
+    private String url;
 
 
     public WeatherHour(String hour, String rain, int temp, String url) {

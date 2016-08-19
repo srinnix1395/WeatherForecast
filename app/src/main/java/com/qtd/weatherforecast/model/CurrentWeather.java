@@ -4,28 +4,28 @@ package com.qtd.weatherforecast.model;
  * Created by Dell on 4/28/2016.
  */
 public class CurrentWeather {
-    String icon;
-    int temp;
-    String weather;
-    String humidity;
-    int wind;
-    int UV;
-    int feelslike;
-    String time;
-    long lastUpdate;
+    private String icon;
+    private int temp;
+    private String weather;
+    private String humidity;
+    private int wind;
+    private int UV;
+    private int feelsLike;
+    private String time;
+    private long lastUpdate;
 
     public CurrentWeather() {
 
     }
 
-    public CurrentWeather(String icon, int temp, String weather, String humidity, int wind, int UV, int feelslike, String time, long lastUpdate) {
+    public CurrentWeather(String icon, int temp, String weather, String humidity, int wind, int UV, int feelsLike, String time, long lastUpdate) {
         this.icon = icon;
         this.temp = temp;
         this.weather = weather;
         this.humidity = humidity;
         this.wind = wind;
         this.UV = UV;
-        this.feelslike = feelslike;
+        this.feelsLike = feelsLike;
         this.time = time;
         this.lastUpdate = lastUpdate;
     }
@@ -86,12 +86,12 @@ public class CurrentWeather {
         this.UV = UV;
     }
 
-    public int getFeelslike() {
-        return feelslike;
+    public int getFeelsLike() {
+        return feelsLike;
     }
 
-    public void setFeelslike(int feelslike) {
-        this.feelslike = feelslike;
+    public void setFeelsLike(int feelslike) {
+        this.feelsLike = feelslike;
     }
 
     public long getLastUpdate() {

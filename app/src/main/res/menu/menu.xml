@@ -3,9 +3,9 @@
     <item
         android:id="@+id/tv_setting"
         android:icon="@drawable/ic_settings_grey600_24dp"
-        android:title="Cài đặt" />
+        android:title="@string/setting" />
     <item
         android:id="@+id/tv_info"
         android:icon="@drawable/ic_information_grey600_24dp"
-        android:title="Thông tin" />
+        android:title="@string/info" />
 </menu>

@@ -1,3 +1,24 @@
 <resources>
     <string name="app_name">WeatherForecast</string>
+    <string name="noInternetConnection">Không có kết nối Internet, xin thử lại sau</string>
+    <string name="errorOnProcessing">Đã có lỗi trong quá trình xử lý, xin thử lại</string>
+    <string name="OK">OK</string>
+    <string name="loading">Đang xử lý…</string>
+    <string name="pleaseConnectInternet">Hãy kết nối internet để thêm địa điểm</string>
+    <string name="setting">Cài đặt</string>
+    <string name="wunderground.com">http://www.wunderground.com</string>
+    <string name="position">Vị trí</string>
+    <string name="inputCity">Nhập thành phố</string>
+    <string name="unit">Đơn vị</string>
+    <string name="farenheit">°F</string>
+    <string name="celcius">°C</string>
+    <string name="report">Thông báo</string>
+    <string name="background">Hình nền</string>
+    <string name="humid">Độ ẩm</string>
+    <string name="wind">Gió</string>
+    <string name="feels_like">Cảm thấy</string>
+    <string name="UV">Chỉ số UV</string>
+    <string name="info">Thông tin</string>
+    <string name="sixDaysToGo">6 ngày tiếp theo</string>
+    <string name="twentyFourHoursToGo">24 giờ tiếp theo</string>
 </resources>

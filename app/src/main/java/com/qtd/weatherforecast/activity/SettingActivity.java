@@ -11,7 +11,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.qtd.weatherforecast.R;
-import com.qtd.weatherforecast.service.WeatherForecastService;
+import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 
@@ -39,7 +39,7 @@ public class SettingActivity extends AppCompatActivity {
 
     private void initComponent() {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Cài đặt");
+        getSupportActionBar().setTitle(R.string.setting);
         toolbar.setTitleTextColor(ContextCompat.getColor(this, android.R.color.white));
         toolbar.setNavigationIcon(R.drawable.arrow_left);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -49,15 +49,15 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
-        aSwitch.setChecked(SharedPreUtils.getBoolean(WeatherForecastService.STATE_NOTIFICATION, true));
+        aSwitch.setChecked(SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true));
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    SharedPreUtils.putBoolean(WeatherForecastService.STATE_NOTIFICATION, true);
+                    SharedPreUtils.putBoolean(AppConstant.STATE_NOTIFICATION, true);
                     NotificationUtils.createNotification(SettingActivity.this);
                 } else {
-                    SharedPreUtils.putBoolean(WeatherForecastService.STATE_NOTIFICATION, false);
+                    SharedPreUtils.putBoolean(AppConstant.STATE_NOTIFICATION, false);
                     NotificationUtils.clearNotification(SettingActivity.this);
                 }
             }
@@ -66,7 +66,7 @@ public class SettingActivity extends AppCompatActivity {
 
     @OnClick(R.id.imv_logo)
     void imvLogoOnClick() {
-        Uri uri = Uri.parse("http://www.wunderground.com");
+        Uri uri = Uri.parse(getString(R.string.wunderground_com));
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
     }

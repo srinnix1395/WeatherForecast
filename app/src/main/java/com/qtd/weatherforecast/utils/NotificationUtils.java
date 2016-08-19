@@ -9,6 +9,7 @@ import android.widget.RemoteViews;
 
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.activity.MainActivity;
+import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.model.CityPlus;
 
@@ -16,7 +17,6 @@ import com.qtd.weatherforecast.model.CityPlus;
  * Created by Dell on 7/6/2016.
  */
 public class NotificationUtils {
-    public static final int NOTIFICATION_ID = 1012;
     public static void createNotification(Context context) {
         int id = SharedPreUtils.getInt("ID", -1);
         if (id != -1) {
@@ -38,7 +38,7 @@ public class NotificationUtils {
                     .setContentIntent(pendingIntent)
                     .setTicker(city.getTemp() + "°");
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_ID, notiBuilder.build());
+            notificationManager.notify(AppConstant.NOTIFICATION_ID, notiBuilder.build());
         }
     }
 
@@ -62,12 +62,12 @@ public class NotificationUtils {
                     .setContentIntent(pendingIntent)
                     .setTicker(cityPlus.getTemp() + "°");
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_ID, notiBuilder.build());
+            notificationManager.notify(AppConstant.NOTIFICATION_ID, notiBuilder.build());
         }
     }
 
     public static void clearNotification(Context context) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NOTIFICATION_ID);
+        notificationManager.cancel(AppConstant.NOTIFICATION_ID);
     }
 }

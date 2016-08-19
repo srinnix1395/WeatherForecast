@@ -33,13 +33,10 @@ public class WeatherDayFragment extends Fragment {
     @Bind(R.id.recycleView)
     RecyclerView recyclerView;
 
-    WeatherDayAdapter adapter;
-    ArrayList<WeatherDay> weatherDays;
-    LinearLayoutManager layoutManager;
-
-    MyDatabaseHelper databaseHelper;
-
-    View view;
+    private WeatherDayAdapter adapter;
+    private ArrayList<WeatherDay> weatherDays;
+    private MyDatabaseHelper databaseHelper;
+    private View view;
 
     @Nullable
     @Override
@@ -52,10 +49,9 @@ public class WeatherDayFragment extends Fragment {
     }
 
     private void initComponent() {
-        layoutManager = new LinearLayoutManager(view.getContext());
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.setHasFixedSize(true);
+
         weatherDays = new ArrayList<>();
         adapter = new WeatherDayAdapter(weatherDays);
         recyclerView.setAdapter(adapter);
@@ -63,7 +59,7 @@ public class WeatherDayFragment extends Fragment {
 
     private void initData() {
         databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
-        final int id = SharedPreUtils.getInt("ID", -1);
+        final int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             weatherDays.addAll(databaseHelper.getAllWeatherDays(id));
             adapter.notifyDataSetChanged();
@@ -94,19 +90,15 @@ public class WeatherDayFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             ((MainActivity) getActivity()).getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
-            ((MainActivity) getActivity()).getTvTime().setText("6 ngày tiếp theo");
+            ((MainActivity) getActivity()).getTvTime().setText(R.string.sixDaysToGo);
         }
     }
 
     public void updateData(String s, int idCity, boolean isInsert) {
         try {
-            JSONObject object1 = new JSONObject(s);
-            displayData(object1);
-            if (isInsert) {
-                updateDatabase(object1, true, idCity);
-            } else {
-                updateDatabase(object1, false, idCity);
-            }
+            JSONObject object = new JSONObject(s);
+            displayData(object);
+            updateDatabase(object, isInsert, idCity);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -119,7 +111,7 @@ public class WeatherDayFragment extends Fragment {
     }
 
     public void getDataFromDatabase() {
-        int id = SharedPreUtils.getInt("ID", -1);
+        int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             weatherDays.clear();
             adapter.notifyDataSetChanged();
