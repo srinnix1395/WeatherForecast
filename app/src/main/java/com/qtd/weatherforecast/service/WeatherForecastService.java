@@ -166,16 +166,18 @@ public class WeatherForecastService extends Service implements Runnable {
         try {
             MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(this);
             CurrentWeather currentWeather = ProcessJson.getCurrentWeather(a.getJSONObject(0));
-            databaseHelper.updateCurrentWeather(currentWeather, idCity);
+//            databaseHelper.updateCurrentWeather(currentWeather, idCity);
             ArrayList<WeatherHour> arrHour = ProcessJson.getAllWeatherHours(a.getJSONObject(1));
-            for (int i = 0; i < arrHour.size(); i++) {
-                databaseHelper.updateWeatherHour(arrHour.get(i), idCity, i);
-            }
+//            for (int i = 0; i < arrHour.size(); i++) {
+//                databaseHelper.updateWeatherHour(arrHour.get(i), idCity, i);
+//            }
             ArrayList<WeatherDay> arrDay = ProcessJson.getAllWeatherDays(a.getJSONObject(2));
-            for (int i = 0; i < arrDay.size(); i++) {
-                databaseHelper.updateWeatherDay(arrDay.get(i), idCity, i);
-            }
-            databaseHelper.close();
+//            for (int i = 0; i < arrDay.size(); i++) {
+//                databaseHelper.updateWeatherDay(arrDay.get(i), idCity, i);
+//            }
+
+            databaseHelper.updateAllData(currentWeather, idCity, arrHour, arrDay);
+
             SharedPreUtils.putLong(com.qtd.weatherforecast.constant.DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
         } catch (JSONException e) {
             e.printStackTrace();

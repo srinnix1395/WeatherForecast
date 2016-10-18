@@ -16,6 +16,8 @@ import com.qtd.weatherforecast.model.WeatherHour;
 
 import java.util.ArrayList;
 
+import static android.R.attr.order;
+
 /**
  * Created by Dell on 4/26/2016.
  */
@@ -130,7 +132,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             String lon = cursor.getString(6);
             String icon = cursor.getString(7);
 
-            city = new CityPlus(id, name, temp, weather, lat + "," + lon, true,fullName, icon);
+            city = new CityPlus(id, name, temp, weather, lat + "," + lon, true, fullName, icon);
         }
         cursor.close();
         return city;
@@ -140,7 +142,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         ArrayList<City> cities = new ArrayList<>();
         String CITY_SELECT_QUERY =
                 String.format("Select %s.%s,%s,%s,%s.%s,%s.%s,%s,%s from %s,%s where "
-                        + DatabaseConstant.TABLE_CITY + "." + DatabaseConstant.ID_CITY + "=" + DatabaseConstant.TABLE_CURRENT_WEATHER + "." + DatabaseConstant.ID_CITY,
+                                + DatabaseConstant.TABLE_CITY + "." + DatabaseConstant.ID_CITY + "=" + DatabaseConstant.TABLE_CURRENT_WEATHER + "." + DatabaseConstant.ID_CITY,
                         DatabaseConstant.TABLE_CITY, DatabaseConstant.ID_CITY,
                         DatabaseConstant.NAME,
                         DatabaseConstant.FULLNAME,
@@ -150,7 +152,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                         DatabaseConstant.LONGITUDE,
                         DatabaseConstant.TABLE_CITY,
                         DatabaseConstant.TABLE_CURRENT_WEATHER
-                        );
+                );
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(CITY_SELECT_QUERY, null);
         try {
@@ -179,17 +181,17 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         ArrayList<WeatherHour> weatherHours = new ArrayList<>();
         String HOUR_SELECT_QUERY =
                 String.format("Select %s,%s,%s,%s from %s where "
-                                + DatabaseConstant.TABLE_HOUR + "." + DatabaseConstant.ID_CITY + "=" +id,
+                                + DatabaseConstant.TABLE_HOUR + "." + DatabaseConstant.ID_CITY + "=" + id,
                         DatabaseConstant.HOUR,
                         DatabaseConstant.ICON,
                         DatabaseConstant.TEMP_C,
                         DatabaseConstant.CHANCE_RAIN,
                         DatabaseConstant.TABLE_HOUR
-                        );
+                );
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(HOUR_SELECT_QUERY, null);
         try {
-            while (cursor.moveToNext()){
+            while (cursor.moveToNext()) {
                 String hour = cursor.getString(0);
                 String icon = cursor.getString(1);
                 int temp = cursor.getInt(2);
@@ -211,7 +213,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         CurrentWeather currentWeather = new CurrentWeather();
         String CURRENT_WEATHER_SELECT_QUERY =
                 String.format("Select %s,%s,%s,%s,%s,%s,%s,%s,%s from %s where "
-                                + DatabaseConstant.TABLE_CURRENT_WEATHER + "." + DatabaseConstant.ID_CITY + "=" +id,
+                                + DatabaseConstant.TABLE_CURRENT_WEATHER + "." + DatabaseConstant.ID_CITY + "=" + id,
                         DatabaseConstant.ICON,
                         DatabaseConstant.TEMP_C,
                         DatabaseConstant.WEATHER,
@@ -226,7 +228,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(CURRENT_WEATHER_SELECT_QUERY, null);
         try {
-            while (cursor.moveToNext()){
+            while (cursor.moveToNext()) {
                 currentWeather.setIcon(cursor.getString(0));
                 currentWeather.setTemp(cursor.getInt(1));
                 currentWeather.setWeather(cursor.getString(2));
@@ -251,7 +253,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         ArrayList<WeatherDay> weatherDays = new ArrayList<>();
         String DAY_SELECT_QUERY =
                 String.format("Select %s,%s,%s,%s,%s from %s where "
-                                + DatabaseConstant.TABLE_DAY + "." + DatabaseConstant.ID_CITY + "=" +id,
+                                + DatabaseConstant.TABLE_DAY + "." + DatabaseConstant.ID_CITY + "=" + id,
                         DatabaseConstant.DAY,
                         DatabaseConstant.ICON,
                         DatabaseConstant.WEATHER,
@@ -269,7 +271,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 int highTemp = cursor.getInt(3);
                 int lowTemp = cursor.getInt(4);
 
-                weatherDays.add(new WeatherDay(day, weather, highTemp,lowTemp, icon));
+                weatherDays.add(new WeatherDay(day, weather, highTemp, lowTemp, icon));
             }
         } catch (Exception e) {
             Log.d("Error", "Error while trying to get weather days");
@@ -393,7 +395,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(DatabaseConstant.LAST_UPDATE, currentWeather.getLastUpdate());
             contentValues.put(DatabaseConstant.ID_CITY, idCity);
 
-            long result = db.update(DatabaseConstant.TABLE_CURRENT_WEATHER,contentValues, DatabaseConstant.ID_CITY + "=" + idCity, null);
+            long result = db.update(DatabaseConstant.TABLE_CURRENT_WEATHER, contentValues, DatabaseConstant.ID_CITY + "=" + idCity, null);
             Log.d("result update cWeather", String.valueOf(result));
             db.setTransactionSuccessful();
         } catch (Exception e) {
@@ -403,7 +405,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void  updateWeatherDay(WeatherDay weatherDay, int idCity, int order) {
+    public void updateWeatherDay(WeatherDay weatherDay, int idCity, int order) {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         try {
@@ -469,7 +471,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 DatabaseConstant.LATITUDE,
                 DatabaseConstant.LONGITUDE,
                 DatabaseConstant.TABLE_CITY
-                );
+        );
         Cursor cursor = db.rawQuery(sql, null);
         City city = new City();
         if (cursor.moveToNext()) {
@@ -482,6 +484,60 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return city;
+    }
+
+    public void updateAllData(CurrentWeather currentWeather, int idCity, ArrayList<WeatherHour> arrHour, ArrayList<WeatherDay> arrDay) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            //update current weather
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(DatabaseConstant.ICON, currentWeather.getIcon());
+            contentValues.put(DatabaseConstant.TEMP_C, currentWeather.getTemp());
+            contentValues.put(DatabaseConstant.WEATHER, currentWeather.getWeather());
+            contentValues.put(DatabaseConstant.HUMIDITY, currentWeather.getHumidity());
+            contentValues.put(DatabaseConstant.WIND, currentWeather.getWind());
+            contentValues.put(DatabaseConstant.UV, currentWeather.getUV());
+            contentValues.put(DatabaseConstant.FEELS_LIKE, currentWeather.getFeelsLike());
+            contentValues.put(DatabaseConstant.TIME, currentWeather.getTime());
+            contentValues.put(DatabaseConstant.LAST_UPDATE, currentWeather.getLastUpdate());
+            contentValues.put(DatabaseConstant.ID_CITY, idCity);
+
+            long result = db.update(DatabaseConstant.TABLE_CURRENT_WEATHER, contentValues, DatabaseConstant.ID_CITY + "=" + idCity, null);
+            Log.d("result update cWeather", String.valueOf(result));
+
+            //update weather hour
+            for (WeatherHour mWeatherHour : arrHour) {
+                ContentValues valuesHour = new ContentValues();
+                valuesHour.put(DatabaseConstant.HOUR, mWeatherHour.getHour());
+                valuesHour.put(DatabaseConstant.ICON, mWeatherHour.getIcon());
+                valuesHour.put(DatabaseConstant.TEMP_C, mWeatherHour.getTemp());
+                valuesHour.put(DatabaseConstant.CHANCE_RAIN, Integer.parseInt(mWeatherHour.getRain().replace('%', ' ').trim()));
+
+                long resultHour = db.update(DatabaseConstant.TABLE_HOUR, valuesHour, DatabaseConstant.ID_CITY + "=" + idCity + " AND " + DatabaseConstant.ORDER + "=" + order, null);
+                Log.d("result update hour", String.valueOf(resultHour));
+            }
+
+            //update weather day
+            for (WeatherDay weatherDay : arrDay) {
+                ContentValues valuesDay = new ContentValues();
+                valuesDay.put(DatabaseConstant.DAY, weatherDay.getDay());
+                valuesDay.put(DatabaseConstant.WEATHER, weatherDay.getWeather());
+                valuesDay.put(DatabaseConstant.HIGH_TEMP, weatherDay.getHighTemp());
+                valuesDay.put(DatabaseConstant.LOW_TEMP, weatherDay.getLowTemp());
+                valuesDay.put(DatabaseConstant.ICON, weatherDay.getIcon());
+
+                long resultDay = db.update(DatabaseConstant.TABLE_DAY, valuesDay, DatabaseConstant.ID_CITY + "=" + idCity + " AND " + DatabaseConstant.ORDER + "=" + order, null);
+                Log.d("result update day", String.valueOf(resultDay));
+            }
+            db.setTransactionSuccessful();
+
+        } catch (Exception e) {
+            Log.d("error", "error while trying update current weather");
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
     }
 }
 
