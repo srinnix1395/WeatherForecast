@@ -138,14 +138,14 @@ public class WeatherForecastService extends Service implements Runnable {
         AppController.getInstance().addToRequestQueue(request1);
     }
 
-    private void requestForecast10day(final JSONArray a, final int idCity, String coordinate) {
+    private void requestForecast10day(final JSONArray array, final int idCity, String coordinate) {
         String urlForecast10day = StringUtils.getURL(com.qtd.weatherforecast.constant.ApiConstant.FORECAST10DAY, coordinate);
         JsonObjectRequest request2 = new JsonObjectRequest(Request.Method.GET, urlForecast10day, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("forecast10day", response.toString());
-                a.put(response);
-                updateDatabase(a, idCity);
+                array.put(response);
+                updateDatabase(array, idCity);
                 if (SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true)) {
                     NotificationUtils.updateNotification(WeatherForecastService.this);
                 }
@@ -166,15 +166,8 @@ public class WeatherForecastService extends Service implements Runnable {
         try {
             MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(this);
             CurrentWeather currentWeather = ProcessJson.getCurrentWeather(a.getJSONObject(0));
-//            databaseHelper.updateCurrentWeather(currentWeather, idCity);
             ArrayList<WeatherHour> arrHour = ProcessJson.getAllWeatherHours(a.getJSONObject(1));
-//            for (int i = 0; i < arrHour.size(); i++) {
-//                databaseHelper.updateWeatherHour(arrHour.get(i), idCity, i);
-//            }
             ArrayList<WeatherDay> arrDay = ProcessJson.getAllWeatherDays(a.getJSONObject(2));
-//            for (int i = 0; i < arrDay.size(); i++) {
-//                databaseHelper.updateWeatherDay(arrDay.get(i), idCity, i);
-//            }
 
             databaseHelper.updateAllData(currentWeather, idCity, arrHour, arrDay);
 
