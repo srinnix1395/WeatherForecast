@@ -115,9 +115,14 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
                     }
                 })
                 .create();
+
+        if (!SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false)) {
+            imvRenew.setImageResource(R.drawable.ic_plus_white_24dp);
+            isPlus = true;
+        }
     }
 
-    private void getDataFromDatabase() {
+    public void getDataFromDatabase() {
         ((SearchFragment) adapter.getItem(0)).getDataFromDatabase();
         ((CurrentWeatherFragment) adapter.getItem(1)).getDataFromDatabase();
         ((WeatherHourFragment) adapter.getItem(2)).getDataFromDatabase();
@@ -339,7 +344,6 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
         ((CurrentWeatherFragment) adapter.getItem(1)).chooseItem(idCity);
         ((WeatherHourFragment) adapter.getItem(2)).chooseItem(idCity);
         ((WeatherDayFragment) adapter.getItem(3)).chooseItem(idCity);
-
     }
 
     @Override
@@ -347,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
         if (idCity == -1) {
             viewPager.setPagingEnabled(false);
             indicator.setVisibility(View.INVISIBLE);
+            SharedPreUtils.putBoolean(AppConstant.HAS_CITY, false);
         }
     }
 
@@ -416,7 +421,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
                             break;
                         }
                         case AppConstant.STATE_END: {
-                            if (adapter.getItem(1).isVisible()) {
+                            if (adapter.getItem(1).isVisible() && imvRenew.getAnimation() != null) {
                                 imvRenew.getAnimation().setRepeatCount(0);
                             }
                             break;

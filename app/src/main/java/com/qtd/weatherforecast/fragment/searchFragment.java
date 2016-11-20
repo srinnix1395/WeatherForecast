@@ -19,6 +19,7 @@ import com.qtd.weatherforecast.activity.MainActivity;
 import com.qtd.weatherforecast.adapter.CityAdapter;
 import com.qtd.weatherforecast.callback.FragmentCallback;
 import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.model.City;
@@ -43,13 +44,13 @@ public class SearchFragment extends Fragment {
 
     private CityAdapter adapter;
     private ArrayList<City> cities;
-    private View view;
     private FragmentCallback callback;
+    private MainActivity activity;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_search, container, false);
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
         ButterKnife.bind(this, view);
         initComponent();
         initData();
@@ -64,13 +65,14 @@ public class SearchFragment extends Fragment {
             if (context instanceof MainActivity) {
                 callback = (FragmentCallback) context;
             }
+            activity = (MainActivity) context;
         } catch (Exception e) {
             Log.d("Err casting searchFrg", "cast context to activity");
         }
     }
 
     private void initComponent() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
 
         cities = new ArrayList<>();
@@ -79,7 +81,7 @@ public class SearchFragment extends Fragment {
     }
 
     public void initData() {
-        MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
+        MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(getContext());
 
         int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         Log.d("id", String.valueOf(id));
@@ -97,8 +99,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-
+        if (SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false) && isVisibleToUser) {
             Animation rotation1 = AnimationUtils.loadAnimation(getActivity(), R.anim.clockwise_rotation_finite1);
             Animation fadeOut = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out);
             AnimationSet set1 = new AnimationSet(false);
@@ -112,13 +113,13 @@ public class SearchFragment extends Fragment {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    ((MainActivity) getActivity()).getImvRenew().setImageResource(R.drawable.ic_plus_white_24dp);
+                    activity.getImvRenew().setImageResource(R.drawable.ic_plus_white_24dp);
                     Animation rotation2 = AnimationUtils.loadAnimation(getActivity(), R.anim.clockwise_rotation_finite2);
                     Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
                     AnimationSet set2 = new AnimationSet(false);
                     set2.addAnimation(fadeIn);
                     set2.addAnimation(rotation2);
-                    ((MainActivity) getActivity()).getImvRenew().startAnimation(set2);
+                    activity.getImvRenew().startAnimation(set2);
                 }
 
                 @Override
@@ -127,7 +128,7 @@ public class SearchFragment extends Fragment {
                 }
             });
 
-            ((MainActivity) getActivity()).getImvRenew().startAnimation(set1);
+            activity.getImvRenew().startAnimation(set1);
 
             Animation animationDown = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_down);
             animationDown.setAnimationListener(new Animation.AnimationListener() {
@@ -138,9 +139,9 @@ public class SearchFragment extends Fragment {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    ((MainActivity) getActivity()).getTv1().setVisibility(View.VISIBLE);
-                    ((MainActivity) getActivity()).getTvLocation().setVisibility(View.INVISIBLE);
-                    ((MainActivity) getActivity()).getTvTime().setVisibility(View.INVISIBLE);
+                    activity.getTv1().setVisibility(View.VISIBLE);
+                    activity.getTvLocation().setVisibility(View.INVISIBLE);
+                    activity.getTvTime().setVisibility(View.INVISIBLE);
                 }
 
                 @Override
@@ -148,16 +149,14 @@ public class SearchFragment extends Fragment {
 
                 }
             });
-            ((MainActivity) getActivity()).getLayoutLocation().startAnimation(animationDown);
+            activity.getLayoutLocation().startAnimation(animationDown);
 
-            ((MainActivity) getActivity()).setPlus(true);
-
-
+            activity.setPlus(true);
         }
     }
 
     public int updateDataAndGetID(String s, boolean isInsert) {
-        MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
+        MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(getContext());
         long id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         try {
             JSONObject object = new JSONObject(s);
@@ -173,6 +172,7 @@ public class SearchFragment extends Fragment {
             if (isInsert) {
                 City city = new City(0, name, tempc, weather, coordinate, true, fullName);
                 id = databaseHelper.insertCity(city);
+                SharedPreUtils.putBoolean(AppConstant.HAS_CITY, true);
                 SharedPreUtils.putData((int) id, name, coordinate, timeUpdate);
                 city.setId((int) id);
                 cities.add(city);
@@ -203,7 +203,7 @@ public class SearchFragment extends Fragment {
     }
 
     public void deleteItem(int idCity) {
-        MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
+        MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(getContext());
 
         for (City city : cities) {
             if (city.getId() == idCity) {
@@ -220,22 +220,23 @@ public class SearchFragment extends Fragment {
             setCheckedCities(city.getId());
             SharedPreUtils.putData(city.getId(), city.getName(), city.getCoordinate(), currentWeather.getTime());
             if (city.getId() == -1) {
-                NotificationUtils.clearNotification(view.getContext());
+                NotificationUtils.clearNotification(getContext());
             }
             callback.checkCitySizeToEnableViewPagerSwipe(city.getId());
+            activity.getDataFromDatabase();
         }
         adapter.notifyDataSetChanged();
-        NotificationUtils.updateNotification(view.getContext());
+        NotificationUtils.updateNotification(getContext());
     }
 
     public void chooseItem(int idCity) {
         setCheckedCities(idCity);
         adapter.notifyDataSetChanged();
-        NotificationUtils.updateNotification(view.getContext());
+        NotificationUtils.updateNotification(getContext());
     }
 
     public void getDataFromDatabase() {
-        MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
+        MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(getContext());
         int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             cities.clear();

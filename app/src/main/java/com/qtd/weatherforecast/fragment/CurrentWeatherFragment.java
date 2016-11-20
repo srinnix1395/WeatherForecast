@@ -1,5 +1,6 @@
 package com.qtd.weatherforecast.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -68,6 +69,7 @@ public class CurrentWeatherFragment extends Fragment {
     private View view;
     private String time = "";
     private MyDatabaseHelper databaseHelper;
+    private MainActivity activity;
 
     @Nullable
     @Override
@@ -76,6 +78,22 @@ public class CurrentWeatherFragment extends Fragment {
         ButterKnife.bind(this, view);
         initComponent();
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        activity = (MainActivity) context;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        activity.getTvTime().setText(time);
+        activity.getTvTime().setVisibility(View.VISIBLE);
+        activity.getTv1().setVisibility(View.INVISIBLE);
+        activity.getTvLocation().setVisibility(View.VISIBLE);
+        activity.getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
     }
 
     private void initComponent() {
@@ -92,8 +110,8 @@ public class CurrentWeatherFragment extends Fragment {
             tvUV.setText(String.valueOf(currentWeather.getUV()));
             tvFeel.setText(String.valueOf(currentWeather.getFeelsLike()) + "°");
             time = StringUtils.getCurrentDateTime(currentWeather.getTime());
-            ((MainActivity) getActivity()).getTvTime().setText(time);
-            ((MainActivity) getActivity()).getTvTime().setVisibility(View.VISIBLE);
+            activity.getTvTime().setText(time);
+            activity.getTvTime().setVisibility(View.VISIBLE);
             tvUpdate.setText("Cập nhật " + StringUtils.getTimeAgo());
         }
     }
@@ -131,8 +149,8 @@ public class CurrentWeatherFragment extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            if (((MainActivity) getActivity()).isPlus()) {
+        if (activity != null && isVisibleToUser) {
+            if (activity.isPlus()) {
                 Animation rotation1 = AnimationUtils.loadAnimation(view.getContext(), R.anim.clockwise_rotation_finite1);
                 Animation fadeOut = AnimationUtils.loadAnimation(view.getContext(), R.anim.fade_out);
                 AnimationSet set1 = new AnimationSet(false);
@@ -146,13 +164,13 @@ public class CurrentWeatherFragment extends Fragment {
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        ((MainActivity) getActivity()).getImvRenew().setImageResource(R.drawable.ic_autorenew_white_24dp);
+                        activity.getImvRenew().setImageResource(R.drawable.ic_autorenew_white_24dp);
                         Animation rotation2 = AnimationUtils.loadAnimation(view.getContext(), R.anim.clockwise_rotation_finite2);
                         Animation fadeIn = AnimationUtils.loadAnimation(view.getContext(), R.anim.fade_in);
                         AnimationSet set2 = new AnimationSet(false);
                         set2.addAnimation(fadeIn);
                         set2.addAnimation(rotation2);
-                        ((MainActivity) getActivity()).getImvRenew().startAnimation(set2);
+                        activity.getImvRenew().startAnimation(set2);
                     }
 
                     @Override
@@ -161,7 +179,7 @@ public class CurrentWeatherFragment extends Fragment {
                     }
                 });
 
-                ((MainActivity) getActivity()).getImvRenew().startAnimation(set1);
+                activity.getImvRenew().startAnimation(set1);
 
                 Animation animationUp = AnimationUtils.loadAnimation(view.getContext(), R.anim.translate_up);
                 animationUp.setAnimationListener(new Animation.AnimationListener() {
@@ -172,11 +190,11 @@ public class CurrentWeatherFragment extends Fragment {
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        ((MainActivity) getActivity()).getTvTime().setText(time);
-                        ((MainActivity) getActivity()).getTvTime().setVisibility(View.VISIBLE);
-                        ((MainActivity) getActivity()).getTv1().setVisibility(View.INVISIBLE);
-                        ((MainActivity) getActivity()).getTvLocation().setVisibility(View.VISIBLE);
-                        ((MainActivity) getActivity()).getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
+                        activity.getTvTime().setText(time);
+                        activity.getTvTime().setVisibility(View.VISIBLE);
+                        activity.getTv1().setVisibility(View.INVISIBLE);
+                        activity.getTvLocation().setVisibility(View.VISIBLE);
+                        activity.getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
                     }
 
                     @Override
@@ -184,16 +202,16 @@ public class CurrentWeatherFragment extends Fragment {
 
                     }
                 });
-                ((MainActivity) getActivity()).getTv1().startAnimation(animationUp);
+                activity.getTv1().startAnimation(animationUp);
             } else {
-                ((MainActivity) getActivity()).getTvTime().setText(time);
-                ((MainActivity) getActivity()).getTvTime().setVisibility(View.VISIBLE);
-                ((MainActivity) getActivity()).getTv1().setVisibility(View.INVISIBLE);
-                ((MainActivity) getActivity()).getTvLocation().setVisibility(View.VISIBLE);
-                ((MainActivity) getActivity()).getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
+                activity.getTvTime().setText(time);
+                activity.getTvTime().setVisibility(View.VISIBLE);
+                activity.getTv1().setVisibility(View.INVISIBLE);
+                activity.getTvLocation().setVisibility(View.VISIBLE);
+                activity.getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
             }
 
-            ((MainActivity) getActivity()).setPlus(false);
+            activity.setPlus(false);
         }
     }
 
@@ -224,14 +242,14 @@ public class CurrentWeatherFragment extends Fragment {
     @OnClick({R.id.layout_humid, R.id.layout_UV})
     void layoutInfoOnClick(View v) {
         switch (v.getId()) {
-            case R.id.layout_humid:{
+            case R.id.layout_humid: {
                 if (layoutHumid.getVisibility() == View.VISIBLE) {
                     layoutHumid.setVisibility(View.INVISIBLE);
                     layoutUV.setVisibility(View.VISIBLE);
                 }
                 break;
             }
-            case R.id.layout_UV:{
+            case R.id.layout_UV: {
                 if (layoutUV.getVisibility() == View.VISIBLE) {
                     layoutUV.setVisibility(View.INVISIBLE);
                     layoutHumid.setVisibility(View.VISIBLE);

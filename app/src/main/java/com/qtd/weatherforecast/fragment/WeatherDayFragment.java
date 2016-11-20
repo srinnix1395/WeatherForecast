@@ -1,5 +1,6 @@
 package com.qtd.weatherforecast.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -36,20 +37,26 @@ public class WeatherDayFragment extends Fragment {
     private WeatherDayAdapter adapter;
     private ArrayList<WeatherDay> weatherDays;
     private MyDatabaseHelper databaseHelper;
-    private View view;
+    private MainActivity activity;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_days_weather, container, false);
+        View view = inflater.inflate(R.layout.fragment_days_weather, container, false);
         ButterKnife.bind(this, view);
         initComponent();
         initData();
         return view;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        activity = (MainActivity) context;
+    }
+
     private void initComponent() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
 
         weatherDays = new ArrayList<>();
@@ -58,7 +65,7 @@ public class WeatherDayFragment extends Fragment {
     }
 
     private void initData() {
-        databaseHelper = MyDatabaseHelper.getInstance(view.getContext());
+        databaseHelper = MyDatabaseHelper.getInstance(getContext());
         final int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             weatherDays.addAll(databaseHelper.getAllWeatherDays(id));
@@ -89,8 +96,8 @@ public class WeatherDayFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            ((MainActivity) getActivity()).getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
-            ((MainActivity) getActivity()).getTvTime().setText(R.string.sixDaysToGo);
+            activity.getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
+            activity.getTvTime().setText(R.string.sixDaysToGo);
         }
     }
 
