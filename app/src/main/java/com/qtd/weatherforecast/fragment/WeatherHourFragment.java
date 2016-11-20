@@ -6,10 +6,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SnapHelper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper;
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.activity.MainActivity;
 import com.qtd.weatherforecast.adapter.WeatherHourAdapter;
@@ -62,6 +65,9 @@ public class WeatherHourFragment extends Fragment {
         weatherHours = new ArrayList<>();
         adapter = new WeatherHourAdapter(weatherHours);
         recyclerView.setAdapter(adapter);
+
+        SnapHelper snapHelperTop = new GravitySnapHelper(Gravity.TOP);
+        snapHelperTop.attachToRecyclerView(recyclerView);
     }
 
     private void initData() {
