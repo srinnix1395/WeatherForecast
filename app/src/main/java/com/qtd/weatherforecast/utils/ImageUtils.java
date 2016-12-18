@@ -78,6 +78,9 @@ public class ImageUtils {
     }
 
     public static int getImageResourceCurrentWeather(String url) {
+        if (url == null) {
+            return R.drawable.sun_500;
+        }
         String[] s = url.split("/");
         String[] s2 = s[6].split("\\.");
         switch (s2[0]) {
@@ -149,73 +152,75 @@ public class ImageUtils {
     }
 
     public static int getImageResourceNotification(String url) {
-        String[] s = url.split("/");
-        String[] s2 = s[6].split("\\.");
-        switch (s2[0]) {
-            case "chanceflurries":
-                return R.drawable.cloud_drizzle_alt_black;
-            case "nt_chanceflurries":
-                return R.drawable.cloud_rain_moon_alt_black;
-            case "nt_flurries":
-                return R.drawable.cloud_drizzle_moon_black;
-            case "chancesnow":
-                return R.drawable.cloud_snow_black;
-            case "nt_chancesnow":
-                return R.drawable.cloud_snow_moon_black;
-            case "nt_snow":
-                return R.drawable.cloud_snow_moon_alt_black;
-            case "snow":
-                return R.drawable.cloud_snow_alt_black;
-            case "chancerain":
-                return R.drawable.cloud_rain_alt_black;
-            case "nt_chancerain":
-                return R.drawable.cloud_rain_moon_alt_black;
-            case "nt_rain":
-                return R.drawable.cloud_rain_moon_black;
-            case "rain":
-                return R.drawable.cloud_rain_black;
-            case "chancesleet":
-                return R.drawable.cloud_hail_black;
-            case "nt_chancesleet":
-                return R.drawable.cloud_hail_moon_black;
-            case "sleet":
-                return R.drawable.cloud_hail_alt_black;
-            case "nt_sleet":
-                return R.drawable.cloud_hail_moon_alt_black;
-            case "chancetstorms":
-            case "tstorms":
-                return R.drawable.cloud_lightning_black;
-            case "nt_chancetstorms":
-            case "nt_tstorms":
-                return R.drawable.cloud_light_moon_black;
-            case "clear":
-            case "sunny":
-                return R.drawable.sun_black;
-            case "cloudy":
-            case "nt_cloudy":
-                return R.drawable.cloud_black;
-            case "fog":
-                return R.drawable.cloud_fog_alt_black;
-            case "nt_fog":
-                return R.drawable.cloud_fog_moon_alt_black;
-            case "hazy":
-                return R.drawable.cloud_fog_black;
-            case "nt_hazy":
-                return R.drawable.cloud_fog_moon_black;
-            case "mostlysunny":
-            case "partlysunny":
-            case "mostlycloudy":
-            case "partlycloudy":
-                return R.drawable.cloud_sun_black;
-            case "nt_clear":
-            case "nt_sunny":
-                return R.drawable.moon_black;
-            case "nt_mostlycloudy":
-            case "nt_mostlysunny":
-            case "nt_partlycloudy":
-            case "nt_partlysunny":
-                return R.drawable.cloud_moon_black;
+        if (url != null) {
+            String[] s = url.split("/");
+            String[] s2 = s[6].split("\\.");
+            switch (s2[0]) {
+                case "chanceflurries":
+                    return R.drawable.cloud_drizzle_alt_black;
+                case "nt_chanceflurries":
+                    return R.drawable.cloud_rain_moon_alt_black;
+                case "nt_flurries":
+                    return R.drawable.cloud_drizzle_moon_black;
+                case "chancesnow":
+                    return R.drawable.cloud_snow_black;
+                case "nt_chancesnow":
+                    return R.drawable.cloud_snow_moon_black;
+                case "nt_snow":
+                    return R.drawable.cloud_snow_moon_alt_black;
+                case "snow":
+                    return R.drawable.cloud_snow_alt_black;
+                case "chancerain":
+                    return R.drawable.cloud_rain_alt_black;
+                case "nt_chancerain":
+                    return R.drawable.cloud_rain_moon_alt_black;
+                case "nt_rain":
+                    return R.drawable.cloud_rain_moon_black;
+                case "rain":
+                    return R.drawable.cloud_rain_black;
+                case "chancesleet":
+                    return R.drawable.cloud_hail_black;
+                case "nt_chancesleet":
+                    return R.drawable.cloud_hail_moon_black;
+                case "sleet":
+                    return R.drawable.cloud_hail_alt_black;
+                case "nt_sleet":
+                    return R.drawable.cloud_hail_moon_alt_black;
+                case "chancetstorms":
+                case "tstorms":
+                    return R.drawable.cloud_lightning_black;
+                case "nt_chancetstorms":
+                case "nt_tstorms":
+                    return R.drawable.cloud_light_moon_black;
+                case "clear":
+                case "sunny":
+                    return R.drawable.sun_black;
+                case "cloudy":
+                case "nt_cloudy":
+                    return R.drawable.cloud_black;
+                case "fog":
+                    return R.drawable.cloud_fog_alt_black;
+                case "nt_fog":
+                    return R.drawable.cloud_fog_moon_alt_black;
+                case "hazy":
+                    return R.drawable.cloud_fog_black;
+                case "nt_hazy":
+                    return R.drawable.cloud_fog_moon_black;
+                case "mostlysunny":
+                case "partlysunny":
+                case "mostlycloudy":
+                case "partlycloudy":
+                    return R.drawable.cloud_sun_black;
+                case "nt_clear":
+                case "nt_sunny":
+                    return R.drawable.moon_black;
+                case "nt_mostlycloudy":
+                case "nt_mostlysunny":
+                case "nt_partlycloudy":
+                case "nt_partlysunny":
+                    return R.drawable.cloud_moon_black;
+            }
         }
-        return 0;
+        return R.drawable.sun_black;
     }
 }
