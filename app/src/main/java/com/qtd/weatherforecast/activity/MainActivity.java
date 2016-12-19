@@ -35,7 +35,7 @@ import com.qtd.weatherforecast.fragment.CurrentWeatherFragment;
 import com.qtd.weatherforecast.fragment.SearchFragment;
 import com.qtd.weatherforecast.fragment.WeatherDayFragment;
 import com.qtd.weatherforecast.fragment.WeatherHourFragment;
-import com.qtd.weatherforecast.request.BaseRequest;
+import com.qtd.weatherforecast.request.WeatherRequest;
 import com.qtd.weatherforecast.service.WeatherForecastService;
 import com.qtd.weatherforecast.utils.NetworkUtil;
 import com.qtd.weatherforecast.utils.NotificationUtils;
@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
 		String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
 		
-		BaseRequest request = new BaseRequest.Builder()
+		WeatherRequest request = new WeatherRequest.Builder()
 				.withUrlCurrentWeather(urlConditions)
 				.withUrlHourly(urlHourly)
 				.withUrlForecast10Days(urlForecast10day)

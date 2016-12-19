@@ -17,14 +17,14 @@ import org.json.JSONObject;
  * Created by DELL on 12/19/2016.
  */
 
-public class BaseRequest {
+public class WeatherRequest {
 	private String urlConditions;
 	private String urlHourly;
 	private String urlForecast10day;
 	private RequestCallback requestCallback;
 	private Bundle bundle;
 	
-	private BaseRequest(Builder builder) {
+	private WeatherRequest(Builder builder) {
 		urlConditions = builder.urlCurrentWeather;
 		urlHourly = builder.urlHourly;
 		urlForecast10day = builder.urlForecast10day;
@@ -124,8 +124,8 @@ public class BaseRequest {
 			return this;
 		}
 		
-		public BaseRequest build() {
-			return new BaseRequest(this);
+		public WeatherRequest build() {
+			return new WeatherRequest(this);
 		}
 	}
 }

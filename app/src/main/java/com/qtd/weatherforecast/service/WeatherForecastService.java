@@ -21,7 +21,7 @@ import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.model.WeatherHour;
-import com.qtd.weatherforecast.request.BaseRequest;
+import com.qtd.weatherforecast.request.WeatherRequest;
 import com.qtd.weatherforecast.utils.NetworkUtil;
 import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
@@ -100,7 +100,7 @@ public class WeatherForecastService extends Service implements Runnable {
 			String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
 			String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
 			
-			BaseRequest request = new BaseRequest.Builder()
+			WeatherRequest request = new WeatherRequest.Builder()
 					.withUrlCurrentWeather(urlConditions)
 					.withUrlHourly(urlHourly)
 					.withUrlForecast10Days(urlForecast10day)
