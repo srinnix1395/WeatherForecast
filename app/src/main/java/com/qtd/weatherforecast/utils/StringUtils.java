@@ -41,6 +41,9 @@ public class StringUtils {
     }
 
     public static String getCurrentDateTime(String timeZone) {
+        if (timeZone == null) {
+            return "-1";
+        }
         String temp = "GMT" + timeZone.substring(0, 3) + ":" + timeZone.substring(3);
         TimeZone tz = TimeZone.getTimeZone(temp);
         Calendar cal = Calendar.getInstance(tz);

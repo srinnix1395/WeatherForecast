@@ -5,9 +5,22 @@
     android:background="@android:color/transparent"
     android:orientation="vertical">
 
+    <com.qtd.weatherforecast.widget.ChartView
+        android:id="@+id/chartView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_weight="3" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycleView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="40dp" />
+        android:layout_height="0dp"
+        android:layout_weight="7"
+        android:paddingBottom="40dp"
+        android:scrollbarSize="3dp"
+        android:scrollbarThumbVertical="@color/colorGray"
+        android:scrollbarTrackVertical="@android:color/transparent"
+        android:scrollbars="vertical" />
 </LinearLayout>

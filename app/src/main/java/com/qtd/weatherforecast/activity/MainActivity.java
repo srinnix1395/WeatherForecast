@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		if (!SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false)) {
 			imvRenew.setImageResource(R.drawable.ic_plus_white_24dp);
 			isPlus = true;
+
 		}
 	}
 	
