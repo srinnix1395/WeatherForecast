@@ -121,8 +121,15 @@ public class IconCirclePageIndicator extends View implements ViewPager.OnPageCha
 
     @Override
     public void onPageSelected(int position) {
+        beforePosition = currentPosition;
         currentPosition = position;
 
+        if (hasIcon) {
+
+        } else {
+            ((Circle) indicatorList.get(currentPosition)).setColor(selectedColor);
+            ((Circle) indicatorList.get(beforePosition)).setColor(unselectedColor);
+        }
 
         indicatorList.get(currentPosition).setAlpha(ALPHA_SELECTED);
         indicatorList.get(beforePosition).setAlpha(ALPHA_UNSELECTED);
