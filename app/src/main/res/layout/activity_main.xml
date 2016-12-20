@@ -80,7 +80,7 @@
         android:layout_below="@+id/toolbar_home"
         android:layout_marginTop="10dp" />
 
-    <com.viewpagerindicator.CirclePageIndicator
+    <com.example.pageindicator.IconCirclePageIndicator
         android:id="@+id/indicator"
         android:layout_width="match_parent"
         android:layout_height="45dp"

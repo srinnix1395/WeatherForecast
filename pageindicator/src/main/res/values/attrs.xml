@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="IconCirclePageIndicator">
+        <attr name="radius" format="dimension" />
+        <attr name="colorSelected" format="color" />
+        <attr name="colorUnselected" format="color" />
+        <attr name="selectedResource" format="reference" />
+        <attr name="unselectedResource" format="reference" />
+        <attr name="durationAnimation" format="integer" />
+    </declare-styleable>
+</resources>
