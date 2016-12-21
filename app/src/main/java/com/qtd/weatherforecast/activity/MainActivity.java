@@ -22,6 +22,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
+import com.example.pageindicator.AdapterNotFoundException;
+import com.example.pageindicator.IconCirclePageIndicator;
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.adapter.MainPagerAdapter;
 import com.qtd.weatherforecast.callback.FragmentCallback;
@@ -41,7 +43,6 @@ import com.qtd.weatherforecast.utils.NetworkUtil;
 import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.qtd.weatherforecast.utils.StringUtils;
-import com.viewpagerindicator.CirclePageIndicator;
 
 import java.util.ArrayList;
 
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	CustomViewPager viewPager;
 	
 	@Bind(R.id.indicator)
-	CirclePageIndicator indicator;
+	IconCirclePageIndicator indicator;
 	
 	@Bind(R.id.tv_location)
 	TextView tvLocation;
@@ -134,7 +135,11 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		fragments.add(new WeatherDayFragment());
 		adapter = new MainPagerAdapter(getSupportFragmentManager(), fragments);
 		viewPager.setAdapter(adapter);
-		indicator.setViewPager(viewPager);
+		try {
+			indicator.setupWithViewPager(viewPager);
+		} catch (AdapterNotFoundException e) {
+			e.printStackTrace();
+		}
 		viewPager.setOffscreenPageLimit(4);
 		
 		

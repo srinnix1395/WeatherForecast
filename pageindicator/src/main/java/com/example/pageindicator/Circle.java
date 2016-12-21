@@ -13,12 +13,13 @@ public class Circle extends Indicator{
     private int radius;
     private int color;
 
-    public Circle(float centerX, float centerY, int radius, int color) {
+    public Circle(float centerX, float centerY, int radius, int color,int alpha) {
         this.centerX = centerX;
         this.centerY = centerY;
         this.radius = radius;
-        this.color = color;
-    }
+		this.color = color;
+		this.alpha = alpha;
+	}
 
     public Circle() {
 
