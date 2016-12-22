@@ -7,5 +7,6 @@
         <attr name="selectedResource" format="reference" />
         <attr name="unselectedResource" format="reference" />
         <attr name="durationAnimation" format="integer" />
+        <attr name="positionIcon" format="integer" />
     </declare-styleable>
 </resources>
