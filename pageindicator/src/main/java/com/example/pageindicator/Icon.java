@@ -1,65 +1,72 @@
 package com.example.pageindicator;
 
-import android.content.res.Resources;
-import android.graphics.BitmapFactory;
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 
 /**
  * Created by Administrator on 12/20/2016.
  */
 
 public class Icon extends Indicator {
-	private int resourceId;
-	private float x;
-	private float y;
-	private final float size;
+	private int x;
+	private int y;
+	private int size;
+	private Drawable drawableSelected;
+	private Drawable drawableUnselected;
+	private boolean selected;
 	
-	public Icon(int resourceId, float x, float y, float size, int alpha) {
-		this.resourceId = resourceId;
+	public Icon(Context context, int selectedRes, int unselectedRes, int x, int y
+			, int size, boolean selected) {
 		this.x = x;
 		this.y = y;
 		this.size = size;
-		this.alpha = alpha;
+		
+		drawableSelected = ContextCompat.getDrawable(context, selectedRes);
+		drawableSelected.setBounds(x, y, x + 4 * size, y + 4 * size);
+		
+		drawableUnselected = ContextCompat.getDrawable(context, unselectedRes);
+		drawableUnselected.setBounds(x, y, x + 4 * size, y + 4 * size);
+		
+		this.selected = selected;
 	}
 	
-	public int getResourceId() {
-		return resourceId;
-	}
-	
-	public void setResourceId(int resourceId) {
-		this.resourceId = resourceId;
-	}
-	
-	public float getX() {
+	public int getX() {
 		return x;
 	}
 	
-	public void setX(float x) {
+	public void setX(int x) {
 		this.x = x;
 	}
 	
-	public float getY() {
+	public int getY() {
 		return y;
 	}
 	
-	public void setY(float y) {
+	public void setY(int y) {
 		this.y = y;
 	}
 	
-	public float getSize() {
+	public int getSize() {
 		return size;
 	}
+	
+	public boolean isSelected() {
+		return selected;
+	}
+	
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+	}
+	
 	@Override
 	public void draw(Canvas canvas, Paint paint) {
-		paint.setAlpha(alpha);
-		try {
-			canvas.drawBitmap(BitmapFactory.decodeResource(Resources.getSystem(), resourceId), null
-					, new RectF(x, y, size, size), paint);
-		} catch (NullPointerException ne) {
-			ne.printStackTrace();
-			canvas.drawCircle((x + size) / 2, (y + size) / 2, size, paint);
+		if (selected) {
+			drawableSelected.draw(canvas);
+		} else {
+			drawableUnselected.draw(canvas);
 		}
 	}
 }

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.activity.MainActivity;
 import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.database.ProcessJson;
@@ -89,11 +90,13 @@ public class CurrentWeatherFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        activity.getTvTime().setText(time);
-        activity.getTvTime().setVisibility(View.VISIBLE);
-        activity.getTv1().setVisibility(View.INVISIBLE);
-        activity.getTvLocation().setVisibility(View.VISIBLE);
-        activity.getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
+		if (SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false)) {
+			activity.getTvTime().setText(time);
+			activity.getTvTime().setVisibility(View.VISIBLE);
+			activity.getTv1().setVisibility(View.INVISIBLE);
+			activity.getTvLocation().setVisibility(View.VISIBLE);
+			activity.getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
+		}
     }
 
     private void initComponent() {

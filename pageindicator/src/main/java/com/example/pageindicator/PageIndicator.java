@@ -10,4 +10,5 @@ public interface PageIndicator {
 	void setupWithViewPager(ViewPager viewPager) throws AdapterNotFoundException;
 	void setupWithViewPager(ViewPager view, int initialPosition) throws AdapterNotFoundException;
 	
+	void setCurrentItem(int position);
 }

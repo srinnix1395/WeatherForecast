@@ -135,22 +135,25 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		fragments.add(new WeatherDayFragment());
 		adapter = new MainPagerAdapter(getSupportFragmentManager(), fragments);
 		viewPager.setAdapter(adapter);
-		try {
-			indicator.setupWithViewPager(viewPager);
-		} catch (AdapterNotFoundException e) {
-			e.printStackTrace();
-		}
 		viewPager.setOffscreenPageLimit(4);
 		
-		
-		int id = SharedPreUtils.getInt("ID", -1);
-		if (id == -1) {
+		boolean hasCity = SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false);
+		if (!hasCity) {
 			viewPager.setPagingEnabled(false);
 			indicator.setVisibility(View.INVISIBLE);
-			viewPager.setCurrentItem(0);
+			try {
+				indicator.setupWithViewPager(viewPager);
+			} catch (AdapterNotFoundException e) {
+				e.printStackTrace();
+			}
 		} else {
-			viewPager.setCurrentItem(1);
+			try {
+				indicator.setupWithViewPager(viewPager, 1);
+			} catch (AdapterNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
+		
 		
 	}
 	

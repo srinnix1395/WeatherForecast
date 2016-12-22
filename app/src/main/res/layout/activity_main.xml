@@ -86,6 +86,6 @@
         android:layout_height="45dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="15dp"
-        app:selectedResource="@drawable/ic_compass"
-        app:unselectedResource="@drawable/ic_compass" />
+        app:selectedResource="@drawable/ic_compass_white"
+        app:unselectedResource="@drawable/ic_compass_gray" />
 </RelativeLayout>

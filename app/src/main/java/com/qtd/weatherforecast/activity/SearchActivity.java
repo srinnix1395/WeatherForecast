@@ -60,6 +60,8 @@ public class SearchActivity extends AppCompatActivity implements RequestCallback
 
     private ProgressDialog loading;
     private AlertDialog alertDialog;
+	private boolean isOpenDialogWarning;
+	
 //    private ArrayList<City> cities;
 //    private AutoCompleteTextViewLocationAdapter adapter;
 
@@ -157,16 +159,19 @@ public class SearchActivity extends AppCompatActivity implements RequestCallback
 
     private void getAutoComplete(CharSequence s) {
         if (!NetworkUtil.isNetworkAvailable(this)) {
-            new AlertDialog.Builder(SearchActivity.this, R.style.DialogTheme)
-                    .setMessage(getString(R.string.pleaseConnectInternet))
-                    .setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    })
-                    .create().show();
-        } else if (s.length() >= 3) {
+			if (!isOpenDialogWarning) {
+				new AlertDialog.Builder(SearchActivity.this, R.style.DialogTheme)
+						.setMessage(getString(R.string.pleaseConnectInternet))
+						.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+							}
+						})
+						.create().show();
+				isOpenDialogWarning = true;
+			}
+		} else if (s.length() >= 3) {
             requestAutoComplete();
         } else {
             tzs.clear();

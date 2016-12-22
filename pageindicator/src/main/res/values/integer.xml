@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="default_radius">10</integer>
+    <integer name="default_init_position">0</integer>
+    <integer name="default_selected_color">-1</integer>
+    <integer name="default_unselected_color">-1</integer>
+    <integer name="default_distance">30</integer>
+    <integer name="default_selected_alpha">255</integer>
+    <integer name="default_unselected_alpha">127</integer>
+    <integer name="default_position_icon">0</integer>
+</resources>
