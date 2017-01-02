@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import java.util.ArrayList;
  */
 
 public class IconCirclePageIndicator extends View implements PageIndicator, ViewPager.OnPageChangeListener {
+	private static final String TAG = "IconCirclePageIndicator";
+	
 	public static final int DEFAULT_RADIUS = 10;
 	public static final int DEFAULT_INIT_POSITION = 0;
 	public static final int DEFAULT_SELECTED_COLOR = Color.WHITE;
@@ -39,11 +42,6 @@ public class IconCirclePageIndicator extends View implements PageIndicator, View
 	private Paint paint;
 	private boolean isFirst = true;
 	private int beforePosition;
-	
-	public IconCirclePageIndicator(Context context) {
-		super(context);
-		init();
-	}
 	
 	public IconCirclePageIndicator(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
@@ -72,8 +70,8 @@ public class IconCirclePageIndicator extends View implements PageIndicator, View
 	
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-		super.onLayout(changed, left, top, right, bottom);
 		if (isFirst) {
+			Log.d(TAG, "onLayout: first");
 			initIconCircle();
 			isFirst = false;
 		}
@@ -81,6 +79,7 @@ public class IconCirclePageIndicator extends View implements PageIndicator, View
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
+		Log.d(TAG, "onDraw() called with: canvas = [" + canvas + "]");
 		if (viewPager == null) {
 			return;
 		}
@@ -130,6 +129,7 @@ public class IconCirclePageIndicator extends View implements PageIndicator, View
 		float centerY = getHeight() / 2;
 		
 		int radiusBefore = positionIcon * 2 + 4;
+		
 		for (int i = 0; i < count; i++) {
 			if (i == positionIcon) {
 				indicatorList.add(new Icon(getContext(), selectedRes, unselectedRes

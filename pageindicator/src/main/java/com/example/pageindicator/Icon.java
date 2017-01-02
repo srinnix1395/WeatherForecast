@@ -13,7 +13,6 @@ import android.support.v4.content.ContextCompat;
 public class Icon extends Indicator {
 	private int x;
 	private int y;
-	private int size;
 	private Drawable drawableSelected;
 	private Drawable drawableUnselected;
 	private boolean selected;
@@ -22,7 +21,6 @@ public class Icon extends Indicator {
 			, int size, boolean selected) {
 		this.x = x;
 		this.y = y;
-		this.size = size;
 		
 		drawableSelected = ContextCompat.getDrawable(context, selectedRes);
 		drawableSelected.setBounds(x, y, x + 4 * size, y + 4 * size);
@@ -47,10 +45,6 @@ public class Icon extends Indicator {
 	
 	public void setY(int y) {
 		this.y = y;
-	}
-	
-	public int getSize() {
-		return size;
 	}
 	
 	public boolean isSelected() {

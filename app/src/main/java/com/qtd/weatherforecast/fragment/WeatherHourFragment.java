@@ -21,7 +21,6 @@ import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.WeatherHour;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
-import com.qtd.weatherforecast.widget.ChartView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,8 +36,8 @@ import butterknife.ButterKnife;
 public class WeatherHourFragment extends Fragment {
     @Bind(R.id.recycleView)
     RecyclerView recyclerView;
-    @Bind(R.id.chartView)
-    ChartView chartView;
+//    @Bind(R.id.chartView)
+//    ChartView chartView;
 
     private WeatherHourAdapter adapter;
     private ArrayList<WeatherHour> weatherHours;
@@ -69,7 +68,7 @@ public class WeatherHourFragment extends Fragment {
         adapter = new WeatherHourAdapter(weatherHours);
         recyclerView.setAdapter(adapter);
 
-        chartView.setTemperatureArr(new int[24]);
+//        chartView.setTemperatureArr(new int[24]);
         SnapHelper snapHelperTop = new GravitySnapHelper(Gravity.TOP);
         snapHelperTop.attachToRecyclerView(recyclerView);
     }

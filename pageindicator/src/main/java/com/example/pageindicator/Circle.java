@@ -22,10 +22,6 @@ public class Circle extends Indicator {
 		this.alpha = alpha;
 	}
 	
-	public Circle() {
-		
-	}
-	
 	public int getAlpha() {
 		return alpha;
 	}
