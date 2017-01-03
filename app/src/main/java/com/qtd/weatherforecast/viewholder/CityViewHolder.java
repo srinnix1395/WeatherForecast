@@ -13,6 +13,7 @@ import com.qtd.weatherforecast.callback.ViewHolderCallback;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
+import com.qtd.weatherforecast.utils.StringUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -58,22 +59,16 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
         coordinate = city.getCoordinate();
         timeZone = MyDatabaseHelper.getInstance(view.getContext()).getCurrentWeather(id).getTime();
         tvCity.setText(city.getName());
-        tvWeather.setText(String.valueOf(city.getTemp()) + "°, " + city.getWeather());
+
+        String temp = StringUtils.getTemp(city.getTemp());
+        tvWeather.setText(temp + "°, " + city.getWeather());
 
         radioButton.setChecked(city.isChosen());
         cardView.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), city.isChosen() ? android.R.color.white : R.color.colorWhiteFade));
-
-//        if (city.isChosen()) {
-//            cardView.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), android.R.color.white));
-//        } else {
-//            cardView.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.colorWhiteFade));
-//        }
-
     }
 
     @OnClick(R.id.imv_clear)
     void imvClearOnClick() {
-        Log.d("city", "clear");
         callback.deleteItemCity(id);
     }
 

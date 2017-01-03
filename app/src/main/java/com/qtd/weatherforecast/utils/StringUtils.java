@@ -1,6 +1,7 @@
 package com.qtd.weatherforecast.utils;
 
 import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 
 import java.util.Calendar;
@@ -77,5 +78,12 @@ public class StringUtils {
             return "ngày hôm qua";
         }
         return diff / DAY_MILLIS + " ngày trước";
+    }
+
+    public static String getTemp(int temp) {
+        if (SharedPreUtils.getInt(AppConstant.DEGREE, AppConstant.C) == AppConstant.C) {
+            return String.valueOf(temp);
+        }
+        return String.valueOf(temp * 1.8 + 32);
     }
 }
