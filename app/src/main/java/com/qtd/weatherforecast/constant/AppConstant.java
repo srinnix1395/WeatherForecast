@@ -6,6 +6,7 @@ package com.qtd.weatherforecast.constant;
 public class AppConstant {
     public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 113;
 	public static final int REQUEST_CODE_SETTING = 115;
+	public static final int REQUEST_CODE_PERMISSION_LOCATION = 116;
 
     public static final String CONNECTIVITY_CHANGED = "android.net.conn.CONNECTIVITY_CHANGE";
 

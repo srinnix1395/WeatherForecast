@@ -22,7 +22,7 @@ import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.model.WeatherHour;
 import com.qtd.weatherforecast.request.WeatherRequest;
-import com.qtd.weatherforecast.utils.NetworkUtil;
+import com.qtd.weatherforecast.utils.ServiceUtil;
 import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.qtd.weatherforecast.utils.StringUtils;
@@ -70,7 +70,7 @@ public class WeatherForecastService extends Service implements Runnable {
 	
 	@Override
 	public void run() {
-		if (NetworkUtil.isNetworkAvailable(WeatherForecastService.this)
+		if (ServiceUtil.isNetworkAvailable(WeatherForecastService.this)
 				&& SharedPreUtils.getInt(DatabaseConstant._ID, -1) != -1) {
 			requestData();
 		}
@@ -155,7 +155,7 @@ public class WeatherForecastService extends Service implements Runnable {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(AppConstant.CONNECTIVITY_CHANGED)) {
-				if (NetworkUtil.isNetworkAvailable(WeatherForecastService.this)) {
+				if (ServiceUtil.isNetworkAvailable(WeatherForecastService.this)) {
 					long time = SharedPreUtils.getLong(com.qtd.weatherforecast.constant.DatabaseConstant.LAST_UPDATE, 0);
 					long now = System.currentTimeMillis();
 					if (now - time > 60000) {

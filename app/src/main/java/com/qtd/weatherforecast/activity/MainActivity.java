@@ -40,7 +40,7 @@ import com.qtd.weatherforecast.fragment.WeatherDayFragment;
 import com.qtd.weatherforecast.fragment.WeatherHourFragment;
 import com.qtd.weatherforecast.request.WeatherRequest;
 import com.qtd.weatherforecast.service.WeatherForecastService;
-import com.qtd.weatherforecast.utils.NetworkUtil;
+import com.qtd.weatherforecast.utils.ServiceUtil;
 import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.qtd.weatherforecast.utils.StringUtils;
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			Intent intent = new Intent(MainActivity.this, SearchActivity.class);
 			startActivityForResult(intent, AppConstant.PLACE_AUTOCOMPLETE_REQUEST_CODE);
 		} else {
-			if (NetworkUtil.isNetworkAvailable(MainActivity.this)) {
+			if (ServiceUtil.isNetworkAvailable(MainActivity.this)) {
 				imvUpdate.startAnimation(rotation);
 				updateData(SharedPreUtils.getString(ApiConstant.COORDINATE, "-1"));
 			} else {
