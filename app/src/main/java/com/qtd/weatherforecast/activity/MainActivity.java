@@ -8,11 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -43,12 +44,12 @@ import com.qtd.weatherforecast.utils.NetworkUtil;
 import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.qtd.weatherforecast.utils.StringUtils;
+import com.qtd.weatherforecast.utils.UiHelper;
 
 import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements ViewHolderCallback, FragmentCallback {
 	private static final String TAG = "MainActivity";
@@ -62,27 +63,30 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	IconCirclePageIndicator indicator;
 	
 	@Bind(R.id.tv_location)
-	TextView tvLocation;
+	public TextView tvLocation;
 	
 	@Bind(R.id.tv_time)
-	TextView tvTime;
-	
-	@Bind(R.id.imv_renew)
-	ImageView imvRenew;
-	
+	public TextView tvTime;
+
 	@Bind(R.id.tv_1)
-	TextView tv1;
+	public TextView tv1;
 	
 	@Bind(R.id.layout_location)
-	RelativeLayout layoutLocation;
+	public RelativeLayout layoutLocation;
+	
+	public ImageView imvUpdate;
 	
 	private MainBroadcastReceiver broadcastReceiver;
 	private boolean isReceiverRegistered;
 	private MainPagerAdapter adapter;
-	private PopupMenu popupMenu;
-	private AlertDialog alertDialog;
 	private Intent intent;
 	boolean isPlus;
+	
+	private SearchFragment searchFragment;
+	private CurrentWeatherFragment currentWeatherFragment;
+	private WeatherHourFragment weatherHourFragment;
+	private WeatherDayFragment weatherDayFragment;
+	private Animation rotation;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +98,10 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	
 	private void initComponent() {
 		setSupportActionBar(toolbar);
+		getSupportActionBar().setDisplayShowTitleEnabled(false);
+		
 		setupViewPager();
+		initAnimation();
 		
 		broadcastReceiver = new MainBroadcastReceiver();
 		
@@ -102,38 +109,33 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			intent = new Intent(MainActivity.this, WeatherForecastService.class);
 			startService(intent);
 		}
-		
-		alertDialog = new AlertDialog.Builder(MainActivity.this)
-				.setMessage(getString(R.string.errorOnProcessing))
-				.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				})
-				.create();
-		
-		if (!SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false)) {
-			imvRenew.setImageResource(R.drawable.ic_plus_white_24dp);
-			isPlus = true;
-		}
+	}
+	
+	private void initAnimation() {
+		rotation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.clockwise_rotation);
 	}
 	
 	public void getDataFromDatabase() {
-		((SearchFragment) adapter.getItem(0)).getDataFromDatabase();
-		((CurrentWeatherFragment) adapter.getItem(1)).getDataFromDatabase();
-		((WeatherHourFragment) adapter.getItem(2)).getDataFromDatabase();
-		((WeatherDayFragment) adapter.getItem(3)).getDataFromDatabase();
+		searchFragment.getDataFromDatabase();
+		currentWeatherFragment.getDataFromDatabase();
+		weatherHourFragment.getDataFromDatabase();
+		weatherDayFragment.getDataFromDatabase();
 		Log.d("Update", "Ok");
 	}
 	
 	private void setupViewPager() {
+		searchFragment = SearchFragment.newInstance();
+		currentWeatherFragment = CurrentWeatherFragment.newInstance();
+		weatherHourFragment = WeatherHourFragment.newInstance();
+		weatherDayFragment = WeatherDayFragment.newInstance();
+		
 		ArrayList<Fragment> fragments = new ArrayList<>();
-		fragments.add(new SearchFragment());
-		fragments.add(new CurrentWeatherFragment());
-		fragments.add(new WeatherHourFragment());
-		fragments.add(new WeatherDayFragment());
+		fragments.add(searchFragment);
+		fragments.add(currentWeatherFragment);
+		fragments.add(weatherHourFragment);
+		fragments.add(weatherDayFragment);
 		adapter = new MainPagerAdapter(getSupportFragmentManager(), fragments);
+		
 		viewPager.setAdapter(adapter);
 		viewPager.setOffscreenPageLimit(4);
 		
@@ -153,8 +155,53 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem miUpdate = menu.findItem(R.id.miUpdate);
+		imvUpdate = (ImageView) MenuItemCompat.getActionView(miUpdate);
+		imvUpdate.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				miUpdateOnClick();
+			}
+		});
 		
-		
+		if (!SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false)) {
+			imvUpdate.setImageResource(R.drawable.ic_plus_white_24dp);
+			isPlus = true;
+		} else {
+			imvUpdate.setImageResource(R.drawable.ic_autorenew_white_24dp);
+			isPlus = false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.miSetting:
+				Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+				startActivityForResult(intent, AppConstant.REQUEST_CODE_SETTING);
+				break;
+			case R.id.miInfo:
+				Log.d("info", "");
+				break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		registerBroadcast();
 	}
 	
 	private void registerBroadcast() {
@@ -168,13 +215,6 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		}
 	}
 	
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		registerBroadcast();
-	}
-	
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -182,15 +222,21 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		isReceiverRegistered = false;
 	}
 	
-	@OnClick(R.id.imv_renew)
-	void renewOnClick() {
+	@Override
+	protected void onDestroy() {
+		if (isReceiverRegistered) {
+			unregisterReceiver(broadcastReceiver);
+		}
+		super.onDestroy();
+	}
+	
+	void miUpdateOnClick() {
 		if (isPlus) {
 			Intent intent = new Intent(MainActivity.this, SearchActivity.class);
 			startActivityForResult(intent, AppConstant.PLACE_AUTOCOMPLETE_REQUEST_CODE);
 		} else {
 			if (NetworkUtil.isNetworkAvailable(MainActivity.this)) {
-				Animation rotation = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation);
-				imvRenew.startAnimation(rotation);
+				imvUpdate.startAnimation(rotation);
 				updateData(SharedPreUtils.getString(ApiConstant.COORDINATE, "-1"));
 			} else {
 				new AlertDialog.Builder(MainActivity.this)
@@ -206,30 +252,6 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		}
 	}
 	
-	@OnClick(R.id.imv_more)
-	void imvMoreOnClick() {
-		if (popupMenu == null) {
-			popupMenu = new PopupMenu(MainActivity.this, findViewById(R.id.imv_more));
-			popupMenu.getMenuInflater().inflate(R.menu.menu, popupMenu.getMenu());
-			popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-				@Override
-				public boolean onMenuItemClick(MenuItem item) {
-					switch (item.getItemId()) {
-						case R.id.tv_setting:
-							Intent intent = new Intent(MainActivity.this, SettingActivity.class);
-							startActivity(intent);
-							break;
-						case R.id.tv_info:
-							Log.d("info", "");
-							break;
-					}
-					return true;
-				}
-			});
-		}
-		popupMenu.show();
-	}
-	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == AppConstant.PLACE_AUTOCOMPLETE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
@@ -237,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			
 			String conditions = bundle.getString(ApiConstant.CONDITIONS);
 			
-			int idCity = ((SearchFragment) adapter.getItem(0)).updateDataAndGetID(conditions, true);
+			int idCity = searchFragment.updateDataAndGetID(conditions, true);
 			sendDataToFragment(conditions, 1, idCity, true);
 			
 			String hourly = bundle.getString(ApiConstant.HOURLY);
@@ -250,19 +272,27 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			
 			viewPager.setPagingEnabled(true);
 			indicator.setVisibility(View.VISIBLE);
+			return;
+		}
+		
+		if (requestCode == AppConstant.REQUEST_CODE_SETTING && resultCode == RESULT_OK) {
+			searchFragment.updateDegree();
+			currentWeatherFragment.updateDegree();
+			weatherHourFragment.updateDegree();
+			weatherDayFragment.updateDegree();
 		}
 	}
 	
 	private void sendDataToFragment(String s, int id, int idCity, boolean isInsert) {
 		switch (id) {
 			case 1:
-				((CurrentWeatherFragment) adapter.getItem(id)).updateData(s, idCity, isInsert);
+				currentWeatherFragment.updateData(s, idCity, isInsert);
 				break;
 			case 2:
-				((WeatherHourFragment) adapter.getItem(id)).updateData(s, idCity, isInsert);
+				weatherHourFragment.updateData(s, idCity, isInsert);
 				break;
 			case 3:
-				((WeatherDayFragment) adapter.getItem(id)).updateData(s, idCity, isInsert);
+				weatherDayFragment.updateData(s, idCity, isInsert);
 				break;
 		}
 		
@@ -280,42 +310,38 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 				.withCallback(new RequestCallback() {
 					@Override
 					public void onSuccess(Bundle bundle) {
-						int idCity = ((SearchFragment) adapter.getItem(0)).updateDataAndGetID(
+						int idCity = searchFragment.updateDataAndGetID(
 								bundle.getString(ApiConstant.CONDITIONS), false);
 						sendDataToFragment(bundle.getString(ApiConstant.CONDITIONS), 1, idCity, false);
 						sendDataToFragment(bundle.getString(ApiConstant.HOURLY), 2, idCity, false);
 						sendDataToFragment(bundle.getString(ApiConstant.FORECAST10DAY), 3, idCity, false);
-						stopAnimation();
+						imvUpdate.clearAnimation();
 						SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
-						((CurrentWeatherFragment) adapter.getItem(1)).updateTextViewRecent();
+						currentWeatherFragment.updateTextViewRecent();
 					}
 					
 					@Override
 					public void onFail(VolleyError error) {
-						alertDialog.show();
-						stopAnimation();
+						UiHelper.showDialogFail(MainActivity.this);
+						imvUpdate.clearAnimation();
 					}
 				})
 				.build();
 		request.request();
 	}
 	
-	private void stopAnimation() {
-		imvRenew.clearAnimation();
-	}
-	
 	@Override
 	public void deleteItemCity(int idCity) {
-		((SearchFragment) adapter.getItem(0)).deleteItem(idCity);
+		searchFragment.deleteItem(idCity);
 	}
 	
 	@Override
 	public void choseItemCity(int idCity, String name, String coordinate, String timeZone) {
 		SharedPreUtils.putData(idCity, name, coordinate, timeZone);
-		((SearchFragment) adapter.getItem(0)).chooseItem(idCity);
-		((CurrentWeatherFragment) adapter.getItem(1)).chooseItem(idCity);
-		((WeatherHourFragment) adapter.getItem(2)).chooseItem(idCity);
-		((WeatherDayFragment) adapter.getItem(3)).chooseItem(idCity);
+		searchFragment.chooseItem(idCity);
+		currentWeatherFragment.chooseItem(idCity);
+		weatherHourFragment.chooseItem(idCity);
+		weatherDayFragment.chooseItem(idCity);
 	}
 	
 	@Override
@@ -327,43 +353,12 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		}
 	}
 	
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (popupMenu != null) {
-			popupMenu.dismiss();
-		}
-		if (isReceiverRegistered) {
-			unregisterReceiver(broadcastReceiver);
-		}
-	}
-	
-	public TextView getTv1() {
-		return tv1;
-	}
-	
 	public void setPlus(boolean plus) {
 		isPlus = plus;
 	}
 	
 	public boolean isPlus() {
 		return isPlus;
-	}
-	
-	public ImageView getImvRenew() {
-		return imvRenew;
-	}
-	
-	public TextView getTvLocation() {
-		return tvLocation;
-	}
-	
-	public TextView getTvTime() {
-		return tvTime;
-	}
-	
-	public RelativeLayout getLayoutLocation() {
-		return layoutLocation;
 	}
 	
 	class MainBroadcastReceiver extends BroadcastReceiver {
@@ -376,11 +371,11 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 				}
 				case Intent.ACTION_TIME_TICK: {
 					if (SharedPreUtils.getInt(DatabaseConstant._ID, -1) != -1) {
-						if (adapter.getItem(1).getUserVisibleHint()) {
+						if (currentWeatherFragment.getUserVisibleHint()) {
 							tvTime.setText(StringUtils.getCurrentDateTime(SharedPreUtils.getString(DatabaseConstant.TIME_ZONE, "+0700")));
 						}
-						((CurrentWeatherFragment) adapter.getItem(1)).updateTime();
-						((CurrentWeatherFragment) adapter.getItem(1)).updateTextViewRecent();
+						currentWeatherFragment.updateTime();
+						currentWeatherFragment.updateTextViewRecent();
 					}
 					break;
 				}
@@ -388,15 +383,14 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 					String state = intent.getStringExtra(AppConstant.STATE);
 					switch (state) {
 						case AppConstant.STATE_START: {
-							if (adapter.getItem(1).getUserVisibleHint()) {
-								Animation rotation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.clockwise_rotation);
-								imvRenew.startAnimation(rotation);
+							if (currentWeatherFragment.getUserVisibleHint()) {
+								imvUpdate.startAnimation(rotation);
 							}
 							break;
 						}
 						case AppConstant.STATE_END: {
-							if (adapter.getItem(1).getUserVisibleHint() && imvRenew.getAnimation() != null) {
-								imvRenew.getAnimation().setRepeatCount(0);
+							if (currentWeatherFragment.getUserVisibleHint() && imvUpdate.getAnimation() != null) {
+								imvUpdate.getAnimation().setRepeatCount(0);
 							}
 							break;
 						}

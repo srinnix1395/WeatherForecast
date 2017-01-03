@@ -29,7 +29,7 @@ import static com.qtd.weatherforecast.constant.AppConstant.F;
  * Created by Dell on 5/8/2016.
  */
 public class SettingActivity extends AppCompatActivity {
-    @Bind(R.id.toolbar)
+	@Bind(R.id.toolbar)
     Toolbar toolbar;
 
     @Bind(R.id.switch_notification)
@@ -42,7 +42,8 @@ public class SettingActivity extends AppCompatActivity {
     TextView tvF;
 
     private int typeDegree;
-
+	private int initialDegree;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +55,7 @@ public class SettingActivity extends AppCompatActivity {
 
     private void getData() {
         typeDegree = SharedPreUtils.getInt(DEGREE, AppConstant.C);
+		initialDegree = SharedPreUtils.getInt(DEGREE, AppConstant.C);
     }
 
     private void initComponent() {
@@ -64,8 +66,8 @@ public class SettingActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SettingActivity.this.finish();
-            }
+				SettingActivity.this.onBackPressed();
+			}
         });
 
         aSwitch.setChecked(SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true));
@@ -119,6 +121,17 @@ public class SettingActivity extends AppCompatActivity {
             }
         }
         updateTextColorDegree();
-        SharedPreUtils.putInt(DEGREE, typeDegree);
-    }
+		SharedPreUtils.putInt(DEGREE, typeDegree);
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (initialDegree != typeDegree) {
+			setResult(RESULT_OK);
+		} else {
+			setResult(RESULT_CANCELED);
+		}
+		
+		finish();
+	}
 }

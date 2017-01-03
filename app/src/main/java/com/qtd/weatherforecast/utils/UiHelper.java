@@ -1,11 +1,15 @@
 package com.qtd.weatherforecast.utils;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
+
 import com.qtd.weatherforecast.R;
 
 /**
  * Created by Dell on 5/4/2016.
  */
-public class ImageUtils {
+public class UiHelper {
     public static int getImageResource(String url) {
         String[] s = url.split("/");
         String[] s2 = s[6].split("\\.");
@@ -223,4 +227,16 @@ public class ImageUtils {
         }
         return R.drawable.sun_black;
     }
+	
+	public static void showDialogFail(Context context) {
+		new AlertDialog.Builder(context)
+				.setMessage(context.getString(R.string.errorOnProcessing))
+				.setPositiveButton(context.getString(R.string.OK), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				})
+				.create().show();
+	}
 }

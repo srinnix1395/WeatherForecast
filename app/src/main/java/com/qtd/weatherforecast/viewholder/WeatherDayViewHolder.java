@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.model.WeatherDay;
-import com.qtd.weatherforecast.utils.ImageUtils;
+import com.qtd.weatherforecast.utils.UiHelper;
 import com.qtd.weatherforecast.utils.StringUtils;
 
 import butterknife.Bind;
@@ -46,7 +46,7 @@ public class WeatherDayViewHolder extends RecyclerView.ViewHolder {
     public void setupViewHolder(WeatherDay weatherDay, boolean isLast) {
         tvDay.setText(weatherDay.getDay());
         tvWeather.setText(weatherDay.getWeather());
-        int icon = ImageUtils.getImageResource(weatherDay.getIcon());
+        int icon = UiHelper.getImageResource(weatherDay.getIcon());
         imvIcon.setImageResource(icon);
 
         tvHighTemp.setText(StringUtils.getTemp(weatherDay.getHighTemp()));

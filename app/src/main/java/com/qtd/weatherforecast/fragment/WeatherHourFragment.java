@@ -23,7 +23,6 @@ import com.qtd.weatherforecast.model.WeatherHour;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -43,7 +42,11 @@ public class WeatherHourFragment extends Fragment {
     private ArrayList<WeatherHour> weatherHours;
     private MyDatabaseHelper databaseHelper;
     private MainActivity activity;
-
+	
+	public static WeatherHourFragment newInstance() {
+		return new WeatherHourFragment();
+	}
+	
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -82,15 +85,14 @@ public class WeatherHourFragment extends Fragment {
         }
     }
 
-    public void displayData(JSONObject response) {
+    public void displayData(ArrayList<WeatherHour> weatherHourArrayList) {
         weatherHours.clear();
-        adapter.notifyDataSetChanged();
-        weatherHours.addAll(ProcessJson.getAllWeatherHours(response));
+
+        weatherHours.addAll(weatherHourArrayList);
         adapter.notifyDataSetChanged();
     }
 
-    private void updateDatabase(JSONObject response, boolean isInsert, int idCity) {
-        ArrayList<WeatherHour> arrHour = ProcessJson.getAllWeatherHours(response);
+    private void updateDatabase(ArrayList<WeatherHour> arrHour, boolean isInsert, int idCity) {
         for (int i = 0; i < arrHour.size(); i++) {
             if (isInsert) {
                 databaseHelper.insertWeatherHour(arrHour.get(i), idCity, i);
@@ -104,16 +106,16 @@ public class WeatherHourFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            activity.getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
-            activity.getTvTime().setText(R.string.twentyFourHoursToGo);
+            activity.tvLocation.setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
+            activity.tvTime.setText(R.string.twentyFourHoursToGo);
         }
     }
 
     public void updateData(String s, int idCity, boolean isInsert) {
         try {
-            JSONObject object = new JSONObject(s);
-            displayData(object);
-            updateDatabase(object, isInsert, idCity);
+			ArrayList<WeatherHour> allWeatherHours = ProcessJson.getAllWeatherHours(s);
+			displayData(allWeatherHours);
+            updateDatabase(allWeatherHours, isInsert, idCity);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -124,16 +126,18 @@ public class WeatherHourFragment extends Fragment {
         weatherHours.addAll(databaseHelper.getAllWeatherHours(idCity));
         adapter.notifyDataSetChanged();
     }
-
-
+	
     public void getDataFromDatabase() {
         int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             weatherHours.clear();
-            adapter.notifyDataSetChanged();
 
             weatherHours.addAll(databaseHelper.getAllWeatherHours(id));
             adapter.notifyDataSetChanged();
         }
     }
+	
+	public void updateDegree() {
+		adapter.notifyDataSetChanged();
+	}
 }

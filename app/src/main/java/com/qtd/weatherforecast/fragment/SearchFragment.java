@@ -47,6 +47,13 @@ public class SearchFragment extends Fragment {
 	private FragmentCallback callback;
 	private MainActivity activity;
 	
+	private AnimationSet animationHide;
+	private Animation animationDown;
+	
+	public static SearchFragment newInstance() {
+		return new SearchFragment();
+	}
+	
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -78,9 +85,11 @@ public class SearchFragment extends Fragment {
 		cities = new ArrayList<>();
 		adapter = new CityAdapter(cities);
 		recyclerView.setAdapter(adapter);
+		
+		initAnimation();
 	}
 	
-	public void initData() {
+	private void initData() {
 		MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(getContext());
 		
 		int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
@@ -96,6 +105,57 @@ public class SearchFragment extends Fragment {
 		}
 	}
 	
+	private void initAnimation() {
+		Animation rotation2 = AnimationUtils.loadAnimation(getActivity(), R.anim.clockwise_rotation_finite2);
+		Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+		final AnimationSet animationShow = new AnimationSet(false);
+		animationShow.addAnimation(fadeIn);
+		animationShow.addAnimation(rotation2);
+		
+		Animation rotation1 = AnimationUtils.loadAnimation(getContext(), R.anim.clockwise_rotation_finite1);
+		Animation fadeOut = AnimationUtils.loadAnimation(getContext(), R.anim.fade_out);
+		animationHide = new AnimationSet(false);
+		animationHide.addAnimation(rotation1);
+		animationHide.addAnimation(fadeOut);
+		animationHide.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				activity.imvUpdate.setImageResource(R.drawable.ic_plus_white_24dp);
+				activity.imvUpdate.startAnimation(animationShow);
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				
+			}
+		});
+		
+		animationDown = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_down);
+		animationDown.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				activity.tv1.setVisibility(View.VISIBLE);
+				activity.tvLocation.setVisibility(View.INVISIBLE);
+				activity.tvTime.setVisibility(View.INVISIBLE);
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				
+			}
+		});
+	}
+	
 	@Override
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 		super.setUserVisibleHint(isVisibleToUser);
@@ -103,56 +163,8 @@ public class SearchFragment extends Fragment {
 			return;
 		}
 		if (SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false) && isVisibleToUser) {
-			Animation rotation1 = AnimationUtils.loadAnimation(getContext(), R.anim.clockwise_rotation_finite1);
-			Animation fadeOut = AnimationUtils.loadAnimation(getContext(), R.anim.fade_out);
-			AnimationSet set1 = new AnimationSet(false);
-			set1.addAnimation(rotation1);
-			set1.addAnimation(fadeOut);
-			set1.setAnimationListener(new Animation.AnimationListener() {
-				@Override
-				public void onAnimationStart(Animation animation) {
-					
-				}
-				
-				@Override
-				public void onAnimationEnd(Animation animation) {
-					activity.getImvRenew().setImageResource(R.drawable.ic_plus_white_24dp);
-					Animation rotation2 = AnimationUtils.loadAnimation(getActivity(), R.anim.clockwise_rotation_finite2);
-					Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
-					AnimationSet set2 = new AnimationSet(false);
-					set2.addAnimation(fadeIn);
-					set2.addAnimation(rotation2);
-					activity.getImvRenew().startAnimation(set2);
-				}
-				
-				@Override
-				public void onAnimationRepeat(Animation animation) {
-					
-				}
-			});
-			
-			activity.getImvRenew().startAnimation(set1);
-			
-			Animation animationDown = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_down);
-			animationDown.setAnimationListener(new Animation.AnimationListener() {
-				@Override
-				public void onAnimationStart(Animation animation) {
-					
-				}
-				
-				@Override
-				public void onAnimationEnd(Animation animation) {
-					activity.getTv1().setVisibility(View.VISIBLE);
-					activity.getTvLocation().setVisibility(View.INVISIBLE);
-					activity.getTvTime().setVisibility(View.INVISIBLE);
-				}
-				
-				@Override
-				public void onAnimationRepeat(Animation animation) {
-					
-				}
-			});
-			activity.getLayoutLocation().startAnimation(animationDown);
+			activity.imvUpdate.startAnimation(animationHide);
+			activity.layoutLocation.startAnimation(animationDown);
 			
 			activity.setPlus(true);
 		}
@@ -254,5 +266,9 @@ public class SearchFragment extends Fragment {
 			}
 			adapter.notifyDataSetChanged();
 		}
+	}
+	
+	public void updateDegree() {
+		adapter.notifyDataSetChanged();
 	}
 }

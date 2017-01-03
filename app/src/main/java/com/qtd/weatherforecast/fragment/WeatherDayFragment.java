@@ -20,7 +20,6 @@ import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -38,8 +37,12 @@ public class WeatherDayFragment extends Fragment {
     private ArrayList<WeatherDay> weatherDays;
     private MyDatabaseHelper databaseHelper;
     private MainActivity activity;
-
-    @Nullable
+	
+	public static WeatherDayFragment newInstance() {
+		return new WeatherDayFragment();
+	}
+	
+	@Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_days_weather, container, false);
@@ -66,23 +69,20 @@ public class WeatherDayFragment extends Fragment {
 
     private void initData() {
         databaseHelper = MyDatabaseHelper.getInstance(getContext());
-        final int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
+        int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             weatherDays.addAll(databaseHelper.getAllWeatherDays(id));
             adapter.notifyDataSetChanged();
         }
     }
 
-    private void displayData(JSONObject response) {
+    private void displayData(ArrayList<WeatherDay> weatherDayArrayList) {
         weatherDays.clear();
-        adapter.notifyDataSetChanged();
-
-        weatherDays.addAll(ProcessJson.getAllWeatherDays(response));
+        weatherDays.addAll(weatherDayArrayList);
         adapter.notifyDataSetChanged();
     }
 
-    private void updateDatabase(JSONObject response, boolean isInsert, int idCity) {
-        ArrayList<WeatherDay> arrDay = ProcessJson.getAllWeatherDays(response);
+    private void updateDatabase(ArrayList<WeatherDay> arrDay, boolean isInsert, int idCity) {
         for (int i = 0; i < arrDay.size(); i++) {
             if (isInsert) {
                 databaseHelper.insertWeatherDay(arrDay.get(i), idCity, i);
@@ -96,16 +96,16 @@ public class WeatherDayFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            activity.getTvLocation().setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
-            activity.getTvTime().setText(R.string.sixDaysToGo);
+            activity.tvLocation.setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
+            activity.tvTime.setText(R.string.sixDaysToGo);
         }
     }
 
     public void updateData(String s, int idCity, boolean isInsert) {
         try {
-            JSONObject object = new JSONObject(s);
-            displayData(object);
-            updateDatabase(object, isInsert, idCity);
+			ArrayList<WeatherDay> allWeatherDays = ProcessJson.getAllWeatherDays(s);
+			displayData(allWeatherDays);
+            updateDatabase(allWeatherDays, isInsert, idCity);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -121,10 +121,13 @@ public class WeatherDayFragment extends Fragment {
         int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
         if (id != -1) {
             weatherDays.clear();
-            adapter.notifyDataSetChanged();
 
             weatherDays.addAll(databaseHelper.getAllWeatherDays(id));
             adapter.notifyDataSetChanged();
         }
     }
+	
+	public void updateDegree() {
+		adapter.notifyDataSetChanged();
+	}
 }
