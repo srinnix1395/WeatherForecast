@@ -229,13 +229,13 @@ public class SearchFragment extends Fragment {
 			activity.getDataFromDatabase();
 		}
 		adapter.notifyDataSetChanged();
-		NotificationUtils.updateNotification(getContext());
+		NotificationUtils.createOrUpdateNotification(getContext());
 	}
 	
 	public void chooseItem(int idCity) {
 		setCheckedCities(idCity);
 		adapter.notifyDataSetChanged();
-		NotificationUtils.updateNotification(getContext());
+		NotificationUtils.createOrUpdateNotification(getContext());
 	}
 	
 	public void getDataFromDatabase() {

@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.qtd.weatherforecast.R;
@@ -60,8 +61,8 @@ public class SearchActivity extends AppCompatActivity implements RequestCallback
 
     private ProgressDialog loading;
     private AlertDialog alertDialog;
-	private boolean isOpenDialogWarning;
-	
+    private boolean isOpenDialogWarning;
+
 //    private ArrayList<City> cities;
 //    private AutoCompleteTextViewLocationAdapter adapter;
 
@@ -159,19 +160,8 @@ public class SearchActivity extends AppCompatActivity implements RequestCallback
 
     private void getAutoComplete(CharSequence s) {
         if (!NetworkUtil.isNetworkAvailable(this)) {
-			if (!isOpenDialogWarning) {
-				new AlertDialog.Builder(SearchActivity.this, R.style.DialogTheme)
-						.setMessage(getString(R.string.pleaseConnectInternet))
-						.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-							}
-						})
-						.create().show();
-				isOpenDialogWarning = true;
-			}
-		} else if (s.length() >= 3) {
+            Toast.makeText(this, R.string.pleaseConnectInternet, Toast.LENGTH_SHORT).show();
+        } else if (s.length() >= 3) {
             requestAutoComplete();
         } else {
             tzs.clear();

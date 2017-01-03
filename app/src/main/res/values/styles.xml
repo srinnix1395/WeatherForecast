@@ -6,18 +6,9 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="vpiCirclePageIndicatorStyle">@style/CustomCirclePageIndicator</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Dialog">
-    </style>
-    <style name="CustomCirclePageIndicator">
-        <item name="fillColor">#fff</item>
-        <item name="pageColor">@color/colorGray</item>
-        <item name="strokeColor">@null</item>
-        <item name="strokeWidth">0dp</item>
-        <item name="radius">4dp</item>
-        <item name="centered">true</item>
     </style>
 
     <style name="TextViewHighStyle">

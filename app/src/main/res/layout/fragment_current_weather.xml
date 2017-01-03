@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/transparent"
-    android:orientation="vertical">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:orientation="vertical"
+                tools:background="#000">
 
     <ImageView
         android:id="@+id/imv_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/tv_temp"
-        android:layout_marginBottom="-20dp" />
+        android:layout_marginBottom="-20dp"/>
 
     <TextView
         android:id="@+id/tv_temp"
@@ -19,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:textColor="@android:color/white"
-        android:textSize="84sp" />
+        android:textSize="84sp"/>
 
     <TextView
         android:id="@+id/tv_weather"
@@ -29,7 +31,7 @@
         android:layout_below="@id/tv_temp"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/white"
-        android:textSize="36sp" />
+        android:textSize="36sp"/>
 
     <RelativeLayout
         android:id="@+id/layout_humid"
@@ -42,44 +44,46 @@
         <TextView
             android:id="@+id/tv1"
             style="@style/TextViewHighStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
+            android:lines="1"
             android:text="@string/humid"
             android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:textSize="24sp"/>
 
         <TextView
             android:id="@+id/tv_humid"
             style="@style/TextViewHighStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:lines="1"
             android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:textSize="24sp"/>
 
         <TextView
             android:id="@+id/tv2"
             style="@style/TextViewHighStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
             android:layout_below="@+id/tv1"
             android:layout_marginTop="5dp"
+            android:lines="1"
             android:text="@string/wind"
             android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:textSize="24sp"/>
 
         <TextView
             android:id="@+id/tv_wind"
             style="@style/TextViewHighStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
             android:layout_below="@+id/tv_humid"
             android:layout_marginTop="5dp"
+            android:lines="1"
             android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:textSize="24sp"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -93,44 +97,46 @@
         <TextView
             android:id="@+id/tv3"
             style="@style/TextViewHighStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
+            android:lines="1"
             android:text="@string/feels_like"
             android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:textSize="24sp"/>
 
         <TextView
             android:id="@+id/tv_feelslike"
             style="@style/TextViewHighStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:lines="1"
             android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:textSize="24sp"/>
 
         <TextView
             android:id="@+id/tv4"
             style="@style/TextViewHighStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
             android:layout_below="@+id/tv3"
             android:layout_marginTop="5dp"
+            android:lines="1"
             android:text="@string/UV"
             android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:textSize="24sp"/>
 
         <TextView
             android:id="@+id/tv_uv"
             style="@style/TextViewHighStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
             android:layout_below="@+id/tv_feelslike"
             android:layout_marginTop="5dp"
+            android:lines="1"
             android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:textSize="24sp"/>
     </RelativeLayout>
 
     <TextView
@@ -140,5 +146,5 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="5dp" />
+        android:layout_marginBottom="5dp"/>
 </RelativeLayout>

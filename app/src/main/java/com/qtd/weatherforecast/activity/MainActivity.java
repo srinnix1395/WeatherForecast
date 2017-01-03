@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			String forecast = bundle.getString(ApiConstant.FORECAST10DAY);
 			sendDataToFragment(forecast, 3, idCity, true);
 			
-			NotificationUtils.updateNotification(this);
+			NotificationUtils.createOrUpdateNotification(this);
 			
 			viewPager.setPagingEnabled(true);
 			indicator.setVisibility(View.VISIBLE);

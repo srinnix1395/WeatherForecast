@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatDrawableManager;
 
 /**
  * Created by Administrator on 12/20/2016.
@@ -21,11 +21,11 @@ public class Icon extends Indicator {
 			, int size, boolean selected) {
 		this.x = x;
 		this.y = y;
+
+        drawableSelected = AppCompatDrawableManager.get().getDrawable(context, selectedRes);
+        drawableSelected.setBounds(x, y, x + 4 * size, y + 4 * size);
 		
-		drawableSelected = ContextCompat.getDrawable(context, selectedRes);
-		drawableSelected.setBounds(x, y, x + 4 * size, y + 4 * size);
-		
-		drawableUnselected = ContextCompat.getDrawable(context, unselectedRes);
+		drawableUnselected =  AppCompatDrawableManager.get().getDrawable(context, unselectedRes);
 		drawableUnselected.setBounds(x, y, x + 4 * size, y + 4 * size);
 		
 		this.selected = selected;

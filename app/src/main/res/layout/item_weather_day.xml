@@ -1,60 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="70dp"
-    android:orientation="vertical">
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:orientation="vertical"
+                tools:background="@color/blackFade">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginStart="15dp">
+        android:layout_marginLeft="15dp"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_time"
             style="@style/TextViewHighStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:lines="1"
+            tools:text="Thứ tư"/>
 
         <TextView
             android:id="@+id/tv_weather"
             style="@style/TextViewLowStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_time" />
-    </RelativeLayout>
+            android:lines="1"
+            tools:text="Trời đẹp"/>
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/imv_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_marginStart="10dp" />
+        tools:src="@drawable/moon_500"/>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="15dp">
+        android:layout_marginRight="15dp"
+        android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/tv_high_temp"
             style="@style/TextViewHighStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="10dp"
-            android:layout_toStartOf="@+id/tv_low_temp"
-            android:textSize="27sp" />
+            android:layout_marginRight="10dp"
+            android:textSize="27sp"/>
 
         <TextView
             android:id="@+id/tv_low_temp"
             style="@style/TextViewLowStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true" />
-    </RelativeLayout>
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/imv_line"
@@ -63,5 +68,5 @@
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:src="@drawable/background_gach_gray" />
+        app:srcCompat="@drawable/background_gach_gray"/>
 </RelativeLayout>

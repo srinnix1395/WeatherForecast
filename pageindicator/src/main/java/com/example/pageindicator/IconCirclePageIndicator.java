@@ -118,7 +118,7 @@ public class IconCirclePageIndicator extends View implements PageIndicator, View
 			return;
 		}
 		viewPager.setCurrentItem(position, true);
-		invalidate();
+		postInvalidate();
 	}
 	
 	private void initIconCircle() {
@@ -174,8 +174,8 @@ public class IconCirclePageIndicator extends View implements PageIndicator, View
 			((Circle) indicatorList.get(currentPosition)).setColor(selectedColor);
 			((Circle) indicatorList.get(currentPosition)).setAlpha(ALPHA_SELECTED);
 		}
-		
-		invalidate();
+
+        postInvalidate();
 	}
 	
 	@Override

@@ -52,18 +52,18 @@
                 android:layout_width="@dimen/defaultSize"
                 android:layout_height="@dimen/defaultSize"
                 android:layout_centerVertical="true"
-                android:layout_toStartOf="@+id/imv_more"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:scaleType="center"
-                app:srcCompat="@drawable/ic_autorenew_white_24dp" />
+                app:srcCompat="@drawable/ic_autorenew_white_24dp"
+                android:layout_toLeftOf="@+id/imv_more"/>
 
             <ImageView
                 android:id="@+id/imv_more"
                 android:layout_width="@dimen/defaultSize"
                 android:layout_height="@dimen/defaultSize"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="5dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="5dp"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:scaleType="center"

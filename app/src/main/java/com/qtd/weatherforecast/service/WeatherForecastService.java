@@ -60,7 +60,7 @@ public class WeatherForecastService extends Service implements Runnable {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		boolean onNotify = SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true);
 		if (onNotify) {
-			NotificationUtils.createNotification(WeatherForecastService.this);
+			NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);
 		}
 		handler = new Handler();
 		this.run();
@@ -109,7 +109,7 @@ public class WeatherForecastService extends Service implements Runnable {
 						public void onSuccess(Bundle bundle) {
 							updateDatabase(bundle, id);
 							if (SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true)) {
-								NotificationUtils.updateNotification(WeatherForecastService.this);
+								NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);
 							}
 							broadcastDatabaseState();
 							broadcastUpdateState(AppConstant.STATE_UPDATE_CHANGED, AppConstant.STATE_END);
