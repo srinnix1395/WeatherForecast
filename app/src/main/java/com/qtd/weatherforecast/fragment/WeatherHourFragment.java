@@ -93,12 +93,10 @@ public class WeatherHourFragment extends Fragment {
     }
 
     private void updateDatabase(ArrayList<WeatherHour> arrHour, boolean isInsert, int idCity) {
-        for (int i = 0; i < arrHour.size(); i++) {
-            if (isInsert) {
-                databaseHelper.insertWeatherHour(arrHour.get(i), idCity, i);
-            } else {
-                databaseHelper.updateWeatherHour(arrHour.get(i), idCity, i);
-            }
+        if (isInsert) {
+            databaseHelper.insertWeatherHour(arrHour, idCity);
+        } else {
+            databaseHelper.updateWeatherHour(arrHour, idCity);
         }
     }
 

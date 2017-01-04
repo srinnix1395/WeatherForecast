@@ -83,12 +83,10 @@ public class WeatherDayFragment extends Fragment {
     }
 
     private void updateDatabase(ArrayList<WeatherDay> arrDay, boolean isInsert, int idCity) {
-        for (int i = 0; i < arrDay.size(); i++) {
-            if (isInsert) {
-                databaseHelper.insertWeatherDay(arrDay.get(i), idCity, i);
-            } else {
-                databaseHelper.updateWeatherDay(arrDay.get(i), idCity, i);
-            }
+        if (isInsert) {
+            databaseHelper.insertWeatherDay(arrDay, idCity);
+        } else {
+            databaseHelper.updateWeatherDay(arrDay, idCity);
         }
     }
 

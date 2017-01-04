@@ -21,7 +21,7 @@ import static com.qtd.weatherforecast.constant.AppConstant.HAS_CITY;
 public class NotificationUtils {
     public static void createOrUpdateNotification(Context context) {
         //// TODO: 1/3/2017 fix bug bad noti
-        if (SharedPreUtils.getBoolean(HAS_CITY, false)) {
+        if (!SharedPreUtils.getBoolean(HAS_CITY, false)) {
             Intent intent = new Intent(context, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -35,7 +35,8 @@ public class NotificationUtils {
             remoteViews.setTextViewText(R.id.tv_weather, city.getWeather());
             remoteViews.setTextViewText(R.id.tv_temp, String.valueOf(city.getTemp()) + "°");
             NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(context)
-                    .setSmallIcon(UiHelper.getImageResourceCurrentWeather(city.getIcon()))
+//                    .setSmallIcon(UiHelper.getImageResourceCurrentWeather(city.getIcon()))
+                    .setSmallIcon(R.drawable.moon)
                     .setContent(remoteViews)
                     .setOngoing(true)
                     .setContentIntent(pendingIntent)
