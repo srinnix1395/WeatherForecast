@@ -25,5 +25,6 @@ public class AppConstant {
     public static final int C = 0;
     public static final int F = 1;
 	public static final String HAS_CHANGED_DEGREE = "has_changed_degree";
+	public static final String IS_OPEN_GUIDE = "IS_OPEN_GUIDE";
 	public static String _ID = "ID";
 }

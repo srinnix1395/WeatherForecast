@@ -26,6 +26,7 @@ import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,9 +61,8 @@ public class SearchFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_search, container, false);
 		ButterKnife.bind(this, view);
 		initComponent();
-		initData();
+		getDataFromDatabase();
 		return view;
-		
 	}
 	
 	@Override
@@ -73,7 +73,7 @@ public class SearchFragment extends Fragment {
 				callback = (FragmentCallback) context;
 			}
 			activity = (MainActivity) context;
-		} catch (Exception e) {
+		} catch (ClassCastException e) {
 			Log.d("Err casting searchFrg", "cast context to activity");
 		}
 	}
@@ -87,22 +87,6 @@ public class SearchFragment extends Fragment {
 		recyclerView.setAdapter(adapter);
 		
 		initAnimation();
-	}
-	
-	private void initData() {
-		MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(getContext());
-		
-		int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
-		Log.d("id", String.valueOf(id));
-		if (id != -1) {
-			cities.addAll(databaseHelper.getAllCities());
-			for (City city : cities) {
-				if (city.getId() != id) {
-					city.setChosen(false);
-				}
-			}
-			adapter.notifyDataSetChanged();
-		}
 	}
 	
 	private void initAnimation() {
@@ -125,7 +109,9 @@ public class SearchFragment extends Fragment {
 			
 			@Override
 			public void onAnimationEnd(Animation animation) {
-				activity.imvUpdate.setImageResource(R.drawable.ic_plus_white_24dp);
+				Picasso.with(activity)
+						.load(R.drawable.ic_plus)
+						.into(activity.imvUpdate);
 				activity.imvUpdate.startAnimation(animationShow);
 			}
 			
@@ -255,8 +241,6 @@ public class SearchFragment extends Fragment {
 		int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
 		if (id != -1) {
 			cities.clear();
-			adapter.notifyDataSetChanged();
-			
 			cities.addAll(databaseHelper.getAllCities());
 			
 			for (City city : cities) {

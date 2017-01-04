@@ -110,8 +110,8 @@
             android:layout_height="@dimen/itemSettingHeight"
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:scaleType="center"
-            android:src="@drawable/blue_background"/>
+            android:scaleType="center"/>
+            android:src="@drawable/bg_blue_reality"/>
 
         <View
             android:layout_width="match_parent"

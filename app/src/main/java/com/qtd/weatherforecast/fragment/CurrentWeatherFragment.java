@@ -24,6 +24,7 @@ import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.qtd.weatherforecast.utils.StringUtils;
 import com.qtd.weatherforecast.utils.UiHelper;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
@@ -140,7 +141,9 @@ public class CurrentWeatherFragment extends Fragment {
 			
 			@Override
 			public void onAnimationEnd(Animation animation) {
-				activity.imvUpdate.setImageResource(R.drawable.ic_autorenew_white_24dp);
+				Picasso.with(activity)
+						.load(R.drawable.ic_refresh)
+						.into(activity.imvUpdate);
 				activity.imvUpdate.startAnimation(animationShow);
 			}
 			

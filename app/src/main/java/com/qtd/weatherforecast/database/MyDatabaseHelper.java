@@ -459,18 +459,17 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         try {
-            ContentValues contentValues = new ContentValues();
-            for (int i = 0; i < dayArrayList.size(); i++) {
-                contentValues.clear();
-                contentValues.put(DatabaseConstant.DAY, dayArrayList.get(i).getDay());
-                contentValues.put(DatabaseConstant.WEATHER, dayArrayList.get(i).getWeather());
-                contentValues.put(DatabaseConstant.HIGH_TEMP, dayArrayList.get(i).getHighTemp());
-                contentValues.put(DatabaseConstant.LOW_TEMP, dayArrayList.get(i).getLowTemp());
-                contentValues.put(DatabaseConstant.ICON, dayArrayList.get(i).getIcon());
-
-                long result = db.update(DatabaseConstant.TABLE_DAY, contentValues, DatabaseConstant.ID_CITY + "=" + idCity + " AND " + DatabaseConstant.ORDER + "=" + i, null);
-                Log.d("result update day", String.valueOf(result));
-            }
+			for (int i = 0; i < dayArrayList.size(); i++) {
+				ContentValues contentValues = new ContentValues();
+				contentValues.put(DatabaseConstant.DAY, dayArrayList.get(i).getDay());
+				contentValues.put(DatabaseConstant.WEATHER, dayArrayList.get(i).getWeather());
+				contentValues.put(DatabaseConstant.HIGH_TEMP, dayArrayList.get(i).getHighTemp());
+				contentValues.put(DatabaseConstant.LOW_TEMP, dayArrayList.get(i).getLowTemp());
+				contentValues.put(DatabaseConstant.ICON, dayArrayList.get(i).getIcon());
+		
+				long result = db.update(DatabaseConstant.TABLE_DAY, contentValues, DatabaseConstant.ID_CITY + "=" + idCity + " AND " + DatabaseConstant.ORDER + "=" + i, null);
+				Log.d("result update day", String.valueOf(result));
+			}
 
             db.setTransactionSuccessful();
         } catch (Exception e) {
