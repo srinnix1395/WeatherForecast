@@ -35,7 +35,6 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
     @Bind(R.id.cardView_item)
     CardView cardView;
 
-    View view;
     int id = 0;
     String name = "";
     String coordinate = "";
@@ -44,10 +43,9 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
 
     public CityViewHolder(View itemView) {
         super(itemView);
-        view = itemView;
-        ButterKnife.bind(this, view);
+        ButterKnife.bind(this, itemView);
         try {
-            callback = (ViewHolderCallback) view.getContext();
+            callback = (ViewHolderCallback) itemView.getContext();
         } catch (Exception e) {
             Log.d("error city view holder", e.toString());
         }
@@ -57,14 +55,14 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
         id = city.getId();
         name = city.getName();
         coordinate = city.getCoordinate();
-        timeZone = MyDatabaseHelper.getInstance(view.getContext()).getCurrentWeather(id).getTime();
+        timeZone = MyDatabaseHelper.getInstance(itemView.getContext()).getCurrentWeather(id).getTime();
         tvCity.setText(city.getName());
 
         String temp = StringUtils.getTemp(city.getTemp());
         tvWeather.setText(temp + "°, " + city.getWeather());
 
         radioButton.setChecked(city.isChosen());
-        cardView.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), city.isChosen() ? android.R.color.white : R.color.colorWhiteFade));
+        cardView.setCardBackgroundColor(ContextCompat.getColor(itemView.getContext(), city.isChosen() ? android.R.color.white : R.color.colorWhiteFade));
     }
 
     @OnClick(R.id.imv_clear)

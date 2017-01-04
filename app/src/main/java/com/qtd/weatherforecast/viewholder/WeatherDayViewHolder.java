@@ -35,27 +35,23 @@ public class WeatherDayViewHolder extends RecyclerView.ViewHolder {
     @Bind(R.id.imv_line)
     ImageView imvLine;
 
-    private View view;
-
     public WeatherDayViewHolder(View itemView) {
         super(itemView);
-        this.view = itemView;
-        ButterKnife.bind(this, view);
+        ButterKnife.bind(this, itemView);
     }
 
     public void setupViewHolder(WeatherDay weatherDay, boolean isLast) {
         tvDay.setText(weatherDay.getDay());
         tvWeather.setText(weatherDay.getWeather());
-        int icon = UiHelper.getImageResource(weatherDay.getIcon());
-        imvIcon.setImageResource(icon);
+        imvIcon.setImageResource(UiHelper.getImageResource(weatherDay.getIcon()));
 
         tvHighTemp.setText(StringUtils.getTemp(weatherDay.getHighTemp()));
         tvLowTemp.setText(StringUtils.getTemp(weatherDay.getLowTemp()));
 
         if (isLast) {
-            imvLine.setImageResource(R.drawable.background_gach_trong);
+            imvLine.setVisibility(View.INVISIBLE);
         } else {
-            imvLine.setImageResource(R.drawable.background_gach_gray);
+            imvLine.setVisibility(View.VISIBLE);
         }
     }
 }
