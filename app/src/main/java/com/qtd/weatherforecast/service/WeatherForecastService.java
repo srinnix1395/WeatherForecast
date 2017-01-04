@@ -1,13 +1,11 @@
 package com.qtd.weatherforecast.service;
 
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 
 import com.android.volley.VolleyError;
@@ -22,8 +20,8 @@ import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.model.WeatherHour;
 import com.qtd.weatherforecast.request.WeatherRequest;
-import com.qtd.weatherforecast.utils.ServiceUtil;
 import com.qtd.weatherforecast.utils.NotificationUtils;
+import com.qtd.weatherforecast.utils.ServiceUtil;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.qtd.weatherforecast.utils.StringUtils;
 
@@ -34,8 +32,7 @@ import java.util.ArrayList;
 /**
  * Created by Dell on 4/25/2016.
  */
-public class WeatherForecastService extends Service implements Runnable {
-	private Handler handler;
+public class WeatherForecastService extends Service {
 	private boolean isRegistered = false;
 	private NetworkBroadcastReceiver receiver;
 	
@@ -43,12 +40,16 @@ public class WeatherForecastService extends Service implements Runnable {
 	public void onCreate() {
 		super.onCreate();
 		if (!isRegistered) {
-			receiver = new NetworkBroadcastReceiver();
-			IntentFilter filters = new IntentFilter();
-			filters.addAction(AppConstant.CONNECTIVITY_CHANGED);
-			registerReceiver(receiver, filters);
-			isRegistered = true;
+			registerBroadcast();
 		}
+	}
+	
+	private void registerBroadcast() {
+		receiver = new NetworkBroadcastReceiver();
+		IntentFilter filters = new IntentFilter();
+		filters.addAction(AppConstant.CONNECTIVITY_CHANGED);
+		registerReceiver(receiver, filters);
+		isRegistered = true;
 	}
 	
 	@Override
@@ -62,25 +63,31 @@ public class WeatherForecastService extends Service implements Runnable {
 		if (onNotify) {
 			NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);
 		}
-		handler = new Handler();
-		this.run();
+//		Thread thread = new Thread(runnable);
+//		thread.run();
 		return START_STICKY;
 	}
 	
-	
-	@Override
-	public void run() {
-		if (ServiceUtil.isNetworkAvailable(WeatherForecastService.this)
-				&& SharedPreUtils.getInt(DatabaseConstant._ID, -1) != -1) {
-			requestData();
+	private Runnable runnable = new Runnable() {
+		@Override
+		public void run() {
+			while (true) {
+				if (ServiceUtil.isNetworkAvailable(WeatherForecastService.this)
+						&& SharedPreUtils.getInt(DatabaseConstant._ID, -1) != -1) {
+					requestData();
+				}
+				try {
+					Thread.sleep(AppConstant.timeDelay);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		handler.postDelayed(this, AppConstant.timeDelay);
-	}
+	};
 	
 	@Override
 	public void onDestroy() {
-		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(AppConstant.NOTIFICATION_ID);
+		NotificationUtils.clearNotification(this);
 		if (isRegistered) {
 			unregisterReceiver(receiver);
 		}
@@ -92,13 +99,19 @@ public class WeatherForecastService extends Service implements Runnable {
 		final ArrayList<City> cities = databaseHelper.getAllCities();
 		databaseHelper.close();
 		broadcastUpdateState(AppConstant.STATE_UPDATE_CHANGED, AppConstant.STATE_START);
+		
+		String urlConditions;
+		String urlHourly;
+		String urlForecast10day;
+		String coordinate;
+		
 		for (int i = 0; i < cities.size(); i++) {
-			City temp = cities.get(i);
-			final int id = temp.getId();
-			final String coordinate = cities.get(i).getCoordinate();
-			String urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, coordinate);
-			String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
-			String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
+			final int id = cities.get(i).getId();
+			
+			coordinate = cities.get(i).getCoordinate();
+			urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, coordinate);
+			urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
+			urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
 			
 			WeatherRequest request = new WeatherRequest.Builder()
 					.withUrlCurrentWeather(urlConditions)
@@ -108,7 +121,8 @@ public class WeatherForecastService extends Service implements Runnable {
 						@Override
 						public void onSuccess(Bundle bundle) {
 							updateDatabase(bundle, id);
-							if (SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true)) {
+							if (SharedPreUtils.getInt(AppConstant._ID, -1) == id
+									&& SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true)) {
 								NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);
 							}
 							broadcastDatabaseState();
@@ -134,7 +148,7 @@ public class WeatherForecastService extends Service implements Runnable {
 			
 			databaseHelper.updateAllData(currentWeather, idCity, arrHour, arrDay);
 			
-			SharedPreUtils.putLong(com.qtd.weatherforecast.constant.DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
+			SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -165,5 +179,4 @@ public class WeatherForecastService extends Service implements Runnable {
 			}
 		}
 	}
-	
 }
