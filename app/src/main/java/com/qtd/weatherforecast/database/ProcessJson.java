@@ -1,6 +1,7 @@
 package com.qtd.weatherforecast.database;
 
 import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.model.WeatherHour;
@@ -92,5 +93,36 @@ public class ProcessJson {
 			e.printStackTrace();
 		}
 		return currentWeather;
+	}
+	
+	public static City getCity(String json) throws JSONException {
+		return getCity(new JSONObject(json));
+	}
+	
+	public static City getCity(JSONObject jsonObject) {
+		try {
+			JSONObject currentObservation = jsonObject.getJSONObject(ApiConstant.CURRENT_OBSERVATION);
+			JSONObject displayLocation = currentObservation.getJSONObject(ApiConstant.DISPLAY_LOCATION);
+			String name = displayLocation.getString(ApiConstant.CITY);
+			String fullName = displayLocation.getString(ApiConstant.FULL);
+			int tempc = currentObservation.getInt(ApiConstant.TEMP_C);
+			String weather = currentObservation.getString(ApiConstant.WEATHER);
+			String coordinate = displayLocation.getString(ApiConstant.LATITUDE) + "," + displayLocation.getString(ApiConstant.LONGITUDE);
+			
+			return new City(0, name, tempc, weather, coordinate, true, fullName);
+			
+		} catch (JSONException je) {
+			je.printStackTrace();
+		}
+		return new City();
+	}
+	
+	public static String getTimeUpdate(String json) throws JSONException {
+		return getTimeUpdate(new JSONObject(json));
+	}
+	
+	public static String getTimeUpdate(JSONObject jsonObject) throws JSONException {
+		JSONObject currentObservation = jsonObject.getJSONObject(ApiConstant.CURRENT_OBSERVATION);
+		return currentObservation.getString(ApiConstant.LOCAL_TZ_OFFSET);
 	}
 }

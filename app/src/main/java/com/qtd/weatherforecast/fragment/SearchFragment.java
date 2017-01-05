@@ -18,10 +18,10 @@ import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.activity.MainActivity;
 import com.qtd.weatherforecast.adapter.CityAdapter;
 import com.qtd.weatherforecast.callback.FragmentCallback;
-import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
+import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.utils.NotificationUtils;
@@ -29,7 +29,6 @@ import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -160,29 +159,21 @@ public class SearchFragment extends Fragment {
 		MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(getContext());
 		long id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
 		try {
-			JSONObject object = new JSONObject(s);
-			JSONObject currentObservation = object.getJSONObject(ApiConstant.CURRENT_OBSERVATION);
-			String timeUpdate = currentObservation.getString(ApiConstant.LOCAL_TZ_OFFSET);
-			JSONObject displayLocation = currentObservation.getJSONObject(ApiConstant.DISPLAY_LOCATION);
-			String name = displayLocation.getString(ApiConstant.CITY);
-			String fullName = displayLocation.getString(ApiConstant.FULL);
-			int tempc = currentObservation.getInt(ApiConstant.TEMP_C);
-			String weather = currentObservation.getString(ApiConstant.WEATHER);
-			String coordinate = displayLocation.getString(ApiConstant.LATITUDE) + "," + displayLocation.getString(ApiConstant.LONGITUDE);
+			City city = ProcessJson.getCity(s);
 			
 			if (isInsert) {
-				City city = new City(0, name, tempc, weather, coordinate, true, fullName);
-				id = databaseHelper.insertCity(city);
+				String timeUpdate = ProcessJson.getTimeUpdate(s);
+//				id = databaseHelper.insertCity(city);
 				SharedPreUtils.putBoolean(AppConstant.HAS_CITY, true);
-				SharedPreUtils.putData((int) id, name, coordinate, timeUpdate);
+				SharedPreUtils.putData((int) id, city.getName(), city.getCoordinate(), timeUpdate);
 				city.setId((int) id);
 				cities.add(city);
 				setCheckedCities((int) id);
 			} else {
-				for (City city : cities) {
-					if (city.getId() == id) {
-						city.setTemp(tempc);
-						city.setWeather(weather);
+				for (City c : cities) {
+					if (c.getId() == id) {
+						c.setTemp(city.getTemp());
+						c.setWeather(city.getWeather());
 					}
 				}
 			}

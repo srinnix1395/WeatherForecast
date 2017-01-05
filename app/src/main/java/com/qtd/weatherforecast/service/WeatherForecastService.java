@@ -8,7 +8,7 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.qtd.weatherforecast.callback.RequestCallback;
+import com.qtd.weatherforecast.callback.WeatherRequestCallback;
 import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
@@ -112,7 +112,7 @@ public class WeatherForecastService extends Service {
 					.withUrlCurrentWeather(urlConditions)
 					.withUrlHourly(urlHourly)
 					.withUrlForecast10Days(urlForecast10day)
-					.withCallback(new RequestCallback() {
+					.withCallback(new WeatherRequestCallback() {
 						@Override
 						public void onSuccess(Integer integer) {
 							if (SharedPreUtils.getInt(AppConstant._ID, -1) == id

@@ -3,38 +3,36 @@ package com.qtd.weatherforecast.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.EditText;
+import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import com.qtd.weatherforecast.R;
-import com.qtd.weatherforecast.callback.RequestCallback;
+import com.qtd.weatherforecast.adapter.AutoCompleteTextViewLocationAdapter;
+import com.qtd.weatherforecast.callback.AutoCompleteRequestCallback;
+import com.qtd.weatherforecast.callback.WeatherRequestCallback;
 import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.AppConstant;
+import com.qtd.weatherforecast.model.Location;
 import com.qtd.weatherforecast.request.AutoCompleteRequest;
 import com.qtd.weatherforecast.request.WeatherRequest;
 import com.qtd.weatherforecast.utils.ServiceUtil;
-import com.qtd.weatherforecast.utils.StringUtils;
+import com.qtd.weatherforecast.utils.UiHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,27 +47,20 @@ import butterknife.OnClick;
 /**
  * Created by Dell on 4/27/2016.
  */
-public class SearchActivity extends AppCompatActivity implements RequestCallback {
+public class SearchActivity extends AppCompatActivity implements WeatherRequestCallback {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
 
-    @Bind(R.id.et_location)
-    EditText etLocation;
-
-//    @Bind(R.id.actvLocation)
-//    AutoCompleteTextView autocompleteLocation;
+    @Bind(R.id.actvLocation)
+	AutoCompleteTextView autocompleteLocation;
 
     private PopupMenu popupMenu;
     private ArrayList<String> tzs = new ArrayList<>();
-    private String urlConditions = "";
-    private String urlForecast10day = "";
-    private String urlHourly = "";
 
     private ProgressDialog loading;
-    private AlertDialog alertDialog;
 
-//    private ArrayList<City> cities;
-//    private AutoCompleteTextViewLocationAdapter adapter;
+    private ArrayList<Location> arrayList;
+    private AutoCompleteTextViewLocationAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,75 +85,33 @@ public class SearchActivity extends AppCompatActivity implements RequestCallback
                 finish();
             }
         });
-
-        alertDialog = new AlertDialog.Builder(SearchActivity.this)
-                .setMessage(getString(R.string.errorOnProcessing))
-                .setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }).create();
-
-        popupMenu = new PopupMenu(SearchActivity.this, etLocation);
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                loading.show();
-
-                urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, tzs.get(item.getItemId()));
-                urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, tzs.get(item.getItemId()));
-                urlHourly = StringUtils.getURL(ApiConstant.HOURLY, tzs.get(item.getItemId()));
-
-                WeatherRequest request = new WeatherRequest.Builder(SearchActivity.this, AppConstant.ERROR_ID)
-                        .withUrlCurrentWeather(urlConditions)
-                        .withUrlHourly(urlHourly)
-                        .withUrlForecast10Days(urlForecast10day)
-                        .withCallback(SearchActivity.this)
-                        .build();
-                request.request();
-
-                return true;
-            }
-        });
-
-        etLocation.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//				if (isEnabledSearch) {
-//					getAutoComplete(s);
-//				}
-//				isEnabledSearch = false;
-//				new android.os.Handler().postDelayed(new Runnable() {
-//					@Override
-//					public void run() {
-//						isEnabledSearch = true;
-//					}
-//				}, 500);
-                getAutoComplete(s);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-//        cities = new ArrayList<>();
-//        adapter = new AutoCompleteTextViewLocationAdapter(this, android.R.layout.select_dialog_item, cities);
-//        autocompleteLocation.setAdapter(adapter);
+		
+        arrayList = new ArrayList<>();
+        adapter = new AutoCompleteTextViewLocationAdapter(this, android.R.layout.select_dialog_item, arrayList);
+        autocompleteLocation.setAdapter(adapter);
 
         loading = new ProgressDialog(this);
         loading.setIndeterminate(true);
         loading.setTitle(getString(R.string.loading));
         loading.setCanceledOnTouchOutside(false);
     }
-
-    @OnClick(R.id.imvLocation)
+	
+	private void requestData() {
+		//// TODO: 1/5/2017
+//		String urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, tzs.get(item.getItemId()));
+//		String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, tzs.get(item.getItemId()));
+//		String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, tzs.get(item.getItemId()));
+//
+//		WeatherRequest request = new WeatherRequest.Builder(SearchActivity.this, AppConstant.ERROR_ID)
+//				.withUrlCurrentWeather(urlConditions)
+//				.withUrlHourly(urlHourly)
+//				.withUrlForecast10Days(urlForecast10day)
+//				.withCallback(SearchActivity.this)
+//				.build();
+//		request.request();
+	}
+	
+	@OnClick(R.id.imvLocation)
     void onClickImvLocation() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -217,14 +166,14 @@ public class SearchActivity extends AppCompatActivity implements RequestCallback
     }
 
     private void requestAutoComplete() {
-        String keyWord = etLocation.getText().toString();
-        if (keyWord.contains(" ")) {
+		String keyWord = "";
+		if (keyWord.contains(" ")) {
             keyWord = keyWord.replace(" ", "%20");
         }
 
         AutoCompleteRequest request = new AutoCompleteRequest.Builder()
                 .withKeyword(keyWord)
-                .withCallback(new RequestCallback() {
+                .withCallback(new AutoCompleteRequestCallback() {
                     @Override
                     public void onSuccess(Bundle bundle) {
                         try {
@@ -242,7 +191,7 @@ public class SearchActivity extends AppCompatActivity implements RequestCallback
                                     tzs.add(object.getString(ApiConstant.LAT) + "," + object.getString(ApiConstant.LON));
                                     popupMenu.getMenu().add(Menu.NONE, j, j, object.getString(ApiConstant.NAME));
 //                                    City city = new City(0, object.getString("name"), object.getString("lat") + "," + object.getString("lon"));
-//                                    cities.add(city);
+//                                    arrayList.add(city);
                                     j++;
                                 }
                             }
@@ -268,21 +217,24 @@ public class SearchActivity extends AppCompatActivity implements RequestCallback
     protected void onDestroy() {
         if (popupMenu != null) popupMenu.dismiss();
         if (loading != null) loading.dismiss();
-        if (alertDialog != null) alertDialog.dismiss();
         super.onDestroy();
     }
-
-    @Override
-    public void onSuccess(Bundle bundle) {
-        Intent intent = new Intent();
-        intent.putExtras(bundle);
-
-        setResult(Activity.RESULT_OK, intent);
-        SearchActivity.this.finish();
-    }
+	
+	@Override
+	public void onSuccess(Integer value) {
+		if (value == WeatherRequest.RESULT_OK) {
+			Intent intent = new Intent();
+//			intent.putExtras(bundle);
+			
+			setResult(Activity.RESULT_OK, intent);
+			SearchActivity.this.finish();
+		} else {
+			UiHelper.showDialogFail(this);
+		}
+	}
 
     @Override
     public void onFail(String error) {
-        alertDialog.show();
+		UiHelper.showDialogFail(this);
     }
 }
