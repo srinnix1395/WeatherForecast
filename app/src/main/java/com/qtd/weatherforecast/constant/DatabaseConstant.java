@@ -15,7 +15,7 @@ public class DatabaseConstant {
     public static final String TABLE_CURRENT_WEATHER = "tbCurrentWeather";
 
     //properties
-    public static final String ID_CITY = "id_city";
+    public static final String _ID_CITY = "id_city";
     public static final String NAME = "name";
     public static final String FULLNAME = "full_name";
     public static final String LATITUDE = "latitude";

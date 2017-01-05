@@ -227,16 +227,26 @@ public class UiHelper {
         }
         return R.drawable.sun_black;
     }
-	
-	public static void showDialogFail(Context context) {
-		new AlertDialog.Builder(context)
-				.setMessage(context.getString(R.string.errorOnProcessing))
-				.setPositiveButton(context.getString(R.string.OK), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				})
-				.create().show();
-	}
+
+    public static void showDialogFail(Context context) {
+        new AlertDialog.Builder(context)
+                .setMessage(context.getString(R.string.errorOnProcessing))
+                .setPositiveButton(context.getString(R.string.OK), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create().show();
+    }
+
+    public static int getImageTemp(Context context, int temp) {
+        StringBuilder s = new StringBuilder("status_");
+        if (temp < 0) {
+            s.append("_").append(temp).append("_honeycomb");
+        } else {
+            s.append(temp).append("_honeycomb");
+        }
+        return context.getResources().getIdentifier(s.toString(), "drawable", context.getPackageName());
+    }
 }

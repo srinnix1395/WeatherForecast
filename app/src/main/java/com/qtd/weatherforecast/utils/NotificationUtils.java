@@ -19,6 +19,7 @@ import static com.qtd.weatherforecast.constant.AppConstant.HAS_CITY;
  * Created by Dell on 7/6/2016.
  */
 public class NotificationUtils {
+
     public static void createOrUpdateNotification(Context context) {
         //// TODO: 1/3/2017 fix bug bad noti
         if (!SharedPreUtils.getBoolean(HAS_CITY, false)) {
@@ -34,13 +35,13 @@ public class NotificationUtils {
             remoteViews.setTextViewText(R.id.tv_location, city.getFullName());
             remoteViews.setTextViewText(R.id.tv_weather, city.getWeather());
             remoteViews.setTextViewText(R.id.tv_temp, String.valueOf(city.getTemp()) + "°");
+
             NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(context)
-//                    .setSmallIcon(UiHelper.getImageResourceCurrentWeather(city.getIcon()))
-                    .setSmallIcon(R.drawable.moon)
+                    .setSmallIcon(UiHelper.getImageTemp(context, city.getTemp()))
                     .setContent(remoteViews)
                     .setOngoing(true)
-                    .setContentIntent(pendingIntent)
-                    .setTicker(city.getTemp() + "°");
+                    .setContentIntent(pendingIntent);
+
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(AppConstant.NOTIFICATION_ID, notiBuilder.build());
         }

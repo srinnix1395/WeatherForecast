@@ -5,27 +5,20 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
-import com.android.volley.VolleyError;
 import com.qtd.weatherforecast.callback.RequestCallback;
 import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
-import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.City;
-import com.qtd.weatherforecast.model.CurrentWeather;
-import com.qtd.weatherforecast.model.WeatherDay;
-import com.qtd.weatherforecast.model.WeatherHour;
 import com.qtd.weatherforecast.request.WeatherRequest;
 import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.ServiceUtil;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.qtd.weatherforecast.utils.StringUtils;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -65,7 +58,9 @@ public class WeatherForecastService extends Service {
 		}
 //		Thread thread = new Thread(runnable);
 //		thread.run();
-		return START_STICKY;
+        Log.d("sadlkfjk", "onStartCommand: " + getResources().getIdentifier("status_59_honeycomb", "drawable", getPackageName()));
+
+        return START_STICKY;
 	}
 	
 	private Runnable runnable = new Runnable() {
@@ -113,14 +108,13 @@ public class WeatherForecastService extends Service {
 			urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
 			urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
 			
-			WeatherRequest request = new WeatherRequest.Builder()
+			WeatherRequest request = new WeatherRequest.Builder(this, id)
 					.withUrlCurrentWeather(urlConditions)
 					.withUrlHourly(urlHourly)
 					.withUrlForecast10Days(urlForecast10day)
 					.withCallback(new RequestCallback() {
 						@Override
-						public void onSuccess(Bundle bundle) {
-							updateDatabase(bundle, id);
+						public void onSuccess(Integer integer) {
 							if (SharedPreUtils.getInt(AppConstant._ID, -1) == id
 									&& SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true)) {
 								NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);
@@ -130,27 +124,12 @@ public class WeatherForecastService extends Service {
 						}
 						
 						@Override
-						public void onFail(VolleyError error) {
+						public void onFail(String error) {
 							broadcastUpdateState(AppConstant.STATE_UPDATE_CHANGED, AppConstant.STATE_END);
 						}
 					})
 					.build();
 			request.request();
-		}
-	}
-	
-	private void updateDatabase(Bundle bundle, int idCity) {
-		try {
-			MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(this);
-			CurrentWeather currentWeather = ProcessJson.getCurrentWeather(bundle.getString(ApiConstant.CONDITIONS));
-			ArrayList<WeatherHour> arrHour = ProcessJson.getAllWeatherHours(bundle.getString(ApiConstant.HOURLY));
-			ArrayList<WeatherDay> arrDay = ProcessJson.getAllWeatherDays(bundle.getString(ApiConstant.FORECAST10DAY));
-			
-			databaseHelper.updateAllData(currentWeather, idCity, arrHour, arrDay);
-			
-			SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
-		} catch (JSONException e) {
-			e.printStackTrace();
 		}
 	}
 	
