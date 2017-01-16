@@ -3,6 +3,7 @@ package com.qtd.weatherforecast.database;
 import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.model.CurrentWeather;
+import com.qtd.weatherforecast.model.Location;
 import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.model.WeatherHour;
 
@@ -124,5 +125,22 @@ public class ProcessJson {
 	public static String getTimeUpdate(JSONObject jsonObject) throws JSONException {
 		JSONObject currentObservation = jsonObject.getJSONObject(ApiConstant.CURRENT_OBSERVATION);
 		return currentObservation.getString(ApiConstant.LOCAL_TZ_OFFSET);
+	}
+	
+	public static ArrayList<Location> getLocationAutocomplete(JSONObject response) {
+		ArrayList<Location> arrayList = new ArrayList<>();
+		try {
+			JSONArray array = response.getJSONArray(ApiConstant.RESULTS);
+			JSONObject object;
+			for (int i = 0; i < array.length(); i++) {
+				object = array.getJSONObject(i);
+				if ((object.length() == 10 || object.length() == 9) && object.getString(ApiConstant.TYPE).equals(ApiConstant.CITY)) {
+					arrayList.add(new Location(object.getString("name"), object.getString("lat") + "," + object.getString("lon")));
+				}
+			}
+		} catch (JSONException je) {
+			je.printStackTrace();
+		}
+		return arrayList;
 	}
 }

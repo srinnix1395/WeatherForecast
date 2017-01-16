@@ -36,7 +36,8 @@ import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.custom.CustomViewPager;
 import com.qtd.weatherforecast.fragment.CurrentWeatherFragment;
-import com.qtd.weatherforecast.fragment.FragmentGuide;
+import com.qtd.weatherforecast.fragment.GuideFragment;
+import com.qtd.weatherforecast.fragment.LocationFragment;
 import com.qtd.weatherforecast.fragment.SearchFragment;
 import com.qtd.weatherforecast.fragment.WeatherDayFragment;
 import com.qtd.weatherforecast.fragment.WeatherHourFragment;
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	private Intent intent;
 	boolean isPlus;
 	
-	private SearchFragment searchFragment;
+	private LocationFragment locationFragment;
 	private CurrentWeatherFragment currentWeatherFragment;
 	private WeatherHourFragment weatherHourFragment;
 	private WeatherDayFragment weatherDayFragment;
@@ -119,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	}
 	
 	public void getDataFromDatabase() {
-		searchFragment.getDataFromDatabase();
+		locationFragment.getDataFromDatabase();
 		currentWeatherFragment.getDataFromDatabase();
 		weatherHourFragment.getDataFromDatabase();
 		weatherDayFragment.getDataFromDatabase();
@@ -127,13 +128,13 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	}
 	
 	private void setupViewPager() {
-		searchFragment = SearchFragment.newInstance();
+		locationFragment = LocationFragment.newInstance();
 		currentWeatherFragment = CurrentWeatherFragment.newInstance();
 		weatherHourFragment = WeatherHourFragment.newInstance();
 		weatherDayFragment = WeatherDayFragment.newInstance();
 		
 		ArrayList<Fragment> fragments = new ArrayList<>();
-		fragments.add(searchFragment);
+		fragments.add(locationFragment);
 		fragments.add(currentWeatherFragment);
 		fragments.add(weatherHourFragment);
 		fragments.add(weatherDayFragment);
@@ -239,8 +240,12 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	
 	void miUpdateOnClick() {
 		if (isPlus) {
-			Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-			startActivityForResult(intent, AppConstant.PLACE_AUTOCOMPLETE_REQUEST_CODE);
+//			Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+//			startActivityForResult(intent, AppConstant.PLACE_AUTOCOMPLETE_REQUEST_CODE);
+			FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+			fragmentTransaction.add(R.id.layoutMain, new SearchFragment());
+			fragmentTransaction.commit();
+			
 		} else {
 			if (ServiceUtil.isNetworkAvailable(MainActivity.this)) {
 				imvUpdate.startAnimation(rotation);
@@ -266,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			
 			String conditions = bundle.getString(ApiConstant.CONDITIONS);
 			
-			int idCity = searchFragment.updateDataAndGetID(conditions, true);
+			int idCity = locationFragment.updateDataAndGetID(conditions, true);
 			sendDataToFragment(conditions, 1, idCity, true);
 			
 			String hourly = bundle.getString(ApiConstant.HOURLY);
@@ -285,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 				public void run() {
 					if (!SharedPreUtils.isOpenGuide()) {
 						FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-						fragmentTransaction.add(R.id.layoutMain, new FragmentGuide());
+						fragmentTransaction.add(R.id.layoutMain, new GuideFragment());
 						fragmentTransaction.commit();
 						SharedPreUtils.setIsOpenGuide();
 					}
@@ -295,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		}
 		
 		if (requestCode == AppConstant.REQUEST_CODE_SETTING && resultCode == RESULT_OK) {
-			searchFragment.updateDegree();
+			locationFragment.updateDegree();
 			currentWeatherFragment.updateDegree();
 			weatherHourFragment.updateDegree();
 			weatherDayFragment.updateDegree();
@@ -330,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 					@Override
 					public void onSuccess(Integer result) {
 						if (result == WeatherRequest.RESULT_OK) {
-							searchFragment.getDataFromDatabase();
+							locationFragment.getDataFromDatabase();
 							currentWeatherFragment.getDataFromDatabase();
 							weatherDayFragment.getDataFromDatabase();
 							weatherHourFragment.getDataFromDatabase();
@@ -359,13 +364,13 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	
 	@Override
 	public void deleteItemCity(int idCity) {
-		searchFragment.deleteItem(idCity);
+		locationFragment.deleteItem(idCity);
 	}
 	
 	@Override
 	public void choseItemCity(int idCity, String name, String coordinate, String timeZone) {
 		SharedPreUtils.putData(idCity, name, coordinate, timeZone);
-		searchFragment.chooseItem(idCity);
+		locationFragment.chooseItem(idCity);
 		currentWeatherFragment.chooseItem(idCity);
 		weatherHourFragment.chooseItem(idCity);
 		weatherDayFragment.chooseItem(idCity);
@@ -410,14 +415,20 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 					String state = intent.getStringExtra(AppConstant.STATE);
 					switch (state) {
 						case AppConstant.STATE_START: {
-							if (currentWeatherFragment.getUserVisibleHint() && imvUpdate != null) {
-								imvUpdate.startAnimation(rotation);
+							if (currentWeatherFragment.getUserVisibleHint()) {
+								if (imvUpdate != null) {
+									imvUpdate.startAnimation(rotation);
+								}
+								currentWeatherFragment.updating();
 							}
 							break;
 						}
 						case AppConstant.STATE_END: {
-							if (currentWeatherFragment.getUserVisibleHint() && imvUpdate != null && imvUpdate.getAnimation() != null) {
-								imvUpdate.getAnimation().setRepeatCount(0);
+							if (currentWeatherFragment.getUserVisibleHint()) {
+								if (imvUpdate != null && imvUpdate.getAnimation() != null) {
+									imvUpdate.getAnimation().setRepeatCount(0);
+								}
+								currentWeatherFragment.endUpdate();
 							}
 							break;
 						}

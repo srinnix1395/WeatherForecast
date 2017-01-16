@@ -6,13 +6,11 @@ package com.qtd.weatherforecast.model;
 
 public class Location {
 	private String name;
-	private String lat;
-	private String lng;
+	private String coordinate;
 	
-	public Location(String name, String lat, String lng) {
+	public Location(String name, String coordinate) {
 		this.name = name;
-		this.lat = lat;
-		this.lng = lng;
+		this.coordinate = coordinate;
 	}
 	
 	public String getName() {
@@ -23,19 +21,11 @@ public class Location {
 		this.name = name;
 	}
 	
-	public String getLat() {
-		return lat;
+	public String getCoordinate() {
+		return coordinate;
 	}
 	
-	public void setLat(String lat) {
-		this.lat = lat;
-	}
-	
-	public String getLng() {
-		return lng;
-	}
-	
-	public void setLng(String lng) {
-		this.lng = lng;
+	public void setCoordinate(String coordinate) {
+		this.coordinate = coordinate;
 	}
 }

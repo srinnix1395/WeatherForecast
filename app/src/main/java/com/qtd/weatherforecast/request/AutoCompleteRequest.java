@@ -1,6 +1,5 @@
 package com.qtd.weatherforecast.request;
 
-import android.os.Bundle;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -10,9 +9,12 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.qtd.weatherforecast.AppController;
 import com.qtd.weatherforecast.callback.AutoCompleteRequestCallback;
 import com.qtd.weatherforecast.constant.ApiConstant;
+import com.qtd.weatherforecast.database.ProcessJson;
+import com.qtd.weatherforecast.model.Location;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Single;
@@ -55,34 +57,32 @@ public class AutoCompleteRequest {
 		AppController.getInstance().addToRequestQueue(objectRequest);
 	}
 	
-	private void filterLocation(JSONObject response) {
-		Single.fromCallable(new Callable<String>() {
+	private void filterLocation(final JSONObject response) {
+		Single.fromCallable(new Callable<ArrayList<Location>>() {
 			@Override
-			public String call() throws Exception {
-				
-				return null;
+			public ArrayList<Location> call() throws Exception {
+				return ProcessJson.getLocationAutocomplete(response);
 			}
 		}).subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(new SingleObserver<String>() {
+				.subscribe(new SingleObserver<ArrayList<Location>>() {
 					@Override
 					public void onSubscribe(Disposable d) {
 						
 					}
 					
 					@Override
-					public void onSuccess(String value) {
+					public void onSuccess(ArrayList<Location> value) {
 						if (callback != null) {
-							Bundle bundle = new Bundle();
-							bundle.putString(ApiConstant.RESULTS, value.toString());
-							
-							callback.onSuccess(bundle);
+							callback.onSuccess(value);
 						}
 					}
 					
 					@Override
 					public void onError(Throwable e) {
-						
+						if (callback != null) {
+							callback.onFail(e.toString());
+						}
 					}
 				});
 	}

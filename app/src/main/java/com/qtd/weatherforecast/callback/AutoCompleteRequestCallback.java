@@ -1,13 +1,15 @@
 package com.qtd.weatherforecast.callback;
 
-import android.os.Bundle;
+import com.qtd.weatherforecast.model.Location;
+
+import java.util.ArrayList;
 
 /**
  * Created by DELL on 1/5/2017.
  */
 
 public interface AutoCompleteRequestCallback {
-	void onSuccess(Bundle bundle);
+	void onSuccess(ArrayList<Location> locations);
 	
 	void onFail(String error);
 }

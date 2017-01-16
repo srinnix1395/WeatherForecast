@@ -283,4 +283,14 @@ public class CurrentWeatherFragment extends Fragment {
 			tvFeel.setText(StringUtils.getTemp(currentTemp[1]));
 		}
 	}
+	
+	public void updating() {
+		tvUpdate.setText(R.string.updating);
+	}
+	
+	public void endUpdate() {
+		if (tvUpdate.getText().equals(getString(R.string.updating))) {
+			updateTextViewRecent();
+		}
+	}
 }

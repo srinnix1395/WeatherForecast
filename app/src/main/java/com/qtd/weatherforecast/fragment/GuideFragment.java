@@ -13,7 +13,7 @@ import com.qtd.weatherforecast.R;
  * Created by DELL on 1/4/2017.
  */
 
-public class FragmentGuide extends Fragment {
+public class GuideFragment extends Fragment {
 	
 	@Nullable
 	@Override
@@ -23,7 +23,7 @@ public class FragmentGuide extends Fragment {
 			@Override
 			public void onClick(View view) {
 				getActivity().getSupportFragmentManager().beginTransaction()
-						.remove(FragmentGuide.this).commit();
+						.remove(GuideFragment.this).commit();
 			}
 		});
 		return view;
