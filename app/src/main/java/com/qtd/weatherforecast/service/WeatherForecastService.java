@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -114,7 +115,7 @@ public class WeatherForecastService extends Service {
 					.withUrlForecast10Days(urlForecast10day)
 					.withCallback(new WeatherRequestCallback() {
 						@Override
-						public void onSuccess(Integer integer) {
+						public void onSuccess(Bundle result) {
 							if (SharedPreUtils.getInt(AppConstant._ID, -1) == id
 									&& SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true)) {
 								NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);

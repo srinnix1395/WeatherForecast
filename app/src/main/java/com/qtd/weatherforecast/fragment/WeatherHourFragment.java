@@ -18,11 +18,8 @@ import com.qtd.weatherforecast.activity.MainActivity;
 import com.qtd.weatherforecast.adapter.WeatherHourAdapter;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
-import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.WeatherHour;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -85,37 +82,12 @@ public class WeatherHourFragment extends Fragment {
         }
     }
 
-    public void displayData(ArrayList<WeatherHour> weatherHourArrayList) {
-        weatherHours.clear();
-
-        weatherHours.addAll(weatherHourArrayList);
-        adapter.notifyDataSetChanged();
-    }
-
-    private void updateDatabase(ArrayList<WeatherHour> arrHour, boolean isInsert, int idCity) {
-        if (isInsert) {
-            databaseHelper.insertWeatherHour(arrHour, idCity);
-        } else {
-            databaseHelper.updateWeatherHour(arrHour, idCity);
-        }
-    }
-
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             activity.tvLocation.setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
             activity.tvTime.setText(R.string.twentyFourHoursToGo);
-        }
-    }
-
-    public void updateData(String s, int idCity, boolean isInsert) {
-        try {
-			ArrayList<WeatherHour> allWeatherHours = ProcessJson.getAllWeatherHours(s);
-			displayData(allWeatherHours);
-            updateDatabase(allWeatherHours, isInsert, idCity);
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 

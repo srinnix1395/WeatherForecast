@@ -21,14 +21,11 @@ import com.qtd.weatherforecast.callback.FragmentCallback;
 import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
-import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -155,33 +152,12 @@ public class LocationFragment extends Fragment {
 		}
 	}
 	
-	public int updateDataAndGetID(String s, boolean isInsert) {
-		MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(getContext());
-		long id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
-		try {
-			City city = ProcessJson.getCity(s);
-			
-			if (isInsert) {
-				String timeUpdate = ProcessJson.getTimeUpdate(s);
-//				id = databaseHelper.insertCity(city);
-				SharedPreUtils.putBoolean(AppConstant.HAS_CITY, true);
-				SharedPreUtils.putData((int) id, city.getName(), city.getCoordinate(), timeUpdate);
-				city.setId((int) id);
-				cities.add(city);
-				setCheckedCities((int) id);
-			} else {
-				for (City c : cities) {
-					if (c.getId() == id) {
-						c.setTemp(city.getTemp());
-						c.setWeather(city.getWeather());
-					}
-				}
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+	public void insertCity(City city) {
+		SharedPreUtils.putBoolean(AppConstant.HAS_CITY, true);
+		SharedPreUtils.putData(city.getId(), city.getName(), city.getCoordinate(), city.getTimeZone());
+		cities.add(city);
+		setCheckedCities(city.getId());
 		adapter.notifyDataSetChanged();
-		return (int) id;
 	}
 	
 	private void setCheckedCities(int idChecked) {

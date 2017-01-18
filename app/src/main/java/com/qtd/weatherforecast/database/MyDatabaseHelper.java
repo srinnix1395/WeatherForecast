@@ -335,7 +335,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 			
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(DatabaseConstant.NAME, currentWeather.getString(ApiConstant.CITY));
-			contentValues.put(DatabaseConstant.FULLNAME, currentWeather.getString(ApiConstant.FULL));
+			contentValues.put(DatabaseConstant.FULLNAME, currentWeather.getString(ApiConstant.FULL_NAME));
 			contentValues.put(DatabaseConstant.LATITUDE, currentWeather.getString(ApiConstant.LATITUDE));
 			contentValues.put(DatabaseConstant.LONGITUDE, currentWeather.getString(ApiConstant.LONGITUDE));
 			
@@ -630,7 +630,9 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 		}
 	}
 	
-	public void insertData(int idCity, Bundle bundle) throws JSONException {
+	public City insertData(int idCity, Bundle bundle) throws JSONException {
+		City city = new City();
+				
 		SQLiteDatabase db = getWritableDatabase();
 		db.beginTransaction();
 		try {
@@ -653,6 +655,11 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 			long result = db.insertOrThrow(DatabaseConstant.TABLE_CURRENT_WEATHER, null, contentValues);
 			Log.d("result insert cWeather", String.valueOf(result));
 			
+			JSONObject displayLocation = jsonObject.getJSONObject(ApiConstant.DISPLAY_LOCATION);
+			city.setId((int) result);
+			city.setName(displayLocation.getString(ApiConstant.FULL_NAME));
+			city.setCoordinate(displayLocation.getString(ApiConstant.LATITUDE) + "," + displayLocation.getString(ApiConstant.LONGITUDE));
+			city.setTimeZone(jsonObject.getString(ApiConstant.LOCAL_TZ_OFFSET));
 			
 			//insert weather hour
 			JSONArray forecast = new JSONObject(bundle.getString(ApiConstant.HOURLY))
@@ -702,6 +709,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 			db.endTransaction();
 			db.close();
 		}
+		return city;
 	}
 }
 

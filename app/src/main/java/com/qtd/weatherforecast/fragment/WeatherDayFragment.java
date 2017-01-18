@@ -15,11 +15,8 @@ import com.qtd.weatherforecast.activity.MainActivity;
 import com.qtd.weatherforecast.adapter.WeatherDayAdapter;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
-import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.WeatherDay;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -76,36 +73,12 @@ public class WeatherDayFragment extends Fragment {
         }
     }
 
-    private void displayData(ArrayList<WeatherDay> weatherDayArrayList) {
-        weatherDays.clear();
-        weatherDays.addAll(weatherDayArrayList);
-        adapter.notifyDataSetChanged();
-    }
-
-    private void updateDatabase(ArrayList<WeatherDay> arrDay, boolean isInsert, int idCity) {
-        if (isInsert) {
-            databaseHelper.insertWeatherDay(arrDay, idCity);
-        } else {
-            databaseHelper.updateWeatherDay(arrDay, idCity);
-        }
-    }
-
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             activity.tvLocation.setText(SharedPreUtils.getString(DatabaseConstant.NAME, ""));
             activity.tvTime.setText(R.string.sixDaysToGo);
-        }
-    }
-
-    public void updateData(String s, int idCity, boolean isInsert) {
-        try {
-			ArrayList<WeatherDay> allWeatherDays = ProcessJson.getAllWeatherDays(s);
-			displayData(allWeatherDays);
-            updateDatabase(allWeatherDays, isInsert, idCity);
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 

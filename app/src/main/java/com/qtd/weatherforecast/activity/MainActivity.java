@@ -1,13 +1,11 @@
 package com.qtd.weatherforecast.activity;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
@@ -29,6 +27,7 @@ import com.example.pageindicator.IconCirclePageIndicator;
 import com.qtd.weatherforecast.R;
 import com.qtd.weatherforecast.adapter.MainPagerAdapter;
 import com.qtd.weatherforecast.callback.FragmentCallback;
+import com.qtd.weatherforecast.callback.SearchCallback;
 import com.qtd.weatherforecast.callback.ViewHolderCallback;
 import com.qtd.weatherforecast.callback.WeatherRequestCallback;
 import com.qtd.weatherforecast.constant.ApiConstant;
@@ -41,6 +40,7 @@ import com.qtd.weatherforecast.fragment.LocationFragment;
 import com.qtd.weatherforecast.fragment.SearchFragment;
 import com.qtd.weatherforecast.fragment.WeatherDayFragment;
 import com.qtd.weatherforecast.fragment.WeatherHourFragment;
+import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.request.WeatherRequest;
 import com.qtd.weatherforecast.service.WeatherForecastService;
 import com.qtd.weatherforecast.utils.NotificationUtils;
@@ -55,8 +55,11 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements ViewHolderCallback, FragmentCallback {
-	private static final String TAG = "MainActivity";
+public class MainActivity extends AppCompatActivity implements ViewHolderCallback
+		, FragmentCallback, SearchCallback {
+	
+	private static final String FRAGMENT_SEARCH = "FRAGMENT_SEARCH";
+	
 	@Bind(R.id.toolbar_home)
 	Toolbar toolbar;
 	
@@ -82,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	
 	private MainBroadcastReceiver broadcastReceiver;
 	private boolean isReceiverRegistered;
-	private MainPagerAdapter adapter;
 	private Intent intent;
 	boolean isPlus;
 	
@@ -138,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		fragments.add(currentWeatherFragment);
 		fragments.add(weatherHourFragment);
 		fragments.add(weatherDayFragment);
-		adapter = new MainPagerAdapter(getSupportFragmentManager(), fragments);
+		MainPagerAdapter adapter = new MainPagerAdapter(getSupportFragmentManager(), fragments);
 		
 		viewPager.setAdapter(adapter);
 		viewPager.setOffscreenPageLimit(4);
@@ -240,12 +242,9 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	
 	void miUpdateOnClick() {
 		if (isPlus) {
-//			Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-//			startActivityForResult(intent, AppConstant.PLACE_AUTOCOMPLETE_REQUEST_CODE);
 			FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-			fragmentTransaction.add(R.id.layoutMain, new SearchFragment());
+			fragmentTransaction.add(R.id.layoutMain, new SearchFragment(), FRAGMENT_SEARCH);
 			fragmentTransaction.commit();
-			
 		} else {
 			if (ServiceUtil.isNetworkAvailable(MainActivity.this)) {
 				imvUpdate.startAnimation(rotation);
@@ -265,61 +264,44 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	}
 	
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == AppConstant.PLACE_AUTOCOMPLETE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-			Bundle bundle = data.getExtras();
-			
-			String conditions = bundle.getString(ApiConstant.CONDITIONS);
-			
-			int idCity = locationFragment.updateDataAndGetID(conditions, true);
-			sendDataToFragment(conditions, 1, idCity, true);
-			
-			String hourly = bundle.getString(ApiConstant.HOURLY);
-			sendDataToFragment(hourly, 2, idCity, true);
-			
-			String forecast = bundle.getString(ApiConstant.FORECAST10DAY);
-			sendDataToFragment(forecast, 3, idCity, true);
-			
-			NotificationUtils.createOrUpdateNotification(this);
-			
-			viewPager.setPagingEnabled(true);
-			indicator.setVisibility(View.VISIBLE);
-			
-			new Handler().post(new Runnable() {
-				@Override
-				public void run() {
-					if (!SharedPreUtils.isOpenGuide()) {
-						FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-						fragmentTransaction.add(R.id.layoutMain, new GuideFragment());
-						fragmentTransaction.commit();
-						SharedPreUtils.setIsOpenGuide();
-					}
+	public void onSearchFinish(Bundle bundle) {
+		int result = bundle.getInt(ApiConstant.RESULTS);
+		if (result == WeatherRequest.RESULT_OK) {
+			City city = bundle.getParcelable(ApiConstant.CITY);
+			if (city != null && city.getId() != -1) {
+				locationFragment.insertCity(city);
+				currentWeatherFragment.getDataFromDatabase();
+				weatherHourFragment.getDataFromDatabase();
+				weatherDayFragment.getDataFromDatabase();
+				
+				NotificationUtils.createOrUpdateNotification(this);
+				
+				viewPager.setPagingEnabled(true);
+				indicator.setVisibility(View.VISIBLE);
+				
+				FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+				fragmentTransaction.remove(getSupportFragmentManager().findFragmentByTag(FRAGMENT_SEARCH));
+				if (!SharedPreUtils.isOpenGuide()) {
+					fragmentTransaction.add(R.id.layoutMain, new GuideFragment());
+					fragmentTransaction.commit();
+					SharedPreUtils.setIsOpenGuide();
 				}
-			});
-			return;
+			} else {
+				UiHelper.showDialogFail(this);
+			}
+		} else {
+			UiHelper.showDialogFail(this);
 		}
-		
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == AppConstant.REQUEST_CODE_SETTING && resultCode == RESULT_OK) {
 			locationFragment.updateDegree();
 			currentWeatherFragment.updateDegree();
 			weatherHourFragment.updateDegree();
 			weatherDayFragment.updateDegree();
 		}
-	}
-	
-	private void sendDataToFragment(String s, int id, int idCity, boolean isInsert) {
-		switch (id) {
-			case 1:
-				currentWeatherFragment.updateData(s, idCity, isInsert);
-				break;
-			case 2:
-				weatherHourFragment.updateData(s, idCity, isInsert);
-				break;
-			case 3:
-				weatherDayFragment.updateData(s, idCity, isInsert);
-				break;
-		}
-		
 	}
 	
 	private void updateData(String coordinate) {
@@ -333,7 +315,8 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 				.withUrlForecast10Days(urlForecast10day)
 				.withCallback(new WeatherRequestCallback() {
 					@Override
-					public void onSuccess(Integer result) {
+					public void onSuccess(Bundle bundle) {
+						int result = bundle.getInt(ApiConstant.RESULTS);
 						if (result == WeatherRequest.RESULT_OK) {
 							locationFragment.getDataFromDatabase();
 							currentWeatherFragment.getDataFromDatabase();

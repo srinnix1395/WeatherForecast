@@ -215,7 +215,7 @@ public class SearchActivity extends AppCompatActivity implements WeatherRequestC
 	}
 	
 	@Override
-	public void onSuccess(Integer value) {
+	public void onSuccess(Bundle value) {
 		if (value == WeatherRequest.RESULT_OK) {
 			Intent intent = new Intent();
 //			intent.putExtras(bundle);

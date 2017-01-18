@@ -19,14 +19,11 @@ import com.qtd.weatherforecast.activity.MainActivity;
 import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
-import com.qtd.weatherforecast.database.ProcessJson;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 import com.qtd.weatherforecast.utils.StringUtils;
 import com.qtd.weatherforecast.utils.UiHelper;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -176,17 +173,6 @@ public class CurrentWeatherFragment extends Fragment {
 		});
 	}
 	
-	public void updateData(String s, int idCity, boolean isInsert) {
-		try {
-			CurrentWeather currentWeather = ProcessJson.getCurrentWeather(s);
-			displayData(currentWeather);
-			SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
-			updateDatabase(currentWeather, isInsert, idCity);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	private void displayData(CurrentWeather weather) {
 		imvIcon.setImageResource(UiHelper.getImageResourceCurrentWeather(weather.getIcon()));
 		tvTemp.setText(String.format("%s°", StringUtils.getTemp(weather.getTemp())));
@@ -197,14 +183,6 @@ public class CurrentWeatherFragment extends Fragment {
 		tvFeel.setText(String.format("%s°", StringUtils.getTemp(weather.getFeelsLike())));
 		time = StringUtils.getCurrentDateTime(weather.getTime());
 		updateTextViewRecent();
-	}
-	
-	private void updateDatabase(CurrentWeather currentWeather, boolean isInsert, int idCity) {
-		if (isInsert) {
-			databaseHelper.insertCurrentWeather(currentWeather, idCity);
-		} else {
-			databaseHelper.updateCurrentWeather(currentWeather, idCity);
-		}
 	}
 	
 	public void getDataFromDatabase() {

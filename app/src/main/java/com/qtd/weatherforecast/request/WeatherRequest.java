@@ -14,6 +14,7 @@ import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.AppConstant;
 import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
+import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
 
 import org.json.JSONException;
@@ -35,6 +36,9 @@ public class WeatherRequest {
 	public static final int RESULT_OK = 0;
 	public static final int RESULT_NG = 1;
 	
+	public static final int TYPE_INSERT = 0;
+	public static final int TYPE_UPDATE = 1;
+	
 	private Context context;
 	private String urlConditions;
 	private String urlHourly;
@@ -42,6 +46,7 @@ public class WeatherRequest {
 	private WeatherRequestCallback weatherRequestCallback;
 	private Bundle bundle;
 	private int id;
+	private int type;
 	
 	private WeatherRequest(Builder builder) {
 		context = builder.context;
@@ -50,6 +55,7 @@ public class WeatherRequest {
 		urlHourly = builder.urlHourly;
 		urlForecast10day = builder.urlForecast10day;
 		weatherRequestCallback = builder.weatherRequestCallback;
+		this.type = builder.type;
 		bundle = new Bundle();
 	}
 	
@@ -114,14 +120,16 @@ public class WeatherRequest {
 	}
 	
 	private void updateDatabase(final Bundle bundle) {
-		Single.fromCallable(new Callable<Integer>() {
+		Single.fromCallable(new Callable<Bundle>() {
 			@Override
-			public Integer call() throws Exception {
+			public Bundle call() throws Exception {
 				MyDatabaseHelper databaseHelper = MyDatabaseHelper.getInstance(context);
+				Bundle result = new Bundle();
 				try {
-					if (id == AppConstant.ERROR_ID) {
+					if (type == TYPE_INSERT) {
 						int idInsert = (int) databaseHelper.insertCity(bundle.getString(ApiConstant.CONDITIONS));
-						databaseHelper.insertData(idInsert, bundle);
+						City city = databaseHelper.insertData(idInsert, bundle);
+						result.putParcelable(ApiConstant.CITY, city);
 					} else {
 						databaseHelper.updateData(id, bundle);
 					}
@@ -129,22 +137,23 @@ public class WeatherRequest {
 					if (SharedPreUtils.getInt(AppConstant._ID, -1) == id) {
 						SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
 					}
+					result.putInt(ApiConstant.RESULTS, RESULT_OK);
 				} catch (JSONException je) {
 					je.printStackTrace();
-					return RESULT_NG;
+					result.putInt(ApiConstant.RESULTS, RESULT_NG);
 				}
-				return RESULT_OK;
+				return result;
 			}
 		}).subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(new SingleObserver<Integer>() {
+				.subscribe(new SingleObserver<Bundle>() {
 					@Override
 					public void onSubscribe(Disposable d) {
 						
 					}
 					
 					@Override
-					public void onSuccess(Integer value) {
+					public void onSuccess(Bundle value) {
 						if (weatherRequestCallback != null) {
 							weatherRequestCallback.onSuccess(value);
 						}
@@ -169,11 +178,17 @@ public class WeatherRequest {
 		private String urlHourly;
 		private String urlForecast10day;
 		private int id = -1;
+		private int type = TYPE_UPDATE;
 		private WeatherRequestCallback weatherRequestCallback;
 		
 		public Builder(Context context, int id) {
 			this.context = context;
 			this.id = id;
+		}
+		
+		public Builder withType(int type) {
+			this.type = type;
+			return this;
 		}
 		
 		public Builder withUrlCurrentWeather(String urlCurrentWeather) {

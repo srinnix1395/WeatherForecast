@@ -21,7 +21,7 @@ public class ApiConstant {
     public static final String CURRENT_OBSERVATION = "current_observation";
     public static final String LOCAL_TZ_OFFSET = "local_tz_offset";
     public static final String DISPLAY_LOCATION = "display_location";
-    public static final String FULL = "full";
+    public static final String FULL_NAME = "full";
     public static final String TEMP_C = "temp_c";
     public static final String WEATHER = "weather";
     public static final String LATITUDE = "latitude";
