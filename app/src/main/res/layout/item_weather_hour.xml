@@ -5,7 +5,7 @@
 
     <TextView
         android:id="@+id/tv_hour"
-        style="@style/TextViewHighStyle"
+        style="@style/TextViewStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
@@ -20,7 +20,7 @@
 
     <TextView
         android:id="@+id/tv_rain"
-        style="@style/TextViewHighStyle"
+        style="@style/TextViewStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
@@ -30,7 +30,7 @@
 
     <TextView
         android:id="@+id/tv_temp"
-        style="@style/TextViewHighStyle"
+        style="@style/TextViewStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

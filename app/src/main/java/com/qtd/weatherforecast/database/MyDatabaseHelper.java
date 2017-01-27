@@ -351,172 +351,6 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 		return id;
 	}
 	
-	public void insertWeatherHour(ArrayList<WeatherHour> weatherHourArrayList, int idCity) {
-		SQLiteDatabase db = getWritableDatabase();
-		db.beginTransaction();
-		try {
-			ContentValues contentValues = new ContentValues();
-			int i = 0;
-			for (WeatherHour hour : weatherHourArrayList) {
-				contentValues.clear();
-				contentValues.put(DatabaseConstant.HOUR, hour.getHour());
-				contentValues.put(DatabaseConstant.ICON, hour.getIcon());
-				contentValues.put(DatabaseConstant.TEMP_C, hour.getTemp());
-				contentValues.put(DatabaseConstant.CHANCE_RAIN, Integer.parseInt(hour.getRain().replace('%', ' ').trim()));
-				contentValues.put(DatabaseConstant._ID_CITY, idCity);
-				contentValues.put(DatabaseConstant.ORDER, i);
-				
-				long result = db.insertOrThrow(DatabaseConstant.TABLE_HOUR, null, contentValues);
-				Log.d("result insert hour", String.valueOf(result));
-				i++;
-			}
-			
-			db.setTransactionSuccessful();
-		} catch (Exception e) {
-			Log.d("error", "error while trying insert weather hour");
-		} finally {
-			db.endTransaction();
-			db.close();
-		}
-	}
-	
-	public void insertCurrentWeather(CurrentWeather currentWeather, int idCity) {
-		SQLiteDatabase db = getWritableDatabase();
-		db.beginTransaction();
-		try {
-			ContentValues contentValues = new ContentValues();
-			contentValues.put(DatabaseConstant.ICON, currentWeather.getIcon());
-			contentValues.put(DatabaseConstant.TEMP_C, currentWeather.getTemp());
-			contentValues.put(DatabaseConstant.WEATHER, currentWeather.getWeather());
-			contentValues.put(DatabaseConstant.HUMIDITY, currentWeather.getHumidity());
-			contentValues.put(DatabaseConstant.WIND, currentWeather.getWind());
-			contentValues.put(DatabaseConstant.UV, currentWeather.getUV());
-			contentValues.put(DatabaseConstant.FEELS_LIKE, currentWeather.getFeelsLike());
-			contentValues.put(DatabaseConstant.TIME, currentWeather.getTime());
-			contentValues.put(DatabaseConstant.LAST_UPDATE, currentWeather.getLastUpdate());
-			contentValues.put(DatabaseConstant._ID_CITY, idCity);
-			
-			long result = db.insertOrThrow(DatabaseConstant.TABLE_CURRENT_WEATHER, null, contentValues);
-			Log.d("result insert cWeather", String.valueOf(result));
-			db.setTransactionSuccessful();
-		} catch (Exception e) {
-			Log.d("error", "error while trying insert current weather");
-		} finally {
-			db.endTransaction();
-			db.close();
-		}
-	}
-	
-	
-	public void insertWeatherDay(ArrayList<WeatherDay> dayArrayList, int idCity) {
-		SQLiteDatabase db = getWritableDatabase();
-		db.beginTransaction();
-		try {
-			ContentValues contentValues = new ContentValues();
-			int i = 0;
-			for (WeatherDay day : dayArrayList) {
-				contentValues.clear();
-				contentValues.put(DatabaseConstant.DAY, day.getDay());
-				contentValues.put(DatabaseConstant.WEATHER, day.getWeather());
-				contentValues.put(DatabaseConstant.HIGH_TEMP, day.getHighTemp());
-				contentValues.put(DatabaseConstant.LOW_TEMP, day.getLowTemp());
-				contentValues.put(DatabaseConstant._ID_CITY, idCity);
-				contentValues.put(DatabaseConstant.ICON, day.getIcon());
-				contentValues.put(DatabaseConstant.ORDER, i);
-				
-				long result = db.insertOrThrow(DatabaseConstant.TABLE_DAY, null, contentValues);
-				Log.d("result insert day", String.valueOf(result));
-				i++;
-			}
-			db.setTransactionSuccessful();
-		} catch (Exception e) {
-			Log.d("error", "error while trying insert weather day");
-		} finally {
-			db.endTransaction();
-			db.close();
-		}
-	}
-	
-	public void updateCurrentWeather(CurrentWeather currentWeather, int idCity) {
-		SQLiteDatabase db = getWritableDatabase();
-		db.beginTransaction();
-		try {
-			ContentValues contentValues = new ContentValues();
-			contentValues.put(DatabaseConstant.ICON, currentWeather.getIcon());
-			contentValues.put(DatabaseConstant.TEMP_C, currentWeather.getTemp());
-			contentValues.put(DatabaseConstant.WEATHER, currentWeather.getWeather());
-			contentValues.put(DatabaseConstant.HUMIDITY, currentWeather.getHumidity());
-			contentValues.put(DatabaseConstant.WIND, currentWeather.getWind());
-			contentValues.put(DatabaseConstant.UV, currentWeather.getUV());
-			contentValues.put(DatabaseConstant.FEELS_LIKE, currentWeather.getFeelsLike());
-			contentValues.put(DatabaseConstant.TIME, currentWeather.getTime());
-			contentValues.put(DatabaseConstant.LAST_UPDATE, currentWeather.getLastUpdate());
-			contentValues.put(DatabaseConstant._ID_CITY, idCity);
-			
-			long result = db.update(DatabaseConstant.TABLE_CURRENT_WEATHER, contentValues, DatabaseConstant._ID_CITY + "=" + idCity, null);
-			Log.d("result update cWeather", String.valueOf(result));
-			db.setTransactionSuccessful();
-		} catch (Exception e) {
-			Log.d("error", "error while trying update current weather");
-		} finally {
-			db.endTransaction();
-			db.close();
-		}
-	}
-	
-	public void updateWeatherDay(ArrayList<WeatherDay> dayArrayList, int idCity) {
-		SQLiteDatabase db = getWritableDatabase();
-		db.beginTransaction();
-		try {
-			ContentValues contentValues = new ContentValues();
-			int i = 0;
-			for (WeatherDay weatherDay : dayArrayList) {
-				contentValues.clear();
-				contentValues.put(DatabaseConstant.DAY, weatherDay.getDay());
-				contentValues.put(DatabaseConstant.WEATHER, weatherDay.getWeather());
-				contentValues.put(DatabaseConstant.HIGH_TEMP, weatherDay.getHighTemp());
-				contentValues.put(DatabaseConstant.LOW_TEMP, weatherDay.getLowTemp());
-				contentValues.put(DatabaseConstant.ICON, weatherDay.getIcon());
-				
-				long result = db.update(DatabaseConstant.TABLE_DAY, contentValues, DatabaseConstant._ID_CITY + "=" + idCity + " AND " + DatabaseConstant.ORDER + "=" + i, null);
-				Log.d("result update day", String.valueOf(result));
-				i++;
-			}
-			
-			db.setTransactionSuccessful();
-		} catch (Exception e) {
-			Log.d("error", "error while trying update weather day");
-		} finally {
-			db.endTransaction();
-			db.close();
-		}
-	}
-	
-	public void updateWeatherHour(ArrayList<WeatherHour> weatherHourArrayList, int idCity) {
-		SQLiteDatabase db = getWritableDatabase();
-		db.beginTransaction();
-		try {
-			ContentValues contentValues = new ContentValues();
-			for (int i = 0; i < weatherHourArrayList.size(); i++) {
-				contentValues.clear();
-				contentValues.put(DatabaseConstant.HOUR, weatherHourArrayList.get(i).getHour());
-				contentValues.put(DatabaseConstant.ICON, weatherHourArrayList.get(i).getIcon());
-				contentValues.put(DatabaseConstant.TEMP_C, weatherHourArrayList.get(i).getTemp());
-				contentValues.put(DatabaseConstant.CHANCE_RAIN, Integer.parseInt(weatherHourArrayList.get(i).getRain().replace('%', ' ').trim()));
-				
-				long result = db.update(DatabaseConstant.TABLE_HOUR, contentValues, DatabaseConstant._ID_CITY + "=" + idCity + " AND " + DatabaseConstant.ORDER + "=" + i, null);
-				Log.d("result update hour", String.valueOf(result));
-			}
-			
-			db.setTransactionSuccessful();
-		} catch (Exception e) {
-			Log.d("error", "error while trying update weather hour");
-		} finally {
-			db.endTransaction();
-			db.close();
-		}
-	}
-	
 	public void deleteCity(int id) {
 		SQLiteDatabase db = getWritableDatabase();
 		db.beginTransaction();
@@ -590,7 +424,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 				contentValues.clear();
 				JSONObject hour = forecast.getJSONObject(i);
 				
-				contentValues.put(DatabaseConstant.HOUR, hour.getString(ApiConstant.FCTIME) + ":00");
+				contentValues.put(DatabaseConstant.HOUR, hour.getJSONObject(ApiConstant.FCTIME)
+						.getString(ApiConstant.HOUR) + ":00");
 				contentValues.put(DatabaseConstant.ICON, hour.getString(ApiConstant.ICON_URL));
 				contentValues.put(DatabaseConstant.TEMP_C, hour.getJSONObject(ApiConstant.TEMP)
 						.getInt(ApiConstant.METRIC));
@@ -632,7 +467,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 	
 	public City insertData(int idCity, Bundle bundle) throws JSONException {
 		City city = new City();
-				
+		
 		SQLiteDatabase db = getWritableDatabase();
 		db.beginTransaction();
 		try {
@@ -660,6 +495,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 			city.setName(displayLocation.getString(ApiConstant.FULL_NAME));
 			city.setCoordinate(displayLocation.getString(ApiConstant.LATITUDE) + "," + displayLocation.getString(ApiConstant.LONGITUDE));
 			city.setTimeZone(jsonObject.getString(ApiConstant.LOCAL_TZ_OFFSET));
+			city.setTemp(jsonObject.getInt(ApiConstant.TEMP_C));
+			city.setWeather(jsonObject.getString(ApiConstant.WEATHER));
 			
 			//insert weather hour
 			JSONArray forecast = new JSONObject(bundle.getString(ApiConstant.HOURLY))
@@ -668,7 +505,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 				contentValues.clear();
 				JSONObject hour = forecast.getJSONObject(i);
 				
-				contentValues.put(DatabaseConstant.HOUR, hour.getString(ApiConstant.FCTIME) + ":00");
+				contentValues.put(DatabaseConstant.HOUR, hour.getJSONObject(ApiConstant.FCTIME)
+						.getString(ApiConstant.HOUR) + ":00");
 				contentValues.put(DatabaseConstant.ICON, hour.getString(ApiConstant.ICON_URL));
 				contentValues.put(DatabaseConstant.TEMP_C, hour.getJSONObject(ApiConstant.TEMP)
 						.getInt(ApiConstant.METRIC));

@@ -145,8 +145,12 @@ public class LocationFragment extends Fragment {
 			return;
 		}
 		if (SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false) && isVisibleToUser) {
-			activity.imvUpdate.startAnimation(animationHide);
-			activity.layoutLocation.startAnimation(animationDown);
+			if (activity.imvUpdate != null) {
+				activity.imvUpdate.startAnimation(animationHide);
+			}
+			if (activity.layoutLocation != null) {
+				activity.layoutLocation.startAnimation(animationDown);
+			}
 			
 			activity.setPlus(true);
 		}
@@ -220,6 +224,8 @@ public class LocationFragment extends Fragment {
 	}
 	
 	public void updateDegree() {
-		adapter.notifyDataSetChanged();
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
 	}
 }

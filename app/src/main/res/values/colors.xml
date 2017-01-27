@@ -8,4 +8,5 @@
     <color name="colorGrayDark">#605f61</color>
     <color name="blackFade">#2a2629</color>
     <color name="colorWhiteFade">#80ffffff</color>
+    <color name="colorWhiteFadeToolbar">#26000000</color>
 </resources>

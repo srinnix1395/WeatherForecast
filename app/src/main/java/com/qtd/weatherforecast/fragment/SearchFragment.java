@@ -7,28 +7,38 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AutoCompleteTextView;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.qtd.weatherforecast.R;
+import com.qtd.weatherforecast.adapter.AutoCompleteTextViewLocationAdapter;
+import com.qtd.weatherforecast.callback.AutoCompleteRequestCallback;
 import com.qtd.weatherforecast.callback.SearchCallback;
 import com.qtd.weatherforecast.callback.WeatherRequestCallback;
 import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.AppConstant;
+import com.qtd.weatherforecast.custom.CustomAutocompleteTextView;
+import com.qtd.weatherforecast.model.Location;
+import com.qtd.weatherforecast.request.AutoCompleteRequest;
 import com.qtd.weatherforecast.request.WeatherRequest;
 import com.qtd.weatherforecast.utils.ServiceUtil;
 import com.qtd.weatherforecast.utils.StringUtils;
 import com.qtd.weatherforecast.utils.UiHelper;
+
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -38,15 +48,19 @@ import butterknife.OnClick;
  * Created by DELL on 1/16/2017.
  */
 
-public class SearchFragment extends Fragment implements WeatherRequestCallback {
+public class SearchFragment extends Fragment {
 	@Bind(R.id.toolbar)
 	Toolbar toolbar;
 	
 	@Bind(R.id.actvLocation)
-	AutoCompleteTextView autoCompleteTextView;
+	CustomAutocompleteTextView autoCompleteTextView;
 	
 	private SearchCallback searchCallback;
 	private ProgressDialog dialog;
+	
+	private ArrayList<Location> arrayList;
+	private AutoCompleteTextViewLocationAdapter adapter;
+	private Handler handlerDelay = new Handler();
 	
 	@Override
 	public void onAttach(Context context) {
@@ -78,6 +92,7 @@ public class SearchFragment extends Fragment implements WeatherRequestCallback {
 			public void onClick(View v) {
 				getActivity().getSupportFragmentManager().beginTransaction()
 						.remove(SearchFragment.this).commit();
+				UiHelper.closeSoftKeyboard(SearchFragment.this.getActivity());
 			}
 		});
 		
@@ -91,6 +106,76 @@ public class SearchFragment extends Fragment implements WeatherRequestCallback {
 		dialog.setIndeterminate(true);
 		dialog.setTitle(R.string.loading);
 		dialog.setCanceledOnTouchOutside(false);
+		
+		arrayList = new ArrayList<>();
+		adapter = new AutoCompleteTextViewLocationAdapter(getContext(), android.R.layout.simple_list_item_1, arrayList);
+		autoCompleteTextView.setAdapter(adapter);
+		
+		autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+				
+			}
+			
+			@Override
+			public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+				requestAutocomplete(charSequence.toString());
+			}
+			
+			@Override
+			public void afterTextChanged(Editable editable) {
+				
+			}
+		});
+		autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+				requestData(arrayList.get(i).getCoordinate());
+			}
+		});
+		
+	}
+	
+	private void requestAutocomplete(String keyWord) {
+		if (!ServiceUtil.isNetworkAvailable(getContext())) {
+			Toast.makeText(getContext(), R.string.noInternetConnection, Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
+		if (keyWord.length() > 2) {
+			if (keyWord.contains(" ")) {
+				keyWord = keyWord.replace(" ", "%20");
+			}
+			final String finalKeyWord = keyWord;
+			
+			handlerDelay.removeMessages(0);
+			handlerDelay.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					final AutoCompleteRequest request = new AutoCompleteRequest.Builder()
+							.withKeyword(finalKeyWord)
+							.withCallback(new AutoCompleteRequestCallback() {
+								@Override
+								public void onSuccess(ArrayList<Location> result) {
+									arrayList.clear();
+									arrayList.addAll(result);
+									
+									adapter.notifyDataSetChanged();
+									if (autoCompleteTextView != null) {
+										autoCompleteTextView.showDropDown();
+									}
+								}
+								
+								@Override
+								public void onFail(String error) {
+									UiHelper.showDialogFail(getActivity());
+								}
+							})
+							.build();
+					request.request();
+				}
+			}, 500);
+		}
 	}
 	
 	
@@ -99,12 +184,28 @@ public class SearchFragment extends Fragment implements WeatherRequestCallback {
 		String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, location);
 		String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, location);
 		
+		dialog.show();
 		WeatherRequest request = new WeatherRequest.Builder(getContext(), AppConstant.ERROR_ID)
 				.withType(WeatherRequest.TYPE_INSERT)
 				.withUrlCurrentWeather(urlConditions)
 				.withUrlHourly(urlHourly)
 				.withUrlForecast10Days(urlForecast10day)
-				.withCallback(this)
+				.withCallback(new WeatherRequestCallback() {
+					@Override
+					public void onSuccess(Bundle result) {
+						dialog.dismiss();
+						if (searchCallback != null) {
+							searchCallback.onSearchFinish(result);
+						}
+						UiHelper.closeSoftKeyboard(getActivity());
+					}
+					
+					@Override
+					public void onFail(String error) {
+						dialog.dismiss();
+						UiHelper.showDialogFail(getContext());
+					}
+				})
 				.build();
 		request.request();
 	}
@@ -148,21 +249,12 @@ public class SearchFragment extends Fragment implements WeatherRequestCallback {
 	
 	@Override
 	public void onDestroy() {
+		if (autoCompleteTextView.isPopupShowing()) {
+			autoCompleteTextView.dismissDropDown();
+		}
 		if (dialog.isShowing()) {
 			dialog.dismiss();
 		}
 		super.onDestroy();
-	}
-	
-	@Override
-	public void onSuccess(Bundle bundle) {
-		if (searchCallback != null) {
-			searchCallback.onSearchFinish(bundle);
-		}
-	}
-	
-	@Override
-	public void onFail(String error) {
-		UiHelper.showDialogFail(getContext());
 	}
 }

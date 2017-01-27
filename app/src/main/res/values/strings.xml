@@ -4,11 +4,9 @@
     <string name="errorOnProcessing">Đã có lỗi trong quá trình xử lý, xin thử lại</string>
     <string name="OK">OK</string>
     <string name="loading">Đang xử lý…</string>
-    <string name="pleaseConnectInternet">Hãy kết nối internet để thêm địa điểm</string>
     <string name="setting">Cài đặt</string>
     <string name="wunderground.com">http://www.wunderground.com</string>
     <string name="position">Vị trí</string>
-    <string name="inputCity">Nhập thành phố</string>
     <string name="unit">Đơn vị</string>
     <string name="farenheit">°F</string>
     <string name="celcius">°C</string>
@@ -23,4 +21,9 @@
     <string name="twentyFourHoursToGo">24 giờ tiếp theo</string>
     <string name="update">Cập nhật</string>
     <string name="updating">Đang cập nhật...</string>
+    <string name="background_blue">Xanh nước biển</string>
+    <string name="background_green">Xanh lá cây</string>
+    <string name="background_pink">Hồng</string>
+    <string name="background_purple">Tím</string>
+    <string name="background_wood">Gỗ</string>
 </resources>

@@ -5,8 +5,13 @@
                 android:id="@+id/layoutMain"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/bg_green"
                 tools:context=".activity.MainActivity">
+
+    <ImageView
+            android:scaleType="centerCrop"
+            android:id="@+id/imvBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
     <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar_home"
@@ -25,7 +30,7 @@
 
                 <TextView
                         android:id="@+id/tv_location"
-                        style="@style/TextViewHighStyle"
+                        style="@style/TextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
 
@@ -41,34 +46,12 @@
 
             <TextView
                     android:id="@+id/tv_1"
-                    style="@style/TextViewHighStyle"
+                    style="@style/TextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:text="@string/position"
                     android:textSize="24sp"/>
-
-            <!--<ImageView-->
-            <!--android:id="@+id/imv_renew"-->
-            <!--android:layout_width="@dimen/defaultSize"-->
-            <!--android:layout_height="@dimen/defaultSize"-->
-            <!--android:layout_centerVertical="true"-->
-            <!--android:background="?attr/selectableItemBackground"-->
-            <!--android:clickable="true"-->
-            <!--android:scaleType="center"-->
-            <!--app:srcCompat="@drawable/ic_autorenew_white_24dp"-->
-            <!--android:layout_toLeftOf="@+id/imv_more"/>-->
-
-            <!--<ImageView-->
-            <!--android:id="@+id/imv_more"-->
-            <!--android:layout_width="@dimen/defaultSize"-->
-            <!--android:layout_height="@dimen/defaultSize"-->
-            <!--android:layout_alignParentRight="true"-->
-            <!--android:layout_marginRight="5dp"-->
-            <!--android:background="?attr/selectableItemBackground"-->
-            <!--android:clickable="true"-->
-            <!--android:scaleType="center"-->
-            <!--android:src="@drawable/ic_dots_vertical_white_24dp" />-->
         </RelativeLayout>
 
     </android.support.v7.widget.Toolbar>
@@ -79,14 +62,14 @@
             android:layout_height="match_parent"
             android:layout_above="@+id/indicator"
             android:layout_below="@+id/toolbar_home"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="5dp"/>
 
     <com.example.pageindicator.IconCirclePageIndicator
             android:id="@+id/indicator"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="30dp"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="15dp"
+            android:layout_marginBottom="10dp"
             app:selectedResource="@drawable/ic_compass_white"
             app:unselectedResource="@drawable/ic_compass_gray"/>
 </RelativeLayout>

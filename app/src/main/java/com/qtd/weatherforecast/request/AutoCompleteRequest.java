@@ -43,6 +43,7 @@ public class AutoCompleteRequest {
 				new Response.Listener<JSONObject>() {
 					@Override
 					public void onResponse(JSONObject response) {
+						Log.d("fassd", "onResponse: " + response.toString());
 						filterLocation(response);
 					}
 				}, new Response.ErrorListener() {

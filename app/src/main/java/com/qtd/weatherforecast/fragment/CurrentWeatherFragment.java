@@ -90,21 +90,9 @@ public class CurrentWeatherFragment extends Fragment {
 		activity = (MainActivity) context;
 	}
 	
-	@Override
-	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		if (SharedPreUtils.getBoolean(HAS_CITY, false)) {
-			activity.tvTime.setText(time);
-			activity.tvTime.setVisibility(View.VISIBLE);
-			activity.tv1.setVisibility(View.INVISIBLE);
-			activity.tvLocation.setVisibility(View.VISIBLE);
-			activity.tvLocation.setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
-		}
-	}
-	
 	private void initComponent() {
 		databaseHelper = MyDatabaseHelper.getInstance(getContext());
-		final int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
+		int id = SharedPreUtils.getInt(DatabaseConstant._ID, -1);
 		
 		if (SharedPreUtils.getBoolean(HAS_CITY, false)) {
 			CurrentWeather currentWeather = databaseHelper.getCurrentWeather(id);
@@ -113,6 +101,9 @@ public class CurrentWeatherFragment extends Fragment {
 			
 			activity.tvTime.setText(time);
 			activity.tvTime.setVisibility(View.VISIBLE);
+			activity.tv1.setVisibility(View.INVISIBLE);
+			activity.tvLocation.setVisibility(View.VISIBLE);
+			activity.tvLocation.setText(SharedPreUtils.getString(DatabaseConstant.NAME, "-1"));
 		}
 		
 		initAnimation();
@@ -245,7 +236,9 @@ public class CurrentWeatherFragment extends Fragment {
 	
 	public void updateTextViewRecent() {
 		String timeAgo = StringUtils.getTimeAgo();
-		tvUpdate.setText(String.format("Cập nhật %s", timeAgo));
+		if (tvUpdate != null) {
+			tvUpdate.setText(String.format("Cập nhật %s", timeAgo));
+		}
 	}
 	
 	public void updateTime() {
@@ -257,8 +250,12 @@ public class CurrentWeatherFragment extends Fragment {
 		if (id != -1) {
 			int[] currentTemp = MyDatabaseHelper.getInstance(getContext()).getCurrentTemp(id);
 			
-			tvTemp.setText(StringUtils.getTemp(currentTemp[0]));
-			tvFeel.setText(StringUtils.getTemp(currentTemp[1]));
+			if (tvTemp != null) {
+				tvTemp.setText(String.format("%s°", StringUtils.getTemp(currentTemp[0])));
+			}
+			if (tvFeel != null) {
+				tvFeel.setText(String.format("%s°", StringUtils.getTemp(currentTemp[1])));
+			}
 		}
 	}
 	

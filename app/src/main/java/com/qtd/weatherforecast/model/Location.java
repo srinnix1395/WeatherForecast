@@ -28,4 +28,9 @@ public class Location {
 	public void setCoordinate(String coordinate) {
 		this.coordinate = coordinate;
 	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

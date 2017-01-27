@@ -81,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	@Bind(R.id.layout_location)
 	public RelativeLayout layoutLocation;
 	
+	@Bind(R.id.imvBackground)
+	ImageView imvBackground;
+	
 	public ImageView imvUpdate;
 	
 	private MainBroadcastReceiver broadcastReceiver;
@@ -93,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	private WeatherHourFragment weatherHourFragment;
 	private WeatherDayFragment weatherDayFragment;
 	private Animation rotation;
+	private String background;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +110,8 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		
+		background = SharedPreUtils.getBackground();
+		setImageBackground();
 		setupViewPager();
 		initAnimation();
 		
@@ -115,6 +121,13 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			intent = new Intent(MainActivity.this, WeatherForecastService.class);
 			startService(intent);
 		}
+	}
+	
+	private void setImageBackground() {
+		Picasso.with(this)
+				.load("file:///android_asset/" + background)
+				.resize(1024, 1024)
+				.into(imvBackground);
 	}
 	
 	private void initAnimation() {
@@ -283,9 +296,9 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 				fragmentTransaction.remove(getSupportFragmentManager().findFragmentByTag(FRAGMENT_SEARCH));
 				if (!SharedPreUtils.isOpenGuide()) {
 					fragmentTransaction.add(R.id.layoutMain, new GuideFragment());
-					fragmentTransaction.commit();
 					SharedPreUtils.setIsOpenGuide();
 				}
+				fragmentTransaction.commit();
 			} else {
 				UiHelper.showDialogFail(this);
 			}
@@ -296,11 +309,18 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == AppConstant.REQUEST_CODE_SETTING && resultCode == RESULT_OK) {
-			locationFragment.updateDegree();
-			currentWeatherFragment.updateDegree();
-			weatherHourFragment.updateDegree();
-			weatherDayFragment.updateDegree();
+		if (requestCode == AppConstant.REQUEST_CODE_SETTING) {
+			String backgroundNew = SharedPreUtils.getBackground();
+			if (!background.equals(backgroundNew)) {
+				background = backgroundNew;
+				setImageBackground();
+			}
+			if (resultCode == RESULT_OK) {
+				locationFragment.updateDegree();
+				currentWeatherFragment.updateDegree();
+				weatherHourFragment.updateDegree();
+				weatherDayFragment.updateDegree();
+			}
 		}
 	}
 	
@@ -368,6 +388,18 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		}
 	}
 	
+	@Override
+	public void onBackPressed() {
+		Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_SEARCH);
+		if (fragment != null) {
+			getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+			UiHelper.closeSoftKeyboard(this);
+			return;
+		}
+		
+		finish();
+	}
+	
 	public void setPlus(boolean plus) {
 		isPlus = plus;
 	}
@@ -385,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 					break;
 				}
 				case Intent.ACTION_TIME_TICK: {
-					if (SharedPreUtils.getInt(DatabaseConstant._ID, -1) != -1) {
+					if (SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false)) {
 						if (currentWeatherFragment.getUserVisibleHint()) {
 							tvTime.setText(StringUtils.getCurrentDateTime(SharedPreUtils.getString(DatabaseConstant.TIME_ZONE, "+0700")));
 						}

@@ -99,6 +99,8 @@ public class WeatherDayFragment extends Fragment {
     }
 	
 	public void updateDegree() {
-		adapter.notifyDataSetChanged();
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
 	}
 }

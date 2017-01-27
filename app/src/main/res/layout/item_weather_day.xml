@@ -16,7 +16,7 @@
 
         <TextView
             android:id="@+id/tv_time"
-            style="@style/TextViewHighStyle"
+            style="@style/TextViewStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="1"
@@ -48,7 +48,7 @@
 
         <TextView
             android:id="@+id/tv_high_temp"
-            style="@style/TextViewHighStyle"
+            style="@style/TextViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"

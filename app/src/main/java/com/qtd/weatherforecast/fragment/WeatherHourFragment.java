@@ -108,6 +108,8 @@ public class WeatherHourFragment extends Fragment {
     }
 	
 	public void updateDegree() {
-		adapter.notifyDataSetChanged();
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
 	}
 }

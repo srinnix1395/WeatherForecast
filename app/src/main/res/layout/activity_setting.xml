@@ -3,128 +3,133 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:id="@+id/layout"
               android:background="@color/blackFade"
               android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorGrayDark"
-        android:elevation="4dp"
-        tools:targetApi="lollipop"/>
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorGrayDark"
+            android:elevation="4dp"
+            tools:targetApi="lollipop"/>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/itemSettingHeight">
+            android:background="?selectableItemBackground"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/itemSettingHeight">
 
         <TextView
-            style="?android:attr/textAppearanceMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
-            android:text="@string/unit"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"/>
+                style="?android:attr/textAppearanceMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:text="@string/unit"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"/>
 
         <TextView
-            android:id="@+id/tvF"
-            style="?android:attr/textAppearanceMedium"
-            android:layout_width="@dimen/defaultSize"
-            android:layout_height="@dimen/defaultSize"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/tvC"
-            android:clickable="true"
-            android:gravity="center"
-            android:text="@string/farenheit"
-            android:textSize="20sp"/>
+                android:id="@+id/tvF"
+                style="?android:attr/textAppearanceMedium"
+                android:layout_width="@dimen/defaultSize"
+                android:layout_height="@dimen/defaultSize"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/tvC"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="@string/farenheit"
+                android:textSize="20sp"/>
 
         <TextView
-            android:id="@+id/tvC"
-            android:layout_width="@dimen/defaultSize"
-            android:layout_height="@dimen/defaultSize"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:clickable="true"
-            android:gravity="center"
-            android:text="@string/celcius"
-            android:textSize="20sp"/>
+                android:id="@+id/tvC"
+                android:layout_width="@dimen/defaultSize"
+                android:layout_height="@dimen/defaultSize"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="@string/celcius"
+                android:textSize="20sp"/>
 
         <View
-            android:layout_width="match_parent"
-            android:layout_height="0.2dp"
-            android:layout_alignParentBottom="true"
-            android:background="@color/colorGrayDark"/>
+                android:layout_width="match_parent"
+                android:layout_height="0.2dp"
+                android:layout_alignParentBottom="true"
+                android:background="@color/colorGrayDark"/>
 
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/itemSettingHeight">
+            android:background="?selectableItemBackground"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/itemSettingHeight">
 
         <TextView
-            style="?android:attr/textAppearanceMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
-            android:text="@string/report"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"/>
+                style="?android:attr/textAppearanceMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:text="@string/report"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"/>
 
         <Switch
-            android:id="@+id/switch_notification"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:checked="true"/>
+                android:id="@+id/switch_notification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:checked="true"/>
 
         <View
-            android:layout_width="match_parent"
-            android:layout_height="0.2dp"
-            android:layout_alignParentBottom="true"
-            android:background="@color/colorGrayDark"/>
+                android:layout_width="match_parent"
+                android:layout_height="0.2dp"
+                android:layout_alignParentBottom="true"
+                android:background="@color/colorGrayDark"/>
 
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/itemSettingHeight">
+            android:background="?selectableItemBackground"
+            android:id="@+id/reBackground"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/itemSettingHeight">
 
         <TextView
-            style="?android:attr/textAppearanceMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
-            android:text="@string/background"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"/>
+                style="?android:attr/textAppearanceMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:text="@string/background"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"/>
 
         <ImageView
-            android:layout_width="@dimen/itemSettingHeight"
-            android:layout_height="@dimen/itemSettingHeight"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:scaleType="center"/>
-            android:src="@drawable/bg_blue_reality"/>
+                android:id="@+id/imvBackground"
+                android:layout_width="@dimen/itemSettingHeight"
+                android:layout_height="@dimen/itemSettingHeight"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:scaleType="fitCenter"/>
 
         <View
-            android:layout_width="match_parent"
-            android:layout_height="0.2dp"
-            android:layout_alignParentBottom="true"
-            android:background="@color/colorGrayDark"/>
+                android:layout_width="match_parent"
+                android:layout_height="0.2dp"
+                android:layout_alignParentBottom="true"
+                android:background="@color/colorGrayDark"/>
     </RelativeLayout>
 
     <ImageView
-        android:id="@+id/imv_logo"
-        android:layout_width="220dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center"
-        android:alpha="0.5"
-        android:src="@drawable/wunderground_logo_4c_rev_horz"/>
+            android:id="@+id/imv_logo"
+            android:layout_width="220dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:alpha="0.5"
+            android:src="@drawable/wunderground_logo_4c_rev_horz"/>
 </LinearLayout>

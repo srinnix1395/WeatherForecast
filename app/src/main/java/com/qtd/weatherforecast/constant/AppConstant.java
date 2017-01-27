@@ -4,9 +4,9 @@ package com.qtd.weatherforecast.constant;
  * Created by DELL on 8/19/2016.
  */
 public class AppConstant {
-    public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 113;
     public static final int REQUEST_CODE_SETTING = 115;
     public static final int REQUEST_CODE_PERMISSION_LOCATION = 116;
+	public static final int BACKGROUND_ACTIVITY_REQUEST_CODE = 117;
 
     public static final String CONNECTIVITY_CHANGED = "android.net.conn.CONNECTIVITY_CHANGE";
 
@@ -25,6 +25,8 @@ public class AppConstant {
     public static final int C = 0;
     public static final int F = 1;
     public static final String IS_OPEN_GUIDE = "IS_OPEN_GUIDE";
-    public static String _ID = "ID";
+	public static final String BACKGROUND = "Background";
+	public static final String DEFAULT_BACKGROUND = "bg_blue.jpg";
+	public static String _ID = "ID";
     public static int ERROR_ID = -18;
 }

@@ -35,11 +35,11 @@ public class CityViewHolder extends RecyclerView.ViewHolder {
     @Bind(R.id.cardView_item)
     CardView cardView;
 
-    int id = 0;
-    String name = "";
-    String coordinate = "";
-    String timeZone = "";
-    ViewHolderCallback callback;
+    private int id = 0;
+    private String name = "";
+    private String coordinate = "";
+    private String timeZone = "";
+    private ViewHolderCallback callback;
 
     public CityViewHolder(View itemView) {
         super(itemView);

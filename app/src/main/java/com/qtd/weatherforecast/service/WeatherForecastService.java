@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.qtd.weatherforecast.callback.WeatherRequestCallback;
 import com.qtd.weatherforecast.constant.ApiConstant;
@@ -55,11 +54,10 @@ public class WeatherForecastService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		boolean onNotify = SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true);
 		if (onNotify) {
-			NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);
+//			NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);
 		}
 //		Thread thread = new Thread(runnable);
 //		thread.run();
-        Log.d("sadlkfjk", "onStartCommand: " + getResources().getIdentifier("status_59_honeycomb", "drawable", getPackageName()));
 
         return START_STICKY;
 	}

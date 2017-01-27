@@ -142,4 +142,12 @@ public class SharedPreUtils {
 	public static void setIsOpenGuide() {
 		getSharedPreferences().putBooleanToShare(AppConstant.IS_OPEN_GUIDE, true);
 	}
+	
+	public static String getBackground() {
+		return getSharedPreferences().preferences.getString(AppConstant.BACKGROUND, AppConstant.DEFAULT_BACKGROUND);
+	}
+	
+	public static void setBackground(String background) {
+		getSharedPreferences().putStringOrReplace(AppConstant.BACKGROUND, background);
+	}
 }

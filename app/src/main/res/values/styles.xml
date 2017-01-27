@@ -16,7 +16,7 @@
     <style name="DialogTheme" parent="Theme.AppCompat.Dialog">
     </style>
 
-    <style name="TextViewHighStyle">
+    <style name="TextViewStyle">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:fontFamily">sans-serif-light</item>
@@ -35,7 +35,5 @@
         <item name="android:textColorHint">@color/colorGray</item>
         <item name="android:textSize">16sp</item>
     </style>
-
-    <style name="CustomEditText">d</style>
 
 </resources>
