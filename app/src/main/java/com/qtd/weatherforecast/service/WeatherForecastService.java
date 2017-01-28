@@ -54,12 +54,12 @@ public class WeatherForecastService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		boolean onNotify = SharedPreUtils.getBoolean(AppConstant.STATE_NOTIFICATION, true);
 		if (onNotify) {
-//			NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);
+			NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);
 		}
 //		Thread thread = new Thread(runnable);
 //		thread.run();
-
-        return START_STICKY;
+		
+		return START_STICKY;
 	}
 	
 	private Runnable runnable = new Runnable() {
@@ -146,13 +146,11 @@ public class WeatherForecastService extends Service {
 	class NetworkBroadcastReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (intent.getAction().equals(AppConstant.CONNECTIVITY_CHANGED)) {
-				if (ServiceUtil.isNetworkAvailable(WeatherForecastService.this)) {
-					long time = SharedPreUtils.getLong(com.qtd.weatherforecast.constant.DatabaseConstant.LAST_UPDATE, 0);
-					long now = System.currentTimeMillis();
-					if (now - time > 60000) {
-						requestData();
-					}
+			if (ServiceUtil.isNetworkAvailable(WeatherForecastService.this)) {
+				long time = SharedPreUtils.getLong(com.qtd.weatherforecast.constant.DatabaseConstant.LAST_UPDATE, 0);
+				long now = System.currentTimeMillis();
+				if (now - time > 120000) {
+					requestData();
 				}
 			}
 		}

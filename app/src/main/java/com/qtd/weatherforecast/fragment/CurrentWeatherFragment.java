@@ -260,11 +260,13 @@ public class CurrentWeatherFragment extends Fragment {
 	}
 	
 	public void updating() {
-		tvUpdate.setText(R.string.updating);
+		if (tvUpdate != null) {
+			tvUpdate.setText(R.string.updating);
+		}
 	}
 	
 	public void endUpdate() {
-		if (tvUpdate.getText().equals(getString(R.string.updating))) {
+		if (tvUpdate != null && tvUpdate.getText().equals(getString(R.string.updating))) {
 			updateTextViewRecent();
 		}
 	}
