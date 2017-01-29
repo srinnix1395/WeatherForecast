@@ -18,7 +18,7 @@ public class AppConstant {
     public static final String STATE_END = "state_end";
     public static final String STATE = "state";
     public static final String STATE_NOTIFICATION = "state_noti";
-    public static final int timeDelay = 180000;
+    public static final int TIME_DELAY = 180000;
 
     public static final String HAS_CITY = "has_city";
     public static final String DEGREE = "degree";

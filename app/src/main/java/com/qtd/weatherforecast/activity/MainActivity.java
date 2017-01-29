@@ -2,14 +2,12 @@ package com.qtd.weatherforecast.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -233,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			filter.addAction(AppConstant.ACTION_DATABASE_CHANGED);
 			filter.addAction(AppConstant.STATE_UPDATE_CHANGED);
 			filter.addAction(Intent.ACTION_TIME_TICK);
+			filter.addAction(Intent.ACTION_SCREEN_ON);
 			registerReceiver(broadcastReceiver, filter);
 			isReceiverRegistered = true;
 		}
@@ -240,9 +239,9 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	
 	@Override
 	protected void onPause() {
-		super.onPause();
 		unregisterReceiver(broadcastReceiver);
 		isReceiverRegistered = false;
+		super.onPause();
 	}
 	
 	@Override
@@ -261,17 +260,10 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		} else {
 			if (ServiceUtil.isNetworkAvailable(MainActivity.this)) {
 				imvUpdate.startAnimation(rotation);
+				currentWeatherFragment.updating();
 				updateData(SharedPreUtils.getString(ApiConstant.COORDINATE, "-1"));
 			} else {
-				new AlertDialog.Builder(MainActivity.this)
-						.setMessage(getString(R.string.noInternetConnection))
-						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-							}
-						})
-						.create().show();
+				UiHelper.showDialogNoConnection(this);
 			}
 		}
 	}
@@ -325,44 +317,52 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 	}
 	
 	private void updateData(String coordinate) {
-		String urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, coordinate);
-		String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
-		String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
-		
-		WeatherRequest request = new WeatherRequest.Builder(this, SharedPreUtils.getInt(AppConstant._ID, -1))
-				.withUrlCurrentWeather(urlConditions)
-				.withUrlHourly(urlHourly)
-				.withUrlForecast10Days(urlForecast10day)
-				.withCallback(new WeatherRequestCallback() {
-					@Override
-					public void onSuccess(Bundle bundle) {
-						int result = bundle.getInt(ApiConstant.RESULTS);
-						if (result == WeatherRequest.RESULT_OK) {
-							locationFragment.getDataFromDatabase();
-							currentWeatherFragment.getDataFromDatabase();
-							weatherDayFragment.getDataFromDatabase();
-							weatherHourFragment.getDataFromDatabase();
-							
-							SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
+		if (coordinate.equals("-1")) {
+			imvUpdate.clearAnimation();
+			currentWeatherFragment.updateTextViewRecent();
+		} else {
+			String urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, coordinate);
+			String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
+			String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
+			
+			WeatherRequest request = new WeatherRequest.Builder(this, SharedPreUtils.getInt(AppConstant._ID, -1))
+					.withUrlCurrentWeather(urlConditions)
+					.withUrlHourly(urlHourly)
+					.withUrlForecast10Days(urlForecast10day)
+					.withCallback(new WeatherRequestCallback() {
+						@Override
+						public void onSuccess(Bundle bundle) {
+							int result = bundle.getInt(ApiConstant.RESULTS);
+							if (result == WeatherRequest.RESULT_OK) {
+								locationFragment.getDataFromDatabase();
+								currentWeatherFragment.getDataFromDatabase();
+								weatherDayFragment.getDataFromDatabase();
+								weatherHourFragment.getDataFromDatabase();
+								
+								SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
+								NotificationUtils.createOrUpdateNotification(MainActivity.this);
+							} else {
+								UiHelper.showDialogFail(MainActivity.this);
+							}
+							if (imvUpdate != null) {
+								imvUpdate.clearAnimation();
+							}
 							currentWeatherFragment.updateTextViewRecent();
-						} else {
+						}
+						
+						@Override
+						public void onFail(String error) {
 							UiHelper.showDialogFail(MainActivity.this);
+							if (imvUpdate != null) {
+								imvUpdate.clearAnimation();
+							}
+							currentWeatherFragment.updateTextViewRecent();
+							
 						}
-						if (imvUpdate != null) {
-							imvUpdate.clearAnimation();
-						}
-					}
-					
-					@Override
-					public void onFail(String error) {
-						UiHelper.showDialogFail(MainActivity.this);
-						if (imvUpdate != null) {
-							imvUpdate.clearAnimation();
-						}
-					}
-				})
-				.build();
-		request.request();
+					})
+					.build();
+			request.request();
+		}
 	}
 	
 	@Override
@@ -416,16 +416,6 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 					getDataFromDatabase();
 					break;
 				}
-				case Intent.ACTION_TIME_TICK: {
-					if (SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false)) {
-						if (currentWeatherFragment.getUserVisibleHint()) {
-							tvTime.setText(StringUtils.getCurrentDateTime(SharedPreUtils.getString(DatabaseConstant.TIME_ZONE, "+0700")));
-						}
-						currentWeatherFragment.updateTime();
-						currentWeatherFragment.updateTextViewRecent();
-					}
-					break;
-				}
 				case AppConstant.STATE_UPDATE_CHANGED: {
 					String state = intent.getStringExtra(AppConstant.STATE);
 					switch (state) {
@@ -443,10 +433,21 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 								if (imvUpdate != null && imvUpdate.getAnimation() != null) {
 									imvUpdate.getAnimation().setRepeatCount(0);
 								}
-								currentWeatherFragment.endUpdate();
+								currentWeatherFragment.updateTextViewRecent();
 							}
 							break;
 						}
+					}
+					break;
+				}
+				case Intent.ACTION_SCREEN_ON:
+				case Intent.ACTION_TIME_TICK: {
+					if (SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false)) {
+						if (currentWeatherFragment.getUserVisibleHint()) {
+							tvTime.setText(StringUtils.getCurrentDateTime(SharedPreUtils.getString(DatabaseConstant.TIME_ZONE, "+0700")));
+						}
+						currentWeatherFragment.updateTime();
+						currentWeatherFragment.updateTextViewRecent();
 					}
 					break;
 				}

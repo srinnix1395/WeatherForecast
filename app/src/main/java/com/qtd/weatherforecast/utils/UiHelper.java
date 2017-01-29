@@ -268,4 +268,16 @@ public class UiHelper {
 		inputMethodManager.toggleSoftInputFromWindow(view.getApplicationWindowToken(),
 				InputMethodManager.SHOW_FORCED, 0);
 	}
+	
+	public static void showDialogNoConnection(Context context) {
+		new AlertDialog.Builder(context)
+				.setMessage(context.getString(R.string.noInternetConnection))
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				})
+				.create().show();
+	}
 }

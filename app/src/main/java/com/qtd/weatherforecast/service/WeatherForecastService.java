@@ -6,12 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 
 import com.qtd.weatherforecast.callback.WeatherRequestCallback;
 import com.qtd.weatherforecast.constant.ApiConstant;
 import com.qtd.weatherforecast.constant.AppConstant;
-import com.qtd.weatherforecast.constant.DatabaseConstant;
 import com.qtd.weatherforecast.database.MyDatabaseHelper;
 import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.request.WeatherRequest;
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 public class WeatherForecastService extends Service {
 	private boolean isRegistered = false;
 	private NetworkBroadcastReceiver receiver;
+	private Handler handler;
 	
 	@Override
 	public void onCreate() {
@@ -35,6 +36,7 @@ public class WeatherForecastService extends Service {
 		if (!isRegistered) {
 			registerBroadcast();
 		}
+		handler = new Handler();
 	}
 	
 	private void registerBroadcast() {
@@ -56,26 +58,20 @@ public class WeatherForecastService extends Service {
 		if (onNotify) {
 			NotificationUtils.createOrUpdateNotification(WeatherForecastService.this);
 		}
-//		Thread thread = new Thread(runnable);
-//		thread.run();
 		
+		handler.removeCallbacks(runnable);
+		handler.post(runnable);
 		return START_STICKY;
 	}
 	
 	private Runnable runnable = new Runnable() {
 		@Override
 		public void run() {
-			while (true) {
-				if (ServiceUtil.isNetworkAvailable(WeatherForecastService.this)
-						&& SharedPreUtils.getInt(DatabaseConstant._ID, -1) != -1) {
-					requestData();
-				}
-				try {
-					Thread.sleep(AppConstant.timeDelay);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			if (ServiceUtil.isNetworkAvailable(WeatherForecastService.this)
+					&& SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false)) {
+				requestData();
 			}
+			handler.postDelayed(runnable, AppConstant.TIME_DELAY);
 		}
 	};
 	
