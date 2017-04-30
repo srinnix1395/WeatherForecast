@@ -55,47 +55,47 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements ViewHolderCallback
 		, FragmentCallback, SearchCallback {
-	
+
 	private static final String FRAGMENT_SEARCH = "FRAGMENT_SEARCH";
-	
+
 	@Bind(R.id.toolbar_home)
 	Toolbar toolbar;
-	
+
 	@Bind(R.id.viewPager)
 	CustomViewPager viewPager;
-	
+
 	@Bind(R.id.indicator)
 	IconCirclePageIndicator indicator;
-	
+
 	@Bind(R.id.tv_location)
 	public TextView tvLocation;
-	
+
 	@Bind(R.id.tv_time)
 	public TextView tvTime;
-	
+
 	@Bind(R.id.tv_1)
 	public TextView tv1;
-	
+
 	@Bind(R.id.layout_location)
 	public RelativeLayout layoutLocation;
-	
+
 	@Bind(R.id.imvBackground)
 	ImageView imvBackground;
-	
+
 	public ImageView imvUpdate;
-	
+
 	private MainBroadcastReceiver broadcastReceiver;
 	private boolean isReceiverRegistered;
 	private Intent intent;
 	boolean isPlus;
-	
+
 	private LocationFragment locationFragment;
 	private CurrentWeatherFragment currentWeatherFragment;
 	private WeatherHourFragment weatherHourFragment;
 	private WeatherDayFragment weatherDayFragment;
 	private Animation rotation;
 	private String background;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -103,35 +103,35 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		ButterKnife.bind(this);
 		initComponent();
 	}
-	
+
 	private void initComponent() {
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
-		
+
 		background = SharedPreUtils.getBackground();
 		setImageBackground();
 		setupViewPager();
 		initAnimation();
-		
+
 		broadcastReceiver = new MainBroadcastReceiver();
-		
+
 		if (intent == null) {
 			intent = new Intent(MainActivity.this, WeatherForecastService.class);
 			startService(intent);
 		}
 	}
-	
+
 	private void setImageBackground() {
 		Picasso.with(this)
 				.load("file:///android_asset/" + background)
 				.resize(1024, 1024)
 				.into(imvBackground);
 	}
-	
+
 	private void initAnimation() {
 		rotation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.clockwise_rotation);
 	}
-	
+
 	public void getDataFromDatabase() {
 		locationFragment.getDataFromDatabase();
 		currentWeatherFragment.getDataFromDatabase();
@@ -139,23 +139,23 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		weatherDayFragment.getDataFromDatabase();
 		Log.d("Update", "Ok");
 	}
-	
+
 	private void setupViewPager() {
 		locationFragment = LocationFragment.newInstance();
 		currentWeatherFragment = CurrentWeatherFragment.newInstance();
 		weatherHourFragment = WeatherHourFragment.newInstance();
 		weatherDayFragment = WeatherDayFragment.newInstance();
-		
+
 		ArrayList<Fragment> fragments = new ArrayList<>();
 		fragments.add(locationFragment);
 		fragments.add(currentWeatherFragment);
 		fragments.add(weatherHourFragment);
 		fragments.add(weatherDayFragment);
 		MainPagerAdapter adapter = new MainPagerAdapter(getSupportFragmentManager(), fragments);
-		
+
 		viewPager.setAdapter(adapter);
 		viewPager.setOffscreenPageLimit(4);
-		
+
 		boolean hasCity = SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false);
 		if (!hasCity) {
 			viewPager.setPagingEnabled(false);
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem miUpdate = menu.findItem(R.id.miUpdate);
@@ -184,27 +184,23 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 				miUpdateOnClick();
 			}
 		});
-		
+
 		if (!SharedPreUtils.getBoolean(AppConstant.HAS_CITY, false)) {
-			Picasso.with(this)
-					.load(R.drawable.ic_plus)
-					.into(imvUpdate);
+			imvUpdate.setImageResource(R.drawable.ic_plus);
 			isPlus = true;
 		} else {
-			Picasso.with(this)
-					.load(R.drawable.ic_refresh)
-					.into(imvUpdate);
+			imvUpdate.setImageResource(R.drawable.ic_refresh);
 			isPlus = false;
 		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu, menu);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -218,13 +214,13 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		registerBroadcast();
 	}
-	
+
 	private void registerBroadcast() {
 		if (!isReceiverRegistered) {
 			IntentFilter filter = new IntentFilter();
@@ -236,14 +232,14 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			isReceiverRegistered = true;
 		}
 	}
-	
+
 	@Override
 	protected void onPause() {
 		unregisterReceiver(broadcastReceiver);
 		isReceiverRegistered = false;
 		super.onPause();
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		if (isReceiverRegistered) {
@@ -251,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		}
 		super.onDestroy();
 	}
-	
+
 	void miUpdateOnClick() {
 		if (isPlus) {
 			FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -267,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			}
 		}
 	}
-	
+
 	@Override
 	public void onSearchFinish(Bundle bundle) {
 		int result = bundle.getInt(ApiConstant.RESULTS);
@@ -278,12 +274,12 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 				currentWeatherFragment.getDataFromDatabase();
 				weatherHourFragment.getDataFromDatabase();
 				weatherDayFragment.getDataFromDatabase();
-				
+
 				NotificationUtils.createOrUpdateNotification(this);
-				
+
 				viewPager.setPagingEnabled(true);
 				indicator.setVisibility(View.VISIBLE);
-				
+
 				FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 				fragmentTransaction.remove(getSupportFragmentManager().findFragmentByTag(FRAGMENT_SEARCH));
 				if (!SharedPreUtils.isOpenGuide()) {
@@ -298,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			UiHelper.showDialogFail(this);
 		}
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == AppConstant.REQUEST_CODE_SETTING) {
@@ -315,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			}
 		}
 	}
-	
+
 	private void updateData(String coordinate) {
 		if (coordinate.equals("-1")) {
 			imvUpdate.clearAnimation();
@@ -324,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			String urlConditions = StringUtils.getURL(ApiConstant.CONDITIONS, coordinate);
 			String urlHourly = StringUtils.getURL(ApiConstant.HOURLY, coordinate);
 			String urlForecast10day = StringUtils.getURL(ApiConstant.FORECAST10DAY, coordinate);
-			
+
 			WeatherRequest request = new WeatherRequest.Builder(this, SharedPreUtils.getInt(AppConstant._ID, -1))
 					.withUrlCurrentWeather(urlConditions)
 					.withUrlHourly(urlHourly)
@@ -338,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 								currentWeatherFragment.getDataFromDatabase();
 								weatherDayFragment.getDataFromDatabase();
 								weatherHourFragment.getDataFromDatabase();
-								
+
 								SharedPreUtils.putLong(DatabaseConstant.LAST_UPDATE, System.currentTimeMillis());
 								NotificationUtils.createOrUpdateNotification(MainActivity.this);
 							} else {
@@ -349,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 							}
 							currentWeatherFragment.updateTextViewRecent();
 						}
-						
+
 						@Override
 						public void onFail(String error) {
 							UiHelper.showDialogFail(MainActivity.this);
@@ -357,19 +353,19 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 								imvUpdate.clearAnimation();
 							}
 							currentWeatherFragment.updateTextViewRecent();
-							
+
 						}
 					})
 					.build();
 			request.request();
 		}
 	}
-	
+
 	@Override
 	public void deleteItemCity(int idCity) {
 		locationFragment.deleteItem(idCity);
 	}
-	
+
 	@Override
 	public void choseItemCity(int idCity, String name, String coordinate, String timeZone) {
 		SharedPreUtils.putData(idCity, name, coordinate, timeZone);
@@ -378,7 +374,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 		weatherHourFragment.chooseItem(idCity);
 		weatherDayFragment.chooseItem(idCity);
 	}
-	
+
 	@Override
 	public void checkCitySizeToEnableViewPagerSwipe(int idCity) {
 		if (idCity == -1) {
@@ -387,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			SharedPreUtils.putBoolean(AppConstant.HAS_CITY, false);
 		}
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_SEARCH);
@@ -396,18 +392,18 @@ public class MainActivity extends AppCompatActivity implements ViewHolderCallbac
 			UiHelper.closeSoftKeyboard(this);
 			return;
 		}
-		
+
 		finish();
 	}
-	
+
 	public void setPlus(boolean plus) {
 		isPlus = plus;
 	}
-	
+
 	public boolean isPlus() {
 		return isPlus;
 	}
-	
+
 	class MainBroadcastReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {

@@ -25,7 +25,6 @@ import com.qtd.weatherforecast.model.City;
 import com.qtd.weatherforecast.model.CurrentWeather;
 import com.qtd.weatherforecast.utils.NotificationUtils;
 import com.qtd.weatherforecast.utils.SharedPreUtils;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -105,9 +104,7 @@ public class LocationFragment extends Fragment {
 			
 			@Override
 			public void onAnimationEnd(Animation animation) {
-				Picasso.with(activity)
-						.load(R.drawable.ic_plus)
-						.into(activity.imvUpdate);
+				activity.imvUpdate.setImageResource(R.drawable.ic_plus);
 				activity.imvUpdate.startAnimation(animationShow);
 			}
 			
@@ -148,11 +145,9 @@ public class LocationFragment extends Fragment {
 			if (activity.imvUpdate != null) {
 				activity.imvUpdate.startAnimation(animationHide);
 			}
-			if (activity.layoutLocation != null) {
-				activity.layoutLocation.startAnimation(animationDown);
-			}
-			
-			activity.setPlus(true);
+            activity.layoutLocation.startAnimation(animationDown);
+
+            activity.setPlus(true);
 		}
 	}
 	
